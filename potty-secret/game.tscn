@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cggyjbbmibssx"]
+
+[ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://paper.tscn" id="1_80nbo"]
+[ext_resource type="Script" uid="uid://dl7j6u4gf2v17" path="res://game.gd" id="1_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://be4ckl5tcikud" path="res://item_draggable.tscn" id="3_feb5d"]
+
+[node name="RootNode" type="Node2D" unique_id=532590790]
+script = ExtResource("1_e2o6t")
+
+[node name="Node2D" parent="." unique_id=1504223162 instance=ExtResource("1_80nbo")]
+position = Vector2(230, 0)
+
+[node name="Node2D2" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
+position = Vector2(119, 127)

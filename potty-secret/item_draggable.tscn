@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://be4ckl5tcikud"]
+
+[ext_resource type="Script" uid="uid://e75p3g6bvrqf" path="res://item_draggable.gd" id="1_vajdk"]
+[ext_resource type="Texture2D" uid="uid://bkotcg8ogccy" path="res://art/posit.png" id="2_hcga6"]
+
+[node name="Node2D" type="Node2D" unique_id=1130567401]
+script = ExtResource("1_vajdk")
+
+[node name="Posit" type="Sprite2D" parent="." unique_id=1062698090]
+position = Vector2(6, 18.000002)
+scale = Vector2(0.3303691, 0.33333334)
+texture = ExtResource("2_hcga6")

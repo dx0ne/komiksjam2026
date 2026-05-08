@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://bcjerb5lw5qt3"]
+
+[ext_resource type="Texture2D" uid="uid://biupuyhbim0kv" path="res://art/shape_q49bJNWRq0YV9neMT_Wn0 at 26-05-08 22.13.16.png" id="1_kq2bq"]
+[ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://paper.gd" id="1_rhp03"]
+[ext_resource type="Texture2D" uid="uid://d21cppih2i60n" path="res://art/Clipboard_05-08-2026_01ffewfewafsd.png" id="2_rhp03"]
+[ext_resource type="Script" uid="uid://bli1aq5ydkq73" path="res://redacted_button.gd" id="3_h5hlm"]
+
+[node name="Node2D" type="Node2D" unique_id=1504223162]
+script = ExtResource("1_rhp03")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1912417543]
+offset_right = 1078.0
+offset_bottom = 1717.0
+scale = Vector2(0.6348257, 0.6348257)
+texture = ExtResource("1_kq2bq")
+
+[node name="interactables" type="Node2D" parent="." unique_id=78614194]
+unique_name_in_owner = true
+scale = Vector2(0.6348257, 0.6348257)
+
+[node name="TextureButton" type="TextureButton" parent="interactables" unique_id=2043500848]
+offset_left = 241.01102
+offset_top = 374.906
+offset_right = 281.011
+offset_bottom = 414.906
+scale = Vector2(10.245858, 1.639862)
+texture_pressed = ExtResource("2_rhp03")
+texture_disabled = ExtResource("2_rhp03")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("3_h5hlm")
+my_name = "Bla1"
+
+[node name="TextureButton2" type="TextureButton" parent="interactables" unique_id=26089569]
+offset_left = 225.25868
+offset_top = 459.96872
+offset_right = 265.25867
+offset_bottom = 499.96872
+scale = Vector2(10.245858, 1.639862)
+texture_pressed = ExtResource("2_rhp03")
+texture_disabled = ExtResource("2_rhp03")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("3_h5hlm")
+my_name = "Bla2"
+
+[node name="TextureButton3" type="TextureButton" parent="interactables" unique_id=2031285095]
+offset_left = 554.48285
+offset_top = 600.1647
+offset_right = 594.48285
+offset_bottom = 640.1647
+scale = Vector2(10.245858, 1.639862)
+texture_pressed = ExtResource("2_rhp03")
+texture_disabled = ExtResource("2_rhp03")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("3_h5hlm")
+my_name = "Bla2"
+
+[node name="TextureButton4" type="TextureButton" parent="interactables" unique_id=1041803069]
+offset_left = 122.86832
+offset_top = 705.7055
+offset_right = 162.86832
+offset_bottom = 745.7055
+scale = Vector2(10.245858, 1.639862)
+texture_pressed = ExtResource("2_rhp03")
+texture_disabled = ExtResource("2_rhp03")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("3_h5hlm")
+my_name = "Bla2"
+
+[connection signal="ready" from="." to="." method="_on_ready"]
+[connection signal="pressed" from="interactables/TextureButton" to="interactables/TextureButton" method="_on_pressed"]
+[connection signal="pressed" from="interactables/TextureButton2" to="interactables/TextureButton2" method="_on_pressed"]
+[connection signal="pressed" from="interactables/TextureButton3" to="interactables/TextureButton3" method="_on_pressed"]
+[connection signal="pressed" from="interactables/TextureButton4" to="interactables/TextureButton4" method="_on_pressed"]
