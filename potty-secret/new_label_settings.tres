@@ -1,0 +1,9 @@
+[gd_resource type="LabelSettings" format=3 uid="uid://xiopkx42p8lf"]
+
+[ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="1_1nvk1"]
+
+[resource]
+font = ExtResource("1_1nvk1")
+font_size = 42
+font_color = Color(0.18, 0.18, 0.18, 0.76862746)
+outline_color = Color(0.30692267, 0.3069227, 0.3069227, 1)

@@ -3,14 +3,32 @@
 [ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://paper.tscn" id="1_80nbo"]
 [ext_resource type="Script" uid="uid://dl7j6u4gf2v17" path="res://game.gd" id="1_e2o6t"]
 [ext_resource type="PackedScene" uid="uid://be4ckl5tcikud" path="res://item_draggable.tscn" id="3_feb5d"]
+[ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="5_7jktm"]
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_e2o6t")
 
-[node name="Node2D" parent="." unique_id=1504223162 instance=ExtResource("1_80nbo")]
-position = Vector2(230, 0)
+[node name="paper_node2d" parent="." unique_id=1504223162 instance=ExtResource("1_80nbo")]
+position = Vector2(503, 3)
 
-[node name="Node2D2" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
-position = Vector2(101, 100)
+[node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
+position = Vector2(1779.7954, 102.66668)
+rotation = 0.53265446
 
+[node name="paperclip_node2d2" parent="." unique_id=1580282940 instance=ExtResource("3_feb5d")]
+position = Vector2(1829.0001, 160.00003)
+rotation = 0.19120362
+
+[node name="paperclip_node2d3" parent="." unique_id=1691929090 instance=ExtResource("3_feb5d")]
+position = Vector2(1798.7954, 213.66669)
+rotation = -0.41111943
+
+[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+position = Vector2(-23, 9)
+
+[node name="TextureButton" type="TextureButton" parent="." unique_id=1318594853]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]

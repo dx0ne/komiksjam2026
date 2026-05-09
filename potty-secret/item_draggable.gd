@@ -1,20 +1,17 @@
-extends Node
+extends Sprite2D
 
 var dragging = false
-var click_radius = 32 # Size of the sprite.
 var rel_pos:Vector2;
 var rel_rot:float;
-
+#		
 func _input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		rel_pos = (event).position - self.position;
 		rel_rot = (self.position - event.position).angle();
-		if rel_pos.length() < click_radius:
-			# Start dragging if the click is on the sprite.
-			if not dragging and event.pressed:
-				dragging = true
-		# Stop dragging if the button is released.
-		if dragging and not event.pressed:
+
+		if not dragging and event.pressed and self.get_rect().has_point(get_local_mouse_position()):
+			dragging = true
+		if dragging and event.is_released():
 			dragging = false
 
 	if event is InputEventMouseMotion and dragging:

@@ -1,77 +1,49 @@
 [gd_scene format=3 uid="uid://bcjerb5lw5qt3"]
 
-[ext_resource type="Texture2D" uid="uid://biupuyhbim0kv" path="res://art/shape_q49bJNWRq0YV9neMT_Wn0 at 26-05-08 22.13.16.png" id="1_kq2bq"]
+[ext_resource type="Texture2D" uid="uid://biupuyhbim0kv" path="res://art/papar_temp.png" id="1_kq2bq"]
 [ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://paper.gd" id="1_rhp03"]
-[ext_resource type="Texture2D" uid="uid://d21cppih2i60n" path="res://art/Clipboard_05-08-2026_01ffewfewafsd.png" id="2_rhp03"]
-[ext_resource type="Script" uid="uid://bli1aq5ydkq73" path="res://redacted_button.gd" id="3_h5hlm"]
+[ext_resource type="PackedScene" uid="uid://cwdb3ffd4lapr" path="res://redact_button.tscn" id="3_stmvh"]
+[ext_resource type="PackedScene" uid="uid://b6cbv3dlom18" path="res://lines.tscn" id="5_h5hlm"]
 
 [node name="Node2D" type="Node2D" unique_id=1504223162]
 script = ExtResource("1_rhp03")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=1912417543]
-offset_right = 1078.0
-offset_bottom = 1717.0
-scale = Vector2(0.6348257, 0.6348257)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=564565112]
+clip_children = 2
+scale = Vector2(0.9291003, 0.9291002)
 texture = ExtResource("1_kq2bq")
+centered = false
 
-[node name="interactables" type="Node2D" parent="." unique_id=78614194]
+[node name="interactables" type="Node2D" parent="Sprite2D" unique_id=78614194]
 unique_name_in_owner = true
-scale = Vector2(0.6348257, 0.6348257)
+scale = Vector2(0.68326914, 0.6832694)
 
-[node name="TextureButton" type="TextureButton" parent="interactables" unique_id=2043500848]
-offset_left = 241.01102
-offset_top = 374.906
-offset_right = 281.011
-offset_bottom = 414.906
-scale = Vector2(10.245858, 1.639862)
-texture_pressed = ExtResource("2_rhp03")
-texture_disabled = ExtResource("2_rhp03")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("3_h5hlm")
-my_name = "Bla1"
+[node name="Node2D" parent="Sprite2D/interactables" unique_id=1749442742 instance=ExtResource("3_stmvh")]
+position = Vector2(362.30426, 565.5096)
 
-[node name="TextureButton2" type="TextureButton" parent="interactables" unique_id=26089569]
-offset_left = 225.25868
-offset_top = 459.96872
-offset_right = 265.25867
-offset_bottom = 499.96872
-scale = Vector2(10.245858, 1.639862)
-texture_pressed = ExtResource("2_rhp03")
-texture_disabled = ExtResource("2_rhp03")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("3_h5hlm")
-my_name = "Bla2"
+[node name="Node2D2" parent="Sprite2D/interactables" unique_id=1223250616 instance=ExtResource("3_stmvh")]
+position = Vector2(337.1005, 683.6522)
 
-[node name="TextureButton3" type="TextureButton" parent="interactables" unique_id=2031285095]
-offset_left = 554.48285
-offset_top = 600.1647
-offset_right = 594.48285
-offset_bottom = 640.1647
-scale = Vector2(10.245858, 1.639862)
-texture_pressed = ExtResource("2_rhp03")
-texture_disabled = ExtResource("2_rhp03")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("3_h5hlm")
-my_name = "Bla2"
+[node name="Node2D3" parent="Sprite2D/interactables" unique_id=191514642 instance=ExtResource("3_stmvh")]
+position = Vector2(263.0644, 897.8843)
 
-[node name="TextureButton4" type="TextureButton" parent="interactables" unique_id=1041803069]
-offset_left = 122.86832
-offset_top = 705.7055
-offset_right = 162.86832
-offset_bottom = 745.7055
-scale = Vector2(10.245858, 1.639862)
-texture_pressed = ExtResource("2_rhp03")
-texture_disabled = ExtResource("2_rhp03")
-ignore_texture_size = true
-stretch_mode = 0
-script = ExtResource("3_h5hlm")
-my_name = "Bla2"
+[node name="Node2D4" parent="Sprite2D/interactables" unique_id=971198986 instance=ExtResource("3_stmvh")]
+position = Vector2(242.58635, 1209.7809)
+
+[node name="Node2D5" parent="Sprite2D/interactables" unique_id=974138947 instance=ExtResource("3_stmvh")]
+position = Vector2(108.6913, 1523.2527)
+
+[node name="Node2D6" parent="Sprite2D/interactables" unique_id=1644231648 instance=ExtResource("3_stmvh")]
+position = Vector2(1162.5242, 1424.013)
+
+[node name="Node2D7" parent="Sprite2D/interactables" unique_id=1561786733 instance=ExtResource("3_stmvh")]
+position = Vector2(871.1055, 1685.502)
+
+[node name="Node2D8" parent="Sprite2D/interactables" unique_id=1446763768 instance=ExtResource("3_stmvh")]
+position = Vector2(316.62244, 2047.8062)
+
+[node name="Node2D" parent="Sprite2D" unique_id=1050759444 instance=ExtResource("5_h5hlm")]
+rotation = -0.021050822
+scale = Vector2(1.0763102, 1.0763103)
 
 [connection signal="ready" from="." to="." method="_on_ready"]
-[connection signal="pressed" from="interactables/TextureButton" to="interactables/TextureButton" method="_on_pressed"]
-[connection signal="pressed" from="interactables/TextureButton2" to="interactables/TextureButton2" method="_on_pressed"]
-[connection signal="pressed" from="interactables/TextureButton3" to="interactables/TextureButton3" method="_on_pressed"]
-[connection signal="pressed" from="interactables/TextureButton4" to="interactables/TextureButton4" method="_on_pressed"]

@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://coi6b8h5bhedp"]
+
+[ext_resource type="Texture2D" uid="uid://dchs1suqdkdj1" path="res://art/hand_marker.png" id="1_f37rb"]
+
+[node name="Node2D" type="Node2D" unique_id=1371813690]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1581837471]
+position = Vector2(179, -160)
+texture = ExtResource("1_f37rb")
