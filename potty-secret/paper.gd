@@ -1,3 +1,4 @@
+class_name Paper
 extends Node2D
 
 
@@ -11,3 +12,6 @@ func _on_ready() -> void:
 func some_redacted_kliked(idname:String):
 	print(idname+" redacted")
 	pass;
+
+func get_height() -> float:
+	return $TextureRect.get_rect().size.y;

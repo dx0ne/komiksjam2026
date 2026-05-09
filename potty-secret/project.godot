@@ -15,6 +15,10 @@ run/main_scene="uid://cggyjbbmibssx"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[editor]
+
+movie_writer/movie_file="D:/Projects/_GodotProjects/komiksjam2026_record/qaz.avi"
+
 [input]
 
 page_up={

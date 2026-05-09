@@ -11,4 +11,6 @@ script = ExtResource("1_e2o6t")
 position = Vector2(230, 0)
 
 [node name="Node2D2" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
-position = Vector2(119, 127)
+position = Vector2(101, 100)
+
+[connection signal="ready" from="." to="." method="_on_ready"]
