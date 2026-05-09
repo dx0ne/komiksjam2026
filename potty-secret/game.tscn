@@ -30,5 +30,25 @@ position = Vector2(-23, 9)
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="toilet_msgs_container" type="Node2D" parent="." unique_id=1395577949]
+unique_name_in_owner = true
+position = Vector2(277, 0)
+
+[node name="tmc_s1" type="Node2D" parent="toilet_msgs_container" unique_id=778641699]
+unique_name_in_owner = true
+position = Vector2(0, 148)
+
+[node name="tmc_s2" type="Node2D" parent="toilet_msgs_container" unique_id=1956880014]
+unique_name_in_owner = true
+position = Vector2(0, 399)
+
+[node name="tmc_s3" type="Node2D" parent="toilet_msgs_container" unique_id=170265774]
+unique_name_in_owner = true
+position = Vector2(-23, 616)
+
+[node name="tmc_s4" type="Node2D" parent="toilet_msgs_container" unique_id=295945145]
+unique_name_in_owner = true
+position = Vector2(-12, 873)
+
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]

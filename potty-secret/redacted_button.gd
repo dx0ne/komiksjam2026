@@ -8,7 +8,7 @@ signal on_zjebane();
 
 @onready var btn:TextureButton = %TextureButton;
 
-var words = ["aliens", "elivis", "bigfoot", "reptilians"]
+var words = ["aliens", "elivis", "bigfoot", "reptilians", "secret", "Area 51"]
 var random_word = words.pick_random()
 
 var is_dragging = false

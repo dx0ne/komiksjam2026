@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://cwdb3ffd4lapr"]
 
 [ext_resource type="Script" uid="uid://bli1aq5ydkq73" path="res://redacted_button.gd" id="2_w30fr"]
-[ext_resource type="Texture2D" uid="uid://b0mulbh7y2308" path="res://art/diagonal.png" id="3_26elu"]
 [ext_resource type="LabelSettings" uid="uid://xiopkx42p8lf" path="res://new_label_settings.tres" id="3_w30fr"]
 
 [node name="Node2D" type="Node2D" unique_id=1749442742]
@@ -21,7 +20,6 @@ offset_left = -9.0
 offset_top = -8.0
 offset_right = -9.0
 offset_bottom = -8.0
-texture_normal = ExtResource("3_26elu")
 ignore_texture_size = true
 stretch_mode = 0
 

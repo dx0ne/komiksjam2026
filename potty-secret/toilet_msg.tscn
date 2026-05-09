@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://bo2ang8m6edru"]
+
+[ext_resource type="Texture2D" uid="uid://ddu3t08tmumlv" path="res://art/toilet_paper1.png" id="1_iroeo"]
+[ext_resource type="Script" uid="uid://cfljy3tlyfux0" path="res://toilet_msg.gd" id="1_sr2dh"]
+[ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="3_sr2dh"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_6tctt"]
+font = ExtResource("3_sr2dh")
+font_size = 30
+font_color = Color(0.18, 0.18, 0.18, 0.76862746)
+outline_color = Color(0.30692267, 0.3069227, 0.3069227, 1)
+
+[node name="Node2D" type="Node2D" unique_id=259203969]
+script = ExtResource("1_sr2dh")
+
+[node name="rot_node" type="Node2D" parent="." unique_id=1973481321]
+unique_name_in_owner = true
+
+[node name="ToiletPaper1" type="Sprite2D" parent="rot_node" unique_id=84428212]
+position = Vector2(13, 30)
+scale = Vector2(0.7374074, 0.69391096)
+texture = ExtResource("1_iroeo")
+
+[node name="label_rot" type="Node2D" parent="rot_node" unique_id=1642747080]
+unique_name_in_owner = true
+
+[node name="Label" type="Label" parent="rot_node/label_rot" unique_id=821471386]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -81.0
+offset_top = -25.5
+offset_right = 81.0
+offset_bottom = 25.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+mouse_filter = 0
+text = "fsdfs"
+label_settings = SubResource("LabelSettings_6tctt")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[connection signal="ready" from="rot_node" to="." method="_on_rot_node_ready"]
