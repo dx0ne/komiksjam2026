@@ -5,6 +5,8 @@ var master_list: Array[String] = ["aliens", "elivis", "bigfoot", "reptilians", "
 
 var active_queue: Array[String] = []
 
+var current_toilet_words:Array[String] = [];
+
 func get_next_batch(count: int = 4) -> Array[String]:
 	if active_queue.size() < count:
 		_refill_queue()

@@ -9,11 +9,16 @@ func _on_ready() -> void:
 			node.on_redacted_clicked.connect(some_redacted_kliked);
 			node.on_started_good.connect(_on_started_good);
 			node.on_zjebane.connect(_on_zjebane);
+	%Sprite2D.rotation = deg_to_rad(randf_range(-2.0,2.0));
+	#%Sprite2D.position = Vector2(randf_range(-30.0,0), randf_range(-30.0,0));
 	pass # Replace with function body.
 
 func some_redacted_kliked(idname:String):
-	print(idname+" redacted");
-	(%lines as LinePainter)._on_ended_good();
+	if(WordManager.current_toilet_words.has(idname)):
+		print(idname+" redacted");
+		(%lines as LinePainter)._on_ended_good();
+	else:
+		(%lines as LinePainter)._on_not_banned();
 	pass;
 
 func get_height() -> float:

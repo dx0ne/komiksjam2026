@@ -3,13 +3,18 @@
 [ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://paper.tscn" id="1_80nbo"]
 [ext_resource type="Script" uid="uid://dl7j6u4gf2v17" path="res://game.gd" id="1_e2o6t"]
 [ext_resource type="PackedScene" uid="uid://be4ckl5tcikud" path="res://item_draggable.tscn" id="3_feb5d"]
+[ext_resource type="Texture2D" uid="uid://bcjt8jc1hyu5k" path="res://art/photo_temp.png" id="4_7jktm"]
 [ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="5_7jktm"]
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_e2o6t")
 
-[node name="paper_node2d" parent="." unique_id=1504223162 instance=ExtResource("1_80nbo")]
-position = Vector2(503, 3)
+[node name="papers_container" type="Node2D" parent="." unique_id=2081387175]
+unique_name_in_owner = true
+position = Vector2(514, 0)
+
+[node name="paper_node2d" parent="papers_container" unique_id=1504223162 instance=ExtResource("1_80nbo")]
+visible = false
 
 [node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
 position = Vector2(1779.7954, 102.66668)
@@ -23,32 +28,19 @@ rotation = 0.19120362
 position = Vector2(1798.7954, 213.66669)
 rotation = -0.41111943
 
-[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
-position = Vector2(-23, 9)
-
-[node name="TextureButton" type="TextureButton" parent="." unique_id=1318594853]
+[node name="gimme_toilet_btn" type="TextureButton" parent="." unique_id=1318594853]
+unique_name_in_owner = true
 offset_right = 40.0
 offset_bottom = 40.0
+texture_normal = ExtResource("4_7jktm")
 
 [node name="toilet_msgs_container" type="Node2D" parent="." unique_id=1395577949]
 unique_name_in_owner = true
 position = Vector2(277, 0)
 
-[node name="tmc_s1" type="Node2D" parent="toilet_msgs_container" unique_id=778641699]
-unique_name_in_owner = true
-position = Vector2(0, 148)
-
-[node name="tmc_s2" type="Node2D" parent="toilet_msgs_container" unique_id=1956880014]
-unique_name_in_owner = true
-position = Vector2(0, 399)
-
-[node name="tmc_s3" type="Node2D" parent="toilet_msgs_container" unique_id=170265774]
-unique_name_in_owner = true
-position = Vector2(-23, 616)
-
-[node name="tmc_s4" type="Node2D" parent="toilet_msgs_container" unique_id=295945145]
-unique_name_in_owner = true
-position = Vector2(-12, 873)
+[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+position = Vector2(-23, 9)
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
+[connection signal="gui_input" from="gimme_toilet_btn" to="." method="_on_gimme_toilet_btn_gui_input"]

@@ -8,7 +8,7 @@ signal on_zjebane();
 
 @onready var btn:TextureButton = %TextureButton;
 
-var words = ["aliens", "elivis", "bigfoot", "reptilians", "secret", "Area 51"]
+var words = ["aliens", "elivis", "bigfoot", "reptilians", "secret", "Area 51", "CNN", "bananas", "huge"]
 var random_word = words.pick_random()
 
 var is_dragging = false
@@ -35,6 +35,8 @@ func _on_ready() -> void:
 func mix_btn_size() -> void:
 	btn.custom_minimum_size = %Label.size*1.1;
 	btn.custom_minimum_size.y*=1.1;
+	btn.position.x-=%Label.size.x*0.1*0.5;
+	btn.position.y-=%Label.size.y*0.1*0.5;
 	pass
 
 

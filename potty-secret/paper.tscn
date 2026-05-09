@@ -9,6 +9,7 @@
 script = ExtResource("1_rhp03")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=564565112]
+unique_name_in_owner = true
 clip_children = 2
 scale = Vector2(0.9291003, 0.9291002)
 texture = ExtResource("1_kq2bq")

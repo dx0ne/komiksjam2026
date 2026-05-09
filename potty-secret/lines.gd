@@ -31,7 +31,7 @@ func _input(event):
 			colors.append(bad_line_color);
 		else:
 			is_dragging=false;
-			colors[-1] = Color(Color.CRIMSON, 1.0);
+			colors[-1] = Color(Color.CRIMSON, 0.9);
 			queue_redraw();
 	if event is InputEventMouseMotion and is_dragging:
 		if(parent.has_point()):
@@ -63,15 +63,21 @@ func _on_ended_good() -> void:
 func _on_zjebane()-> void:
 	if(colors.size()==0):
 		return;
+	colors[-1] = Color(Color.CRIMSON, 0.99);
+	pass
+
+func _on_not_banned()-> void:
+	if(colors.size()==0):
+		return;
 	colors[-1] = Color(Color.CRIMSON, 1.0);
 	pass
-	
+
 var fade_speed: float = 0.7
 
 func _process(delta):
 	var changed = false
 	for i in range(colors.size()):
-		if colors[i] != Color.BLACK and colors[i].a > 0:
+		if colors[i].a < 1.0 and colors[i].a > 0:
 			if (i == colors.size()-1 and is_dragging):
 				continue;
 			else:

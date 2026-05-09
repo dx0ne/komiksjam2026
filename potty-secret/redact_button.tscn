@@ -8,20 +8,28 @@ script = ExtResource("2_w30fr")
 
 [node name="Label" type="Label" parent="." unique_id=1190706215]
 unique_name_in_owner = true
-offset_right = 162.0
-offset_bottom = 51.0
+offset_right = 74.0
+offset_bottom = 57.0
+size_flags_horizontal = 4
 mouse_filter = 0
-text = "OOOOOO"
+text = "###"
 label_settings = ExtResource("3_w30fr")
 
 [node name="TextureButton" type="TextureButton" parent="." unique_id=5180902]
 unique_name_in_owner = true
-offset_left = -9.0
-offset_top = -8.0
-offset_right = -9.0
-offset_bottom = -8.0
 ignore_texture_size = true
 stretch_mode = 0
+
+[node name="Control" type="Control" parent="." unique_id=1321875044]
+layout_mode = 3
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="gui_input" from="TextureButton" to="." method="_on_label_gui_input"]
