@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cwdb3ffd4lapr"]
 
-[ext_resource type="Texture2D" uid="uid://d21cppih2i60n" path="res://art/black_mark.png" id="1_3byfv"]
 [ext_resource type="Script" uid="uid://bli1aq5ydkq73" path="res://redacted_button.gd" id="2_w30fr"]
+[ext_resource type="Texture2D" uid="uid://b0mulbh7y2308" path="res://art/diagonal.png" id="3_26elu"]
 [ext_resource type="LabelSettings" uid="uid://xiopkx42p8lf" path="res://new_label_settings.tres" id="3_w30fr"]
 
 [node name="Node2D" type="Node2D" unique_id=1749442742]
@@ -17,17 +17,14 @@ label_settings = ExtResource("3_w30fr")
 
 [node name="TextureButton" type="TextureButton" parent="." unique_id=5180902]
 unique_name_in_owner = true
-visible = false
-offset_left = -18.0
-offset_top = -10.0
-offset_right = -18.0
-offset_bottom = -10.0
-texture_pressed = ExtResource("1_3byfv")
-texture_hover = ExtResource("1_3byfv")
-texture_disabled = ExtResource("1_3byfv")
+offset_left = -9.0
+offset_top = -8.0
+offset_right = -9.0
+offset_bottom = -8.0
+texture_normal = ExtResource("3_26elu")
 ignore_texture_size = true
 stretch_mode = 0
 
 [connection signal="ready" from="." to="." method="_on_ready"]
-[connection signal="gui_input" from="Label" to="." method="_on_label_gui_input"]
+[connection signal="gui_input" from="TextureButton" to="." method="_on_label_gui_input"]
 [connection signal="pressed" from="TextureButton" to="TextureButton" method="_on_pressed"]

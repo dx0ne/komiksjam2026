@@ -5,5 +5,8 @@
 [node name="Node2D" type="Node2D" unique_id=1050759444]
 script = ExtResource("1_nh2wf")
 
+[node name="VisibleOnScreenEnabler2D" type="VisibleOnScreenEnabler2D" parent="." unique_id=747110441]
+rect = Rect2(0, 0, 500, 1000)
+
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]

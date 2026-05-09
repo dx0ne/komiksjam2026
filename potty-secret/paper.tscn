@@ -42,7 +42,8 @@ position = Vector2(871.1055, 1685.502)
 [node name="Node2D8" parent="Sprite2D/interactables" unique_id=1446763768 instance=ExtResource("3_stmvh")]
 position = Vector2(316.62244, 2047.8062)
 
-[node name="Node2D" parent="Sprite2D" unique_id=1050759444 instance=ExtResource("5_h5hlm")]
+[node name="lines" parent="Sprite2D" unique_id=1050759444 instance=ExtResource("5_h5hlm")]
+unique_name_in_owner = true
 rotation = -0.021050822
 scale = Vector2(1.0763102, 1.0763103)
 
