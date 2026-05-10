@@ -55,7 +55,7 @@ func clear_toiler() -> void:
 	pass
 		
 func new_tolilet_msgs() -> void:
-	var max_msgs:int = 4;
+	var max_msgs:int = 3;
 	var y_pad_perct = 0.2;
 	var y_padding = viewport_size.y*y_pad_perct;
 	var y_spacer = viewport_size.y*(1.0-y_pad_perct) / max_msgs;

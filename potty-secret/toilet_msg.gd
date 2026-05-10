@@ -1,8 +1,8 @@
 class_name ToiletMsg
 extends Node2D
 
-func set_label(str:String) -> void:
-	%Label.text=str;
+func set_label(new_label:String) -> void:
+	%Label.text=new_label;
 	pass
 
 

@@ -3,7 +3,29 @@
 [ext_resource type="Texture2D" uid="uid://biupuyhbim0kv" path="res://art/papar_temp.png" id="1_kq2bq"]
 [ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://paper.gd" id="1_rhp03"]
 [ext_resource type="PackedScene" uid="uid://cwdb3ffd4lapr" path="res://redact_button.tscn" id="3_stmvh"]
+[ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="4_h5hlm"]
 [ext_resource type="PackedScene" uid="uid://b6cbv3dlom18" path="res://lines.tscn" id="5_h5hlm"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_rhp03"]
+font = ExtResource("4_h5hlm")
+font_size = 63
+font_color = Color(0, 0.43917945, 0.84256375, 1)
+outline_size = 2
+outline_color = Color(0.396, 0.88, 0.8074, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_h5hlm"]
+font = ExtResource("4_h5hlm")
+font_size = 63
+font_color = Color(0.99999994, 0.08977976, 0.07007859, 1)
+outline_size = 2
+outline_color = Color(0, 0.97, 0.43650007, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_stmvh"]
+font = ExtResource("4_h5hlm")
+font_size = 63
+font_color = Color(0.070151605, 0.5897205, 0, 1)
+outline_size = 2
+outline_color = Color(0.7223249, 0.64947903, 0.0050017475, 1)
 
 [node name="Node2D" type="Node2D" unique_id=1504223162]
 script = ExtResource("1_rhp03")
@@ -42,6 +64,36 @@ position = Vector2(871.1055, 1685.502)
 
 [node name="Node2D8" parent="Sprite2D/interactables" unique_id=1446763768 instance=ExtResource("3_stmvh")]
 position = Vector2(316.62244, 2047.8062)
+
+[node name="pointsLabel" type="Label" parent="Sprite2D" unique_id=1384508791]
+unique_name_in_owner = true
+offset_left = 908.4057
+offset_top = 398.23477
+offset_right = 1005.4057
+offset_bottom = 485.23477
+text = "5/5"
+label_settings = SubResource("LabelSettings_rhp03")
+horizontal_alignment = 2
+
+[node name="pointsLabel_bad" type="Label" parent="Sprite2D" unique_id=94134126]
+unique_name_in_owner = true
+offset_left = 908.4057
+offset_top = 461.73706
+offset_right = 1005.4057
+offset_bottom = 553.73706
+text = "-1"
+label_settings = SubResource("LabelSettings_h5hlm")
+horizontal_alignment = 2
+
+[node name="pointsLabel_good" type="Label" parent="Sprite2D" unique_id=373392256]
+unique_name_in_owner = true
+offset_left = 840.59814
+offset_top = 460.66074
+offset_right = 937.59814
+offset_bottom = 552.66077
+text = "+1"
+label_settings = SubResource("LabelSettings_stmvh")
+horizontal_alignment = 2
 
 [node name="lines" parent="Sprite2D" unique_id=1050759444 instance=ExtResource("5_h5hlm")]
 unique_name_in_owner = true

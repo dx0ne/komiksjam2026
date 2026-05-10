@@ -64,7 +64,6 @@ unique_name_in_owner = true
 position = Vector2(277, 0)
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
-visible = false
 position = Vector2(-23, 9)
 
 [node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
