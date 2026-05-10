@@ -1,24 +1,25 @@
 [gd_scene format=3 uid="uid://bcjerb5lw5qt3"]
 
-[ext_resource type="Texture2D" uid="uid://biupuyhbim0kv" path="res://art/papar_temp.png" id="1_kq2bq"]
 [ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://paper.gd" id="1_rhp03"]
+[ext_resource type="Texture2D" uid="uid://cjfvdb7u0h4qq" path="res://art/Page_01.png" id="2_h5hlm"]
 [ext_resource type="PackedScene" uid="uid://cwdb3ffd4lapr" path="res://redact_button.tscn" id="3_stmvh"]
 [ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="4_h5hlm"]
 [ext_resource type="PackedScene" uid="uid://b6cbv3dlom18" path="res://lines.tscn" id="5_h5hlm"]
+[ext_resource type="LabelSettings" uid="uid://xiopkx42p8lf" path="res://new_label_settings.tres" id="6_stmvh"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_rhp03"]
 font = ExtResource("4_h5hlm")
 font_size = 63
 font_color = Color(0, 0.43917945, 0.84256375, 1)
-outline_size = 2
-outline_color = Color(0.396, 0.88, 0.8074, 1)
+outline_size = 6
+outline_color = Color(0, 0.4392157, 0.84313726, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_h5hlm"]
 font = ExtResource("4_h5hlm")
 font_size = 63
 font_color = Color(0.99999994, 0.08977976, 0.07007859, 1)
 outline_size = 2
-outline_color = Color(0, 0.97, 0.43650007, 1)
+outline_color = Color(1, 0.09019608, 0.07058824, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_stmvh"]
 font = ExtResource("4_h5hlm")
@@ -27,43 +28,45 @@ font_color = Color(0.070151605, 0.5897205, 0, 1)
 outline_size = 2
 outline_color = Color(0.7223249, 0.64947903, 0.0050017475, 1)
 
-[node name="Node2D" type="Node2D" unique_id=1504223162]
+[node name="Node2D2" type="Node2D" unique_id=1504223162]
 script = ExtResource("1_rhp03")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=564565112]
 unique_name_in_owner = true
 clip_children = 2
 scale = Vector2(0.9291003, 0.9291002)
-texture = ExtResource("1_kq2bq")
+texture = ExtResource("2_h5hlm")
 centered = false
+
+[node name="Label" type="Label" parent="Sprite2D" unique_id=1028419763]
+offset_left = 75.342
+offset_top = 370.0
+offset_right = 941.342
+offset_bottom = 5197.0
+text = "RUSSIANS SHOOT DOWN UFO GOOTANS TURN SOLDIERS INTO STONE.WASHINGTON 
+
+Russians shot down a low-flying UFO in Siberia. But the aliens              on board – Gootans – got their revenge by turning 23 Russian soldiers to stone.The CIA got hold of Russian UFO files. These files reportedly contain 250 pages of eyewitness testimony from two soldiers who mysteriously survived the extraterrestrial attack. A  photo of the crash site, along with sketches of the Gootans t hemselves round out the report. One CIA source called the report “the most chilling        portrait of extraterrestrial revenge on record.”
+“This single attack has done more to open our eyes to alien intentions and alien strength than anything else in the history of UFOs,” said one CIA agent. This particular agent leaked portions of the secret file to trusted WWN reporters in Washington.
+
+“UFOs are spotted. Space              are encountered. But never once have we heard about extraterrestrials attacking and killing human beings,” the spy continued. “And if the Russian reports are accurate, this is a terrifying development indeed.
+
+“It proves that Gootans are as dangerous as first suspected. They possess weapons and technologies that are superior to anything we have here on Earth.
+
+“And this incident shows that when pushed into a corner, extraterrestrials will use everything at their disposal to protect themselves.”"
+label_settings = ExtResource("6_stmvh")
+autowrap_mode = 2
 
 [node name="interactables" type="Node2D" parent="Sprite2D" unique_id=78614194]
 unique_name_in_owner = true
-scale = Vector2(0.68326914, 0.6832694)
 
 [node name="Node2D" parent="Sprite2D/interactables" unique_id=1749442742 instance=ExtResource("3_stmvh")]
-position = Vector2(362.30426, 565.5096)
+position = Vector2(177.38019, 500.76392)
 
 [node name="Node2D2" parent="Sprite2D/interactables" unique_id=1223250616 instance=ExtResource("3_stmvh")]
-position = Vector2(337.1005, 683.6522)
+position = Vector2(629.21094, 729.8012)
 
 [node name="Node2D3" parent="Sprite2D/interactables" unique_id=191514642 instance=ExtResource("3_stmvh")]
-position = Vector2(263.0644, 897.8843)
-
-[node name="Node2D4" parent="Sprite2D/interactables" unique_id=971198986 instance=ExtResource("3_stmvh")]
-position = Vector2(242.58635, 1209.7809)
-
-[node name="Node2D5" parent="Sprite2D/interactables" unique_id=974138947 instance=ExtResource("3_stmvh")]
-position = Vector2(108.6913, 1523.2527)
-
-[node name="Node2D6" parent="Sprite2D/interactables" unique_id=1644231648 instance=ExtResource("3_stmvh")]
-position = Vector2(1162.5242, 1424.013)
-
-[node name="Node2D7" parent="Sprite2D/interactables" unique_id=1561786733 instance=ExtResource("3_stmvh")]
-position = Vector2(871.1055, 1685.502)
-
-[node name="Node2D8" parent="Sprite2D/interactables" unique_id=1446763768 instance=ExtResource("3_stmvh")]
-position = Vector2(316.62244, 2047.8062)
+position = Vector2(433.97067, 984.43555)
 
 [node name="pointsLabel" type="Label" parent="Sprite2D" unique_id=1384508791]
 unique_name_in_owner = true
