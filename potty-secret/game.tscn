@@ -24,14 +24,6 @@ texture = ExtResource("2_j5wjh")
 position = Vector2(960, 541)
 texture = ExtResource("3_vef74")
 
-[node name="RekaZegar" type="Sprite2D" parent="." unique_id=1667004532]
-position = Vector2(608, 1168)
-texture = ExtResource("4_hve3p")
-
-[node name="Popielniczka" type="Sprite2D" parent="." unique_id=653389244]
-position = Vector2(1514, 70)
-texture = ExtResource("5_hve3p")
-
 [node name="papers_container" type="Node2D" parent="." unique_id=2081387175]
 unique_name_in_owner = true
 position = Vector2(654, 0)
@@ -51,6 +43,14 @@ rotation = 0.19120362
 position = Vector2(1798.7954, 213.66669)
 rotation = -0.41111943
 
+[node name="Teczka" type="Sprite2D" parent="." unique_id=1944249299]
+position = Vector2(1901, 466)
+texture = ExtResource("11_iotsf")
+
+[node name="Teczka2" type="Sprite2D" parent="." unique_id=295684005]
+position = Vector2(1939, 457)
+texture = ExtResource("12_lc2xo")
+
 [node name="toilet_handle" type="Node2D" parent="." unique_id=866905755]
 unique_name_in_owner = true
 
@@ -66,20 +66,22 @@ texture_normal = ExtResource("7_mfdv2")
 unique_name_in_owner = true
 position = Vector2(425, 0)
 
-[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
-position = Vector2(-23, 9)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=653389244]
+position = Vector2(1550, 17)
+scale = Vector2(0.81707317, 0.81707317)
+texture = ExtResource("5_hve3p")
+
+[node name="RekaZegar" type="Sprite2D" parent="." unique_id=1667004532]
+position = Vector2(372.00003, 1134)
+scale = Vector2(0.84229827, 0.84229827)
+texture = ExtResource("4_hve3p")
 
 [node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
-position = Vector2(921, 107)
+position = Vector2(796, 126)
 texture = ExtResource("10_mfdv2")
 
-[node name="Teczka" type="Sprite2D" parent="." unique_id=1944249299]
-position = Vector2(1901, 466)
-texture = ExtResource("11_iotsf")
-
-[node name="Teczka2" type="Sprite2D" parent="." unique_id=295684005]
-position = Vector2(1939, 457)
-texture = ExtResource("12_lc2xo")
+[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+position = Vector2(-23, 9)
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
