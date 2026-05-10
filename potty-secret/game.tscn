@@ -2,12 +2,35 @@
 
 [ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://paper.tscn" id="1_80nbo"]
 [ext_resource type="Script" uid="uid://dl7j6u4gf2v17" path="res://game.gd" id="1_e2o6t"]
+[ext_resource type="Texture2D" uid="uid://wrwjn0h24j63" path="res://art/Tlo.png" id="2_j5wjh"]
 [ext_resource type="PackedScene" uid="uid://be4ckl5tcikud" path="res://item_draggable.tscn" id="3_feb5d"]
-[ext_resource type="Texture2D" uid="uid://bcjt8jc1hyu5k" path="res://art/photo_temp.png" id="4_7jktm"]
+[ext_resource type="Texture2D" uid="uid://tcmybbyf7j66" path="res://art/Ramka.png" id="3_vef74"]
+[ext_resource type="Texture2D" uid="uid://c8k6jmxo282dx" path="res://art/Reka_Zegar.png" id="4_hve3p"]
 [ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="5_7jktm"]
+[ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
+[ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
+[ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_e2o6t")
+
+[node name="Tlo" type="Sprite2D" parent="." unique_id=1560310654]
+position = Vector2(960, 541)
+texture = ExtResource("2_j5wjh")
+
+[node name="Ramka" type="Sprite2D" parent="." unique_id=1743869147]
+position = Vector2(960, 541)
+texture = ExtResource("3_vef74")
+
+[node name="RekaZegar" type="Sprite2D" parent="." unique_id=1667004532]
+position = Vector2(608, 1168)
+texture = ExtResource("4_hve3p")
+
+[node name="Popielniczka" type="Sprite2D" parent="." unique_id=653389244]
+position = Vector2(1514, 70)
+texture = ExtResource("5_hve3p")
 
 [node name="papers_container" type="Node2D" parent="." unique_id=2081387175]
 unique_name_in_owner = true
@@ -30,16 +53,31 @@ rotation = -0.41111943
 
 [node name="gimme_toilet_btn" type="TextureButton" parent="." unique_id=1318594853]
 unique_name_in_owner = true
-offset_right = 40.0
-offset_bottom = 40.0
-texture_normal = ExtResource("4_7jktm")
+offset_left = 120.0
+offset_top = -208.0
+offset_right = 192.0
+offset_bottom = 810.0
+texture_normal = ExtResource("7_mfdv2")
 
 [node name="toilet_msgs_container" type="Node2D" parent="." unique_id=1395577949]
 unique_name_in_owner = true
 position = Vector2(277, 0)
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+visible = false
 position = Vector2(-23, 9)
+
+[node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
+position = Vector2(921, 107)
+texture = ExtResource("10_mfdv2")
+
+[node name="Teczka" type="Sprite2D" parent="." unique_id=1944249299]
+position = Vector2(1901, 466)
+texture = ExtResource("11_iotsf")
+
+[node name="Teczka2" type="Sprite2D" parent="." unique_id=295684005]
+position = Vector2(1939, 457)
+texture = ExtResource("12_lc2xo")
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]

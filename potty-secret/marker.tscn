@@ -1,9 +1,11 @@
 [gd_scene format=3 uid="uid://coi6b8h5bhedp"]
 
-[ext_resource type="Texture2D" uid="uid://dchs1suqdkdj1" path="res://art/hand_marker.png" id="1_f37rb"]
+[ext_resource type="Texture2D" uid="uid://dogcrqm4rj3cd" path="res://art/Reka_Marker.png" id="1_f37rb"]
 
 [node name="Node2D" type="Node2D" unique_id=1371813690]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1581837471]
-position = Vector2(179, -160)
+position = Vector2(-2, 0)
+rotation = 0.7815154
 texture = ExtResource("1_f37rb")
+offset = Vector2(877, 103)
