@@ -14,5 +14,5 @@ func _on_timer_timeout() -> void:
 	pass # Replace with function body.
 
 func _process(_delta):
-	%marker_Node2D.position = get_local_mouse_position();
+	%marker_Node2Dd.position = get_local_mouse_position();
 	pass;
