@@ -135,13 +135,13 @@ func toilet_pull() -> void:
 	var trans_time:float = 0.2;
 	
 	#tween.set_parallel(true)
-	tween.tween_property(%gimme_toilet_btn, "position", offset_pos, trans_time)\
+	tween.tween_property(%toilet_handle, "position", offset_pos, trans_time)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	#tween.tween_property(paper_node, "scale", Vector2(1.1, 1.1), 0.3)
 	
 	#tween.set_parallel(false)
 	
-	tween.tween_property(%gimme_toilet_btn, "position", original_pos, trans_time)\
+	tween.tween_property(%toilet_handle, "position", original_pos, trans_time)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.tween_callback(new_tolilet_msgs);
 	pass
