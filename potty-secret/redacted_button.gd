@@ -8,12 +8,12 @@ signal on_zjebane();
 
 @onready var btn:TextureButton = %TextureButton;
 
-var words = ["aliens", "elivis", "bigfoot", "reptilians", "secret", "Area 51", "CNN", "bananas", "huge"]
+var words =WordManager.master_list.duplicate();
 var random_word = words.pick_random()
 
 var is_dragging = false
 var start_pos = Vector2.ZERO
-var threshold = 0.2;
+var threshold = 0.3;
 var is_redacted:bool=false;
 
 func _on_pressed() -> void:
@@ -26,6 +26,7 @@ func redacted() -> void:
 	pass # Replace with function body.
 
 func _on_ready() -> void:
+	
 	%Label.resized.connect(mix_btn_size);
 	random_word = words.pick_random();
 	%Label.text=random_word;
@@ -33,10 +34,11 @@ func _on_ready() -> void:
 	pass # Replace with function body.
 
 func mix_btn_size() -> void:
-	btn.custom_minimum_size = %Label.size*1.1;
-	btn.custom_minimum_size.y*=1.1;
-	btn.position.x-=%Label.size.x*0.1*0.5;
-	btn.position.y-=%Label.size.y*0.1*0.5;
+	var margin:float = 0.2
+	btn.custom_minimum_size = %Label.size*(1.0+margin);
+	btn.custom_minimum_size.y*=(1.0+margin);
+	btn.position.x-=%Label.size.x*margin*0.5;
+	btn.position.y-=%Label.size.y*margin*0.5;
 	pass
 
 

@@ -7,6 +7,8 @@ var active_queue: Array[String] = []
 
 var current_toilet_words:Array[String] = [];
 
+var good_ending:bool=false;
+
 func get_next_batch(count: int = 4) -> Array[String]:
 	if active_queue.size() < count:
 		_refill_queue()

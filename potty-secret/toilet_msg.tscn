@@ -10,7 +10,7 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_6tctt"]
 font = ExtResource("3_sr2dh")
-font_size = 30
+font_size = 24
 font_color = Color(0.18, 0.18, 0.18, 0.76862746)
 outline_color = Color(0.30692267, 0.3069227, 0.3069227, 1)
 
@@ -21,27 +21,30 @@ script = ExtResource("1_sr2dh")
 unique_name_in_owner = true
 
 [node name="ToiletPaper1" type="Sprite2D" parent="rot_node" unique_id=84428212]
-position = Vector2(13, 30)
+position = Vector2(-2.0000021, 20.999998)
+rotation = -0.35807616
 scale = Vector2(0.7374074, 0.69391096)
 texture = ExtResource("2_3q7nb")
 
 [node name="ToiletPaper2" type="Sprite2D" parent="rot_node" unique_id=1840567605]
-position = Vector2(13, 30)
+position = Vector2(-6, 6.000004)
 scale = Vector2(0.7374074, 0.69391096)
 texture = ExtResource("3_4a3vv")
 
 [node name="ToiletPaper3" type="Sprite2D" parent="rot_node" unique_id=1212455253]
-position = Vector2(13, 30)
-scale = Vector2(0.7374074, 0.69391096)
+position = Vector2(-4.9999995, 0.99999976)
+rotation = 0.6710451
+scale = Vector2(0.79067165, 0.77726704)
 texture = ExtResource("4_yka1r")
 
 [node name="ToiletPaper4" type="Sprite2D" parent="rot_node" unique_id=1727218948]
-position = Vector2(13, 30)
+position = Vector2(4.0000005, 2)
+rotation = -0.31243956
 scale = Vector2(0.7374074, 0.69391096)
 texture = ExtResource("5_jck6c")
 
 [node name="ToiletPaper5" type="Sprite2D" parent="rot_node" unique_id=2060906287]
-position = Vector2(13, 30)
+position = Vector2(7.999999, -0.9999962)
 scale = Vector2(0.7374074, 0.69391096)
 texture = ExtResource("6_4v8kd")
 
@@ -63,10 +66,11 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 mouse_filter = 0
-text = "fsdfs"
+text = "reptilians"
 label_settings = SubResource("LabelSettings_6tctt")
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
 
+[connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="ready" from="rot_node" to="." method="_on_rot_node_ready"]

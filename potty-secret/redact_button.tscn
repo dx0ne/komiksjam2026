@@ -7,7 +7,8 @@
 font = ExtResource("2_3byfv")
 font_size = 24
 font_color = Color(0.33333334, 0.13333334, 0.2627451, 1)
-outline_color = Color(0.30692267, 0.3069227, 0.3069227, 1)
+outline_size = 3
+outline_color = Color(0.4388044, 0.27626017, 0.20084491, 1)
 
 [node name="Node2D" type="Node2D" unique_id=1749442742]
 script = ExtResource("2_w30fr")

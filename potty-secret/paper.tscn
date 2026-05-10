@@ -70,30 +70,30 @@ position = Vector2(433.97067, 984.43555)
 
 [node name="pointsLabel" type="Label" parent="Sprite2D" unique_id=1384508791]
 unique_name_in_owner = true
-offset_left = 908.4057
-offset_top = 398.23477
-offset_right = 1005.4057
-offset_bottom = 485.23477
+offset_left = 937.46606
+offset_top = 391.77692
+offset_right = 1034.4661
+offset_bottom = 483.77692
 text = "5/5"
 label_settings = SubResource("LabelSettings_rhp03")
 horizontal_alignment = 2
 
 [node name="pointsLabel_bad" type="Label" parent="Sprite2D" unique_id=94134126]
 unique_name_in_owner = true
-offset_left = 908.4057
-offset_top = 461.73706
-offset_right = 1005.4057
-offset_bottom = 553.73706
+offset_left = 937.46606
+offset_top = 455.2792
+offset_right = 1034.4661
+offset_bottom = 547.2792
 text = "-1"
 label_settings = SubResource("LabelSettings_h5hlm")
 horizontal_alignment = 2
 
 [node name="pointsLabel_good" type="Label" parent="Sprite2D" unique_id=373392256]
 unique_name_in_owner = true
-offset_left = 840.59814
-offset_top = 460.66074
-offset_right = 937.59814
-offset_bottom = 552.66077
+offset_left = 869.6585
+offset_top = 454.20288
+offset_right = 966.6585
+offset_bottom = 546.2029
 text = "+1"
 label_settings = SubResource("LabelSettings_stmvh")
 horizontal_alignment = 2

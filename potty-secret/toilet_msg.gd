@@ -8,7 +8,7 @@ func set_label(new_label:String) -> void:
 
 func _on_rot_node_ready() -> void:
 	%rot_node.rotation = deg_to_rad(randf_range(-30, 30));
-	%label_rot.rotation = deg_to_rad(randf_range(-30, 30));
+	#%label_rot.rotation = deg_to_rad(randf_range(-30, 30));
 	pass
 	
 func prep_tween() -> void:
@@ -16,4 +16,18 @@ func prep_tween() -> void:
 	var random_rotation = randf_range(-0.1*TAU, 0.1*TAU)
 	tween.tween_property(%rot_node, "rotation", random_rotation, 0.6)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	pass # Replace with function body.
+
+
+func _on_ready() -> void:
+	var all_children = %rot_node.get_children()
+	var sprites_only = []
+	for child in all_children:
+		if child is Sprite2D:
+			sprites_only.append(child)
+			child.hide()
+			
+	if sprites_only.size() > 0:
+		var random_sprite = sprites_only.pick_random()
+		random_sprite.show()
 	pass # Replace with function body.

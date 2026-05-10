@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://cm4o4rmuagg1a"]
+
+[ext_resource type="Script" uid="uid://dcocu5xug1yuu" path="res://clock.gd" id="1_venu5"]
+
+[node name="Node2D" type="Node2D" unique_id=488091232]
+script = ExtResource("1_venu5")
+
+[node name="Timer" type="Timer" parent="." unique_id=54382079]
+unique_name_in_owner = true
+wait_time = 180.0
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=747452574]
+unique_name_in_owner = true
+offset_right = 4.0
+offset_bottom = 27.0
+scale = Vector2(2.4761906, 2.142857)
+max_value = 180.0
+value = 180.0
+
+[connection signal="ready" from="." to="." method="_on_ready"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

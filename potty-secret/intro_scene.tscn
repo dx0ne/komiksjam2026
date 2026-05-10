@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://cnmfr6bn1kgnr"]
+
+[ext_resource type="Script" uid="uid://dwc5a2d28ijf7" path="res://intro_scene.gd" id="1_x3ncd"]
+[ext_resource type="VideoStream" uid="uid://dln07xcu86g4j" path="res://video/intro-do-gry-mp4.ogv" id="2_x3ncd"]
+
+[node name="Node2D" type="Control" unique_id=1576572473]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_x3ncd")
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="." unique_id=1786980837]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 301.0
+offset_top = 203.0
+offset_right = 1581.0
+offset_bottom = 923.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("2_x3ncd")
+autoplay = true
+
+[connection signal="finished" from="VideoStreamPlayer" to="." method="_on_video_stream_player_finished"]

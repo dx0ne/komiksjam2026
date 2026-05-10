@@ -31,8 +31,9 @@ func _input(event):
 			colors.append(bad_line_color);
 		else:
 			is_dragging=false;
-			colors[-1] = Color(Color.CRIMSON, 0.9);
-			queue_redraw();
+			if(colors.size()>0):
+				colors[-1] = Color(Color.CRIMSON, 0.9);
+				queue_redraw();
 	if event is InputEventMouseMotion and is_dragging:
 		if(parent.has_point()):
 			last_mouse_safe_pos = get_local_mouse_position();

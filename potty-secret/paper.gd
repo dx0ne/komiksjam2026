@@ -59,3 +59,16 @@ func update_points() -> void:
 	else:
 		%pointsLabel_bad.text = "";
 	pass;
+
+func get_score() -> bool:
+	var total = %interactables.get_child_count()
+	if count_all_redacted == total and count_correct_redacted == count_all_redacted:
+		return true;
+	else:
+		return false;
+	pass;
+	
+func all_filled() -> bool:
+	var total = %interactables.get_child_count()
+	return count_all_redacted == total;
+	pass;

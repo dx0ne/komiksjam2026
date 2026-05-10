@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
+[ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
@@ -31,18 +32,6 @@ position = Vector2(654, 0)
 [node name="paper_node2d" parent="papers_container" unique_id=1504223162 instance=ExtResource("1_80nbo")]
 visible = false
 
-[node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
-position = Vector2(1779.7954, 102.66668)
-rotation = 0.53265446
-
-[node name="paperclip_node2d2" parent="." unique_id=1580282940 instance=ExtResource("3_feb5d")]
-position = Vector2(1829.0001, 160.00003)
-rotation = 0.19120362
-
-[node name="paperclip_node2d3" parent="." unique_id=1691929090 instance=ExtResource("3_feb5d")]
-position = Vector2(1798.7954, 213.66669)
-rotation = -0.41111943
-
 [node name="Teczka" type="Sprite2D" parent="." unique_id=1944249299]
 position = Vector2(1901, 466)
 texture = ExtResource("11_iotsf")
@@ -56,10 +45,10 @@ unique_name_in_owner = true
 
 [node name="gimme_toilet_btn" type="TextureButton" parent="toilet_handle" unique_id=1318594853]
 unique_name_in_owner = true
-offset_left = 120.0
-offset_top = -208.0
-offset_right = 192.0
-offset_bottom = 810.0
+offset_left = 122.0
+offset_top = -210.0
+offset_right = 194.0
+offset_bottom = 808.0
 texture_normal = ExtResource("7_mfdv2")
 
 [node name="toilet_msgs_container" type="Node2D" parent="." unique_id=1395577949]
@@ -72,13 +61,38 @@ scale = Vector2(0.81707317, 0.81707317)
 texture = ExtResource("5_hve3p")
 
 [node name="RekaZegar" type="Sprite2D" parent="." unique_id=1667004532]
-position = Vector2(372.00003, 1134)
+position = Vector2(34.00001, 1151.0001)
 scale = Vector2(0.84229827, 0.84229827)
 texture = ExtResource("4_hve3p")
+
+[node name="clock" parent="RekaZegar" unique_id=488091232 instance=ExtResource("11_lc2xo")]
+unique_name_in_owner = true
+position = Vector2(302.74304, -225.57344)
 
 [node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
 position = Vector2(796, 126)
 texture = ExtResource("10_mfdv2")
+
+[node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
+position = Vector2(1744.6615, 642.0069)
+rotation = 0.53265446
+
+[node name="paperclip_node2d2" parent="." unique_id=1580282940 instance=ExtResource("3_feb5d")]
+position = Vector2(1793.8662, 699.3401)
+rotation = 0.19120362
+
+[node name="paperclip_node2d3" parent="." unique_id=1691929090 instance=ExtResource("3_feb5d")]
+position = Vector2(1763.6615, 753.00684)
+rotation = -0.41111943
+scale = Vector2(0.33036909, 0.33333334)
+
+[node name="gimme_toilet_btn2" type="TextureButton" parent="." unique_id=1343838258]
+modulate = Color(1, 1, 1, 0)
+offset_left = 1763.0
+offset_top = -646.0
+offset_right = 1835.0
+offset_bottom = 372.0
+texture_normal = ExtResource("7_mfdv2")
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
 position = Vector2(-23, 9)
@@ -86,3 +100,4 @@ position = Vector2(-23, 9)
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="gui_input" from="toilet_handle/gimme_toilet_btn" to="." method="_on_gimme_toilet_btn_gui_input"]
+[connection signal="gui_input" from="gimme_toilet_btn2" to="." method="_on_gimme_toilet_btn_2_gui_input"]

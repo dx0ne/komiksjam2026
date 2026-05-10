@@ -17,6 +17,8 @@ var paper_node: Node2D;;
 
 var current_words:Array[String];
 
+@onready var game_timer = $Timer
+
 func _input(event):
 	if event.is_action_pressed("quit"):
 		get_tree().quit();
@@ -26,6 +28,8 @@ func _input(event):
 		add_document();
 	if event.is_action_pressed("next_document"):
 		next_document();
+	if event.is_action_pressed("skip_to_ending"):
+		_on_time_out();
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			paper_node.position.y+=50*event.factor;
@@ -36,11 +40,21 @@ func _input(event):
 
 func _on_ready() -> void:
 	viewport_size = get_viewport().get_visible_rect().size;
-	for i in range(3):
+	for i in range(2):
 		add_document();    
 		await get_tree().create_timer(0.3).timeout
 	new_tolilet_msgs();
+	%clock.time_out.connect(_on_time_out)
 	pass # Replace with function body.
+
+func _on_time_out() -> void:
+	var win:bool = true;
+	for p in papers:
+		if p.get_score() == false:
+			win = false;
+	WordManager.good_ending=win;
+	get_tree().change_scene_to_file("res://ending.tscn")
+	pass
 
 func _on_draw() -> void:
 	pass # Replace with function body.
@@ -58,11 +72,12 @@ func new_tolilet_msgs() -> void:
 	var max_msgs:int = 3;
 	var y_pad_perct = 0.2;
 	var y_padding = viewport_size.y*y_pad_perct;
-	var y_spacer = viewport_size.y*(1.0-y_pad_perct) / max_msgs;
+	var y_spacer = (viewport_size.y*(1.0-y_pad_perct)*0.8) / max_msgs;
 	
 	var words = WordManager.get_next_batch(max_msgs);
 	WordManager.current_toilet_words=words;
-	
+	print(words);
+	print(WordManager.current_toilet_words);
 	for i in range(max_msgs):
 		var toilet_msg = TOILET_SCN.instantiate()
 		%toilet_msgs_container.add_child(toilet_msg);
@@ -124,6 +139,8 @@ func _on_gimme_toilet_btn_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			toilet_pull();
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			toilet_pull();
 	pass # Replace with function body.
 
 func toilet_pull() -> void:
@@ -145,3 +162,21 @@ func toilet_pull() -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.tween_callback(new_tolilet_msgs);
 	pass
+
+
+func _on_gimme_toilet_btn_2_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			try_end_game();
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			try_end_game();
+	pass # Replace with function body.
+
+func try_end_game() -> void:
+	var can_end:bool = true;
+	for p in papers:
+		if p.all_filled() == false:
+			can_end = false;
+	if can_end:
+		_on_time_out()
+	pass;

@@ -2,8 +2,18 @@
 
 [ext_resource type="Texture2D" uid="uid://cbtm0ncewhwjp" path="res://art/title.png" id="1_06t4h"]
 [ext_resource type="Script" uid="uid://buy18lfy33481" path="res://main_menu.gd" id="1_jix8l"]
-[ext_resource type="Texture2D" uid="uid://dt2tump0tlpth" path="res://art/btn_play.png" id="2_fu7sn"]
-[ext_resource type="Texture2D" uid="uid://dh2thfv8lcc12" path="res://art/btn_play_hover.png" id="3_jix8l"]
+[ext_resource type="Texture2D" uid="uid://1k2wos1rull7" path="res://art/Karteczka_02.png" id="3_glbon"]
+[ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="4_glbon"]
+[ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_nlkkf"]
+[ext_resource type="Texture2D" uid="uid://d2cx3eo1iltlt" path="res://art/controls.png" id="6_nlkkf"]
+[ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="7_qe12f"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_nlkkf"]
+font = ExtResource("4_glbon")
+font_size = 42
+font_color = Color(1, 0.116666675, 0, 0.76862746)
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
 
 [node name="Control" type="Control" unique_id=1793360781]
 layout_mode = 3
@@ -14,7 +24,41 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_jix8l")
 
+[node name="Controls" type="Sprite2D" parent="." unique_id=124528707]
+position = Vector2(953, 525)
+texture = ExtResource("6_nlkkf")
+
+[node name="PlayButton" type="TextureButton" parent="." unique_id=130900983]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1401.0
+offset_top = 719.0
+offset_right = 1684.0
+offset_bottom = 946.0
+size_flags_horizontal = 4
+texture_normal = ExtResource("3_glbon")
+texture_pressed = ExtResource("4_nlkkf")
+
+[node name="Label" type="Label" parent="PlayButton" unique_id=1162963837]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -531.0
+offset_top = -25.5
+offset_right = 531.0
+offset_bottom = 25.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "PLAY"
+label_settings = SubResource("LabelSettings_nlkkf")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1532667731]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,15 +67,22 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=163147358]
+visible = false
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="CenterContainer/VBoxContainer" unique_id=1784225229]
+visible = false
 layout_mode = 2
+size_flags_horizontal = 4
 texture = ExtResource("1_06t4h")
 
-[node name="PlayButton" type="TextureButton" parent="CenterContainer/VBoxContainer" unique_id=130900983]
-layout_mode = 2
-texture_normal = ExtResource("2_fu7sn")
-texture_hover = ExtResource("3_jix8l")
+[node name="Timer" type="Timer" parent="." unique_id=2023511068]
+wait_time = 15.0
+autostart = true
 
-[connection signal="pressed" from="CenterContainer/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("7_qe12f")]
+unique_name_in_owner = true
+position = Vector2(-23, 9)
+
+[connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

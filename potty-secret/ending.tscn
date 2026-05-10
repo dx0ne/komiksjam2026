@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://ctmlefcq1tlcm"]
+
+[ext_resource type="Script" uid="uid://cok8qqyppsx1p" path="res://ending.gd" id="1_fsb5k"]
+[ext_resource type="VideoStream" uid="uid://ks2nn6ad4be2" path="res://video/outro-redacted-proper_1.ogv" id="2_4jooh"]
+[ext_resource type="VideoStream" uid="uid://ytgfqgx2ptu8" path="res://video/outro-aliens_1.ogv" id="3_4jooh"]
+[ext_resource type="VideoStream" uid="uid://f5jbph5iy3lq" path="res://video/Speaker-intro_1.ogv" id="4_4jooh"]
+
+[node name="Control" type="Control" unique_id=1296132588]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fsb5k")
+
+[node name="VideoStreamPlayer_good" type="VideoStreamPlayer" parent="." unique_id=177028736]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("2_4jooh")
+
+[node name="VideoStreamPlayer_bad" type="VideoStreamPlayer" parent="." unique_id=1291062868]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("3_4jooh")
+
+[node name="VideoStreamPlayer_intro" type="VideoStreamPlayer" parent="." unique_id=1072336076]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("4_4jooh")
+autoplay = true
+
+[connection signal="ready" from="." to="." method="_on_ready"]
+[connection signal="finished" from="VideoStreamPlayer_good" to="." method="_on_video_stream_player_good_finished"]
+[connection signal="finished" from="VideoStreamPlayer_bad" to="." method="_on_video_stream_player_bad_finished"]
+[connection signal="finished" from="VideoStreamPlayer_intro" to="." method="_on_video_stream_player_intro_finished"]
