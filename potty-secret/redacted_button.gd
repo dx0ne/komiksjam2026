@@ -7,6 +7,7 @@ signal on_started_good();
 signal on_zjebane();
 
 @onready var btn:TextureButton = %TextureButton;
+@onready var label: Label = %Label
 
 var words =WordManager.master_list.duplicate();
 var random_word = words.pick_random()
@@ -34,28 +35,31 @@ func _on_ready() -> void:
 	pass # Replace with function body.
 
 func mix_btn_size() -> void:
-	var margin:float = 0.2
+	var margin:float = 0.3
 	btn.custom_minimum_size = %Label.size*(1.0+margin);
-	btn.custom_minimum_size.y*=(1.0+margin);
-	btn.position.x-=%Label.size.x*margin*0.5;
-	btn.position.y-=%Label.size.y*margin*0.5;
+	#btn.custom_minimum_size.y*=(1.0+margin);
+	btn.position.x-=%Label.size.x*margin*0.3;
+	btn.position.y-=%Label.size.y*margin*0.6;
 	pass
 
 
 func _on_label_gui_input(event: InputEvent) -> void:
+	var label_margin:float = %Label.size.x*threshold;
 	if is_redacted:
 		return;
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 					print(event.position);
-					if(event.position.x < btn.size.x*threshold):
+					if(abs(label.position.x - event.position.x) < label_margin):#btn.size.x*threshold):
 						is_dragging=true;
 						on_started_good.emit();
 			elif is_dragging:
 				print("zjebane?");
-				var within_y = event.position.y >= 0 and event.position.y <=btn.size.y
-				if(event.position.x > btn.size.x*(1.0-threshold) and event.position.x < btn.size.x and within_y):
+				#var within_y = event.position.y >= 0 and event.position.y <=btn.size.y
+				var within_y = event.position.y >= btn.position.y and event.position.y <=btn.size.y
+				#if(event.position.x > btn.size.x*(1.0-threshold) and event.position.x < btn.size.x and within_y):
+				if(abs(event.position.x - (label.position.x+label.size.x))<label_margin):
 					print("labelka prawa strona");
 					is_dragging = false;
 					redacted();

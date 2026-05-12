@@ -11,7 +11,7 @@ func _on_timer_timeout() -> void:
 
 
 func _on_ready() -> void:
-	game_timer.wait_time=60;
+	game_timer.wait_time=180;
 	progress_bar.max_value = game_timer.wait_time
 	progress_bar.value = game_timer.wait_time
 	game_timer.start();

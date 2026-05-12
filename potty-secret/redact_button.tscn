@@ -18,7 +18,6 @@ unique_name_in_owner = true
 offset_right = 74.0
 offset_bottom = 57.0
 size_flags_horizontal = 4
-mouse_filter = 0
 text = "###"
 label_settings = SubResource("LabelSettings_w30fr")
 
