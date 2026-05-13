@@ -13,6 +13,22 @@
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
+[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="14_215e1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
+shader = ExtResource("14_215e1")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.019000048402499914
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_e2o6t")
@@ -96,6 +112,20 @@ texture_normal = ExtResource("7_mfdv2")
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
 position = Vector2(-23, 9)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=309520377]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=329970364]
+material = SubResource("ShaderMaterial_7sc4i")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 5.0
+offset_right = 4.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
