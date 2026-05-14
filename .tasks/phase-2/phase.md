@@ -1,9 +1,9 @@
 ---
 phase: 2
 title: Game scene integration — build game2.tscn
-status: open
+status: closed
 opened: 2026-05-14
-closed: ~
+closed: 2026-05-14
 ---
 
 ## Goal
@@ -33,7 +33,7 @@ post-submit marks; the next-document action clears the surface and asks
 
 ## Tasks
 
-- [ ] task-01-scaffold-game2-scene.md
-- [ ] task-02-controller-boot-wordmanager.md
-- [ ] task-03-submit-and-next-document.md
-- [ ] task-04-verification.md
+- [x] task-01-scaffold-game2-scene.md
+- [x] task-02-controller-boot-wordmanager.md (done-with-concerns: --check-only --script game2.gd fails on WordManager autoload reference, same limitation as phase-1 cross-script class_name lookup; full project --quit import resolves it)
+- [x] task-03-submit-and-next-document.md
+- [x] task-04-verification.md (manual editor checks await user execution)

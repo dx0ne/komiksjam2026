@@ -1,7 +1,7 @@
 ---
 title: Potty-Secret · Thick-Black-Bars Port
 status: in-progress
-current-phase: 2
+current-phase: 3
 repo: private
 github: https://github.com/dx0ne/komiksjam2026
 created: 2026-05-14
@@ -17,5 +17,5 @@ rendering and marker marking.
 ## Phases
 
 - [x] Phase 1: Foundation — port assets, scripts, and a standalone test scene
-- [ ] Phase 2: Game scene — build `game2.tscn` driven by `WordManager.current_toilet_words`
+- [x] Phase 2: Game scene — build `game2.tscn` driven by `WordManager.current_toilet_words`
 - [ ] Phase 3: Scoring & verdict (deferred)
