@@ -36,8 +36,8 @@ source repo's spec.
 
 - [x] `.tasks/phase-1/verification.md` exists with the exact PowerShell
   commands and the manual checklist.
-- [ ] All four headless / editor checks pass on the user's machine (the user
-  runs them — this is a Windows interactive step Claude cannot execute).
+- [x] All four headless / editor checks pass on the user's machine — user
+  ran all manual smoke + regression checks on 2026-05-14, everything worked.
 
 ## Notes
 

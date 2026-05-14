@@ -65,29 +65,29 @@ This step confirms that the new scripts and scenes integrate properly with the r
 
 ## 3. Manual Editor Check — redaction_test.tscn Smoke Test
 
-[ ] user-run: Open the Godot editor, navigate to `potty-secret/scenes/redaction_test.tscn`, and press **F6** to run the scene.
+[x] user-run (verified 2026-05-14): Open the Godot editor, navigate to `potty-secret/scenes/redaction_test.tscn`, and press **F6** to run the scene.
 
 Walk through the following checks (from the project spec):
 
-- [ ] user-run: **Layout check:** The scene displays a dark background, a paper panel on the left (~120-1400px horizontally, ~60-1020px vertically), and a UI panel on the right with controls.
+- [x] user-run (verified 2026-05-14): **Layout check:** The scene displays a dark background, a paper panel on the left (~120-1400px horizontally, ~60-1020px vertically), and a UI panel on the right with controls.
   
-- [ ] user-run: **Text layout check:** The paper shows procedurally laid-out text (multiple words, readable content) and a directive label on the right listing two words marked as "illegal" (forbidden words).
+- [x] user-run (verified 2026-05-14): **Text layout check:** The paper shows procedurally laid-out text (multiple words, readable content) and a directive label on the right listing two words marked as "illegal" (forbidden words).
 
-- [ ] user-run: **Marker cursor check:** When you move the mouse over the paper, a custom marker cursor appears (thick black circle or outline). When you move the mouse outside the paper, the OS cursor reappears. The custom cursor should be visible and responsive.
+- [x] user-run (verified 2026-05-14): **Marker cursor check:** When you move the mouse over the paper, a custom marker cursor appears (thick black circle or outline). When you move the mouse outside the paper, the OS cursor reappears. The custom cursor should be visible and responsive.
 
-- [ ] user-run: **Drawing and submit check:** 
+- [x] user-run (verified 2026-05-14): **Drawing and submit check:** 
   - Draw a marker stroke across one of the illegal words by clicking and dragging over it.
   - Press the **Submit** button (or use the bound key if configured).
   - A green tick should appear beside the word you marked.
   - Draw a stroke over a legal word and press Submit — a red cross should appear.
 
-- [ ] user-run: **Debug overlay toggle (SPACE):** Press **SPACE** to toggle the debug overlay on and off. When on, you should see:
+- [x] user-run (verified 2026-05-14): **Debug overlay toggle (SPACE):** Press **SPACE** to toggle the debug overlay on and off. When on, you should see:
   - Word bounding rectangles overlaid on the text
   - Tolerance bounds around the marker stroke
   - Sample dots indicating where the redaction was sampled
   - When toggled off, the overlay disappears.
 
-- [ ] user-run: **Marker mode toggle (M):** Press **M** to cycle between marker modes (LINE and BRUSH). The score label on the right should update to reflect the current mode.
+- [x] user-run (verified 2026-05-14): **Marker mode toggle (M):** Press **M** to cycle between marker modes (LINE and BRUSH). The score label on the right should update to reflect the current mode.
 
 **Expected outcome:** All smoke checks pass. The scene is fully functional, responsive, and mirrors the behavior of the source `document_scene.tscn`.
 
@@ -95,10 +95,10 @@ Walk through the following checks (from the project spec):
 
 ## 4. Manual Regression Check — game.tscn Still Works
 
-[ ] user-run: Open the Godot editor, navigate to `potty-secret/game.tscn` (the original main game scene), and press **F5** to run the full game.
+[x] user-run (verified 2026-05-14): Open the Godot editor, navigate to `potty-secret/game.tscn` (the original main game scene), and press **F5** to run the full game.
 
-- [ ] user-run: Confirm that the existing game flow plays without errors or crashes.
-- [ ] user-run: Navigate through the normal game flow (intro, menu, main scene interactions, etc.) to ensure Phase 1 changes did not break any existing scenes or autoloads.
+- [x] user-run (verified 2026-05-14): Confirm that the existing game flow plays without errors or crashes.
+- [x] user-run (verified 2026-05-14): Navigate through the normal game flow (intro, menu, main scene interactions, etc.) to ensure Phase 1 changes did not break any existing scenes or autoloads.
 
 **Expected outcome:** The original game flow still works; no regressions introduced by Phase 1 changes.
 
