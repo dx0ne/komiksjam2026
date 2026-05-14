@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="14_215e1"]
+[ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
 shader = ExtResource("14_215e1")
@@ -26,7 +27,7 @@ shader_parameter/dither_enabled = true
 shader_parameter/dither_pattern = 2
 shader_parameter/levels = 9
 shader_parameter/contrast = 1.1930000566675
-shader_parameter/brightness = 0.019000048402499914
+shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
 
@@ -127,7 +128,34 @@ offset_bottom = 5.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Options" type="Control" parent="." unique_id=1534947447]
+layout_mode = 3
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+size_flags_horizontal = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Options" unique_id=1577286518]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -10.0
+offset_right = 32.0
+offset_bottom = 10.0
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="Options _Settings" type="VBoxContainer" parent="Options/HBoxContainer" unique_id=839586921]
+layout_mode = 2
+script = ExtResource("15_7sc4i")
+
+[node name="OptionButton" type="OptionButton" parent="Options/HBoxContainer/Options _Settings" unique_id=690648783]
+layout_mode = 2
+
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="gui_input" from="toilet_handle/gimme_toilet_btn" to="." method="_on_gimme_toilet_btn_gui_input"]
 [connection signal="gui_input" from="gimme_toilet_btn2" to="." method="_on_gimme_toilet_btn_2_gui_input"]
+[connection signal="item_selected" from="Options/HBoxContainer/Options _Settings/OptionButton" to="Options/HBoxContainer/Options _Settings" method="_on_option_button_item_selected"]
