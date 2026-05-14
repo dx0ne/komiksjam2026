@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: Scaffold game2.tscn — decor + redaction stack layout
-status: in-progress
+status: done
 complexity: medium
 blocked-by: ~
 ---
@@ -131,32 +131,61 @@ remains the entry point until phase 3.
 
 ## Acceptance Criteria
 
-- [ ] `potty-secret/game2.tscn` exists, opens in the Godot editor without
+- [x] `potty-secret/game2.tscn` exists, opens in the Godot editor without
   missing-resource / missing-UID errors.
-- [ ] All decor nodes from `game.tscn` are present in `game2.tscn` (Tlo,
+- [x] All decor nodes from `game.tscn` are present in `game2.tscn` (Tlo,
   Ramka, Teczka, Teczka2, RekaZegar/clock, Kawa, Sprite2D ashtray, 3×
   paperclip, toilet_handle/gimme_toilet_btn, toilet_msgs_container,
   gimme_toilet_btn2, marker_Node2D, CanvasLayer/ColorRect post-process,
   Options subtree).
-- [ ] Redaction stack present in the same scene: `BackgroundPaper`,
+- [x] Redaction stack present in the same scene: `BackgroundPaper`,
   `MarkerLayer`, `DitherOverlay`, `TextRenderer`, `MarkerCursorLayer`,
   `DebugOverlay` — all sharing identical offsets, with `mouse_filter = 2`
   on the four pass-through layers.
-- [ ] UI panel with `TitleLabel`, `DirectiveLabel`, `TimerLabel`,
+- [x] UI panel with `TitleLabel`, `DirectiveLabel`, `TimerLabel`,
   `ScoreLabel`, `SubmitButton`, `NewDocumentButton` exists in the scene.
-- [ ] `papers_container` and the embedded `paper.tscn` instance are
+- [x] `papers_container` and the embedded `paper.tscn` instance are
   **absent** from `game2.tscn`.
-- [ ] `potty-secret/game2.gd` exists with the stub body shown above and
+- [x] `potty-secret/game2.gd` exists with the stub body shown above and
   parses with `--check-only`:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --check-only --script game2.gd`
   returns exit code 0.
-- [ ] `potty-secret/game2.gd.uid` exists with a fresh, syntactically valid
+- [x] `potty-secret/game2.gd.uid` exists with a fresh, syntactically valid
   Godot UID.
-- [ ] `project.godot` is unchanged.
-- [ ] Full project headless import still succeeds:
+- [x] `project.godot` is unchanged.
+- [x] Full project headless import still succeeds:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --quit`
   returns exit code 0 with no new missing-resource warnings.
 
 ## Notes
 
-(filled in by implementer)
+### What was done
+
+Created three new files:
+
+- `potty-secret/game2.gd` — stub script (`extends Node2D`, `_ready()` with `pass`), exactly as specified.
+- `potty-secret/game2.gd.uid` — fresh UID sidecar: `uid://d3x7yqnmr4c8p`.
+- `potty-secret/game2.tscn` — new scene with UID `uid://b8x5pqwcnt7z6`.
+
+### Scene construction decisions
+
+**Redaction stack offsets:** `offset_left=480.0, offset_top=120.0, offset_right=1460.0, offset_bottom=1020.0`. All six layers (BackgroundPaper, MarkerLayer, DitherOverlay, TextRenderer, MarkerCursorLayer, DebugOverlay) share these identical offsets. The left boundary (480) sits to the right of the toilet handle area; the right boundary (1460) leaves the ashtray (x=1550) and briefcase decor untouched.
+
+**UI panel placement:** `offset_left=1470.0, offset_top=120.0, offset_right=1900.0, offset_bottom=820.0` — tucked in the right strip between the redaction area and the screen edge, below the ashtray (which is near y=17). The panel uses `StyleBoxFlat_ui` from `redaction_test.tscn` verbatim.
+
+**mouse_filter = 2** is set on DitherOverlay, TextRenderer, MarkerCursorLayer, and DebugOverlay (the four pass-through layers), matching `redaction_test.tscn` exactly.
+
+**Sub-resources copied verbatim** from their sources:
+- `ShaderMaterial_7sc4i` (post-process overlay shader) from `game.tscn`
+- `StyleBoxFlat_paper`, `ShaderMaterial_dither`, `ShaderMaterial_marker_cursor_dither`, `StyleBoxFlat_ui` from `redaction_test.tscn`
+
+**Root node:** `RootNode` (type Node2D), `unique_id=532590790` (kept from game.tscn), now points to `game2.gd` instead of `game.gd`.
+
+**`papers_container`** and the `paper_node2d` packed scene instance are absent — not copied from `game.tscn`.
+
+**`project.godot`** was not modified. `run/main_scene` still points at `game.tscn`.
+
+### Verification results
+
+- `--check-only --script game2.gd`: exit code 0
+- `--headless --path potty-secret --quit`: exit code 0, no new missing-resource warnings

@@ -1,0 +1,306 @@
+[gd_scene format=3 uid="uid://b8x5pqwcnt7z6"]
+
+[ext_resource type="Script" uid="uid://d3x7yqnmr4c8p" path="res://game2.gd" id="1_game2"]
+[ext_resource type="Texture2D" uid="uid://wrwjn0h24j63" path="res://art/Tlo.png" id="2_j5wjh"]
+[ext_resource type="PackedScene" uid="uid://be4ckl5tcikud" path="res://item_draggable.tscn" id="3_feb5d"]
+[ext_resource type="Texture2D" uid="uid://tcmybbyf7j66" path="res://art/Ramka.png" id="3_vef74"]
+[ext_resource type="Texture2D" uid="uid://c8k6jmxo282dx" path="res://art/Reka_Zegar.png" id="4_hve3p"]
+[ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="5_7jktm"]
+[ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
+[ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
+[ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
+[ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
+[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="14_215e1"]
+[ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
+[ext_resource type="Script" uid="uid://b1jkces6w0l7k" path="res://scripts/marker_layer.gd" id="16_mlayer"]
+[ext_resource type="Script" uid="uid://c8w77dm6kgulw" path="res://scripts/text_renderer.gd" id="17_trender"]
+[ext_resource type="Script" uid="uid://bwaip5b585rds" path="res://scripts/debug_overlay.gd" id="18_debug"]
+[ext_resource type="Script" uid="uid://duunugh5j66xl" path="res://scripts/marker_cursor_layer.gd" id="19_cursor"]
+[ext_resource type="Shader" uid="uid://be4ywi6gucasj" path="res://shaders/document_dither.gdshader" id="20_dither"]
+[ext_resource type="Shader" uid="uid://dyaoxr1lldri5" path="res://shaders/marker_cursor_dither.gdshader" id="21_cdither"]
+[ext_resource type="Texture2D" uid="uid://beh4ex8madkct" path="res://assets/dither/bayer16tile2.png" id="22_bayer"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
+shader = ExtResource("14_215e1")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_paper"]
+bg_color = Color(0.91, 0.84, 0.69, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.48, 0.36, 1)
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 18
+shadow_offset = Vector2(7, 9)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("20_dither")
+shader_parameter/dither_texture = ExtResource("22_bayer")
+shader_parameter/u_bit_depth = 6
+shader_parameter/u_contrast = 1.1
+shader_parameter/u_offset = 0.0
+shader_parameter/u_dither_size = 2
+shader_parameter/u_intensity = 0.7
+shader_parameter/u_tint_strength = 0.3
+shader_parameter/shadow_color = Color(0.31, 0.25, 0.15, 1)
+shader_parameter/mid_color = Color(0.66, 0.55, 0.34, 1)
+shader_parameter/paper_color = Color(0.96, 0.88, 0.66, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_marker_cursor_dither"]
+shader = ExtResource("21_cdither")
+shader_parameter/dither_texture = ExtResource("22_bayer")
+shader_parameter/u_bit_depth = 6
+shader_parameter/u_contrast = 1.1
+shader_parameter/u_offset = 0.0
+shader_parameter/u_dither_size = 2
+shader_parameter/u_intensity = 0.7
+shader_parameter/u_tint_strength = 0.3
+shader_parameter/shadow_color = Color(0.31, 0.25, 0.15, 1)
+shader_parameter/mid_color = Color(0.66, 0.55, 0.34, 1)
+shader_parameter/paper_color = Color(0.96, 0.88, 0.66, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ui"]
+bg_color = Color(0.16, 0.15, 0.13, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.39, 0.3, 1)
+
+[node name="RootNode" type="Node2D" unique_id=532590790]
+script = ExtResource("1_game2")
+
+[node name="Tlo" type="Sprite2D" parent="." unique_id=1560310654]
+position = Vector2(960, 541)
+texture = ExtResource("2_j5wjh")
+
+[node name="Ramka" type="Sprite2D" parent="." unique_id=1743869147]
+position = Vector2(960, 541)
+texture = ExtResource("3_vef74")
+
+[node name="BackgroundPaper" type="Panel" parent="." unique_id=1729999842]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 120.0
+offset_right = 1460.0
+offset_bottom = 1020.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_paper")
+
+[node name="MarkerLayer" type="Control" parent="." unique_id=1291403684]
+anchors_preset = 0
+offset_left = 480.0
+offset_top = 120.0
+offset_right = 1460.0
+offset_bottom = 1020.0
+script = ExtResource("16_mlayer")
+
+[node name="DitherOverlay" type="ColorRect" parent="." unique_id=1991015174]
+material = SubResource("ShaderMaterial_dither")
+layout_mode = 0
+offset_left = 480.0
+offset_top = 120.0
+offset_right = 1460.0
+offset_bottom = 1020.0
+mouse_filter = 2
+
+[node name="TextRenderer" type="Control" parent="." unique_id=1551182615]
+anchors_preset = 0
+offset_left = 480.0
+offset_top = 120.0
+offset_right = 1460.0
+offset_bottom = 1020.0
+mouse_filter = 2
+script = ExtResource("17_trender")
+
+[node name="MarkerCursorLayer" type="Control" parent="." unique_id=999919093]
+material = SubResource("ShaderMaterial_marker_cursor_dither")
+anchors_preset = 0
+offset_left = 480.0
+offset_top = 120.0
+offset_right = 1460.0
+offset_bottom = 1020.0
+mouse_filter = 2
+script = ExtResource("19_cursor")
+
+[node name="DebugOverlay" type="Control" parent="." unique_id=556954865]
+anchors_preset = 0
+offset_left = 480.0
+offset_top = 120.0
+offset_right = 1460.0
+offset_bottom = 1020.0
+mouse_filter = 2
+script = ExtResource("18_debug")
+
+[node name="UI" type="Panel" parent="." unique_id=268304216]
+layout_mode = 0
+offset_left = 1470.0
+offset_top = 120.0
+offset_right = 1900.0
+offset_bottom = 820.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ui")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI" unique_id=813283351]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MarginContainer" unique_id=593792250]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=499501858]
+layout_mode = 2
+text = "MINISTRY OF RECORDS"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="DirectiveLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=1828284061]
+layout_mode = 2
+text = "Directive"
+autowrap_mode = 3
+
+[node name="TimerLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=335177177]
+layout_mode = 2
+text = "Shift clock: 08:00"
+
+[node name="ScoreLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=1029380007]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Drag the marker over forbidden words, then submit."
+autowrap_mode = 3
+
+[node name="SubmitButton" type="Button" parent="UI/MarginContainer/VBoxContainer" unique_id=1477129985]
+layout_mode = 2
+text = "Submit Review"
+
+[node name="NewDocumentButton" type="Button" parent="UI/MarginContainer/VBoxContainer" unique_id=1598728747]
+layout_mode = 2
+text = "New Document"
+
+[node name="Teczka" type="Sprite2D" parent="." unique_id=1944249299]
+position = Vector2(1901, 466)
+texture = ExtResource("11_iotsf")
+
+[node name="Teczka2" type="Sprite2D" parent="." unique_id=295684005]
+position = Vector2(1939, 457)
+texture = ExtResource("12_lc2xo")
+
+[node name="toilet_handle" type="Node2D" parent="." unique_id=866905755]
+unique_name_in_owner = true
+
+[node name="gimme_toilet_btn" type="TextureButton" parent="toilet_handle" unique_id=1318594853]
+unique_name_in_owner = true
+offset_left = 122.0
+offset_top = -210.0
+offset_right = 194.0
+offset_bottom = 808.0
+texture_normal = ExtResource("7_mfdv2")
+
+[node name="toilet_msgs_container" type="Node2D" parent="." unique_id=1395577949]
+unique_name_in_owner = true
+position = Vector2(425, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=653389244]
+position = Vector2(1550, 17)
+scale = Vector2(0.81707317, 0.81707317)
+texture = ExtResource("5_hve3p")
+
+[node name="RekaZegar" type="Sprite2D" parent="." unique_id=1667004532]
+position = Vector2(34.00001, 1151.0001)
+scale = Vector2(0.84229827, 0.84229827)
+texture = ExtResource("4_hve3p")
+
+[node name="clock" parent="RekaZegar" unique_id=488091232 instance=ExtResource("11_lc2xo")]
+unique_name_in_owner = true
+position = Vector2(302.74304, -225.57344)
+
+[node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
+position = Vector2(796, 126)
+texture = ExtResource("10_mfdv2")
+
+[node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
+position = Vector2(1744.6615, 642.0069)
+rotation = 0.53265446
+
+[node name="paperclip_node2d2" parent="." unique_id=1580282940 instance=ExtResource("3_feb5d")]
+position = Vector2(1793.8662, 699.3401)
+rotation = 0.19120362
+
+[node name="paperclip_node2d3" parent="." unique_id=1691929090 instance=ExtResource("3_feb5d")]
+position = Vector2(1763.6615, 753.00684)
+rotation = -0.41111943
+scale = Vector2(0.33036909, 0.33333334)
+
+[node name="gimme_toilet_btn2" type="TextureButton" parent="." unique_id=1343838258]
+modulate = Color(1, 1, 1, 0)
+offset_left = 1763.0
+offset_top = -646.0
+offset_right = 1835.0
+offset_bottom = 372.0
+texture_normal = ExtResource("7_mfdv2")
+
+[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+position = Vector2(-23, 9)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=309520377]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=329970364]
+material = SubResource("ShaderMaterial_7sc4i")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 5.0
+offset_right = 4.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Options" type="Control" parent="." unique_id=1534947447]
+layout_mode = 3
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+size_flags_horizontal = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Options" unique_id=1577286518]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -10.0
+offset_right = 32.0
+offset_bottom = 10.0
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="Options _Settings" type="VBoxContainer" parent="Options/HBoxContainer" unique_id=839586921]
+layout_mode = 2
+script = ExtResource("15_7sc4i")
+
+[node name="OptionButton" type="OptionButton" parent="Options/HBoxContainer/Options _Settings" unique_id=690648783]
+layout_mode = 2
