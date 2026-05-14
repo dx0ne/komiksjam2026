@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: Port text_renderer.gd
-status: in-progress
+status: done
 complexity: low
 blocked-by: task-01
 ---
@@ -28,12 +28,22 @@ existing class with that name (greppable: `RedactedLabel`, `LinePainter`,
 
 ## Acceptance Criteria
 
-- [ ] `potty-secret/scripts/text_renderer.gd` exists, byte-identical to
+- [x] `potty-secret/scripts/text_renderer.gd` exists, byte-identical to
   `/tmp/thick-black-bars/scripts/text_renderer.gd`.
-- [ ] `potty-secret/scripts/text_renderer.gd.uid` exists, byte-identical to
+- [x] `potty-secret/scripts/text_renderer.gd.uid` exists, byte-identical to
   the source `.uid`.
-- [ ] `godot --headless --path potty-secret --check-only --script
+- [x] `godot --headless --path potty-secret --check-only --script
   scripts/text_renderer.gd` returns exit 0.
-- [ ] No edits to any other existing potty-secret file.
+- [x] No edits to any other existing potty-secret file.
 
 ## Notes
+
+Files copied from `D:\Projects\thick-black-bars\scripts\`:
+- `text_renderer.gd` → `potty-secret/scripts/text_renderer.gd` (4,601 bytes)
+- `text_renderer.gd.uid` → `potty-secret/scripts/text_renderer.gd.uid` (20 bytes)
+
+Verification completed:
+- SHA256 hash verified: source and target files are byte-identical
+- Godot syntax check passed with exit code 0
+- No modifications to any other potty-secret files
+- No class_name collisions (TextRenderer is unique in potty-secret)
