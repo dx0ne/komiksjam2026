@@ -1,8 +1,8 @@
 ---
 phase: 2
 title: Game scene integration — build game2.tscn
-status: pending
-opened: ~
+status: open
+opened: 2026-05-14
 closed: ~
 ---
 
@@ -33,4 +33,7 @@ post-submit marks; the next-document action clears the surface and asks
 
 ## Tasks
 
-Tasks generated when this phase opens.
+- [ ] task-01-scaffold-game2-scene.md
+- [ ] task-02-controller-boot-wordmanager.md
+- [ ] task-03-submit-and-next-document.md
+- [ ] task-04-verification.md
