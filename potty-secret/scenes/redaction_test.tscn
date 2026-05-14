@@ -1,0 +1,179 @@
+[gd_scene format=3 uid="uid://rc3xdyiztlntw"]
+
+[ext_resource type="Script" uid="uid://8fg94reodt6k2" path="res://scripts/redaction_test.gd" id="1_redact"]
+[ext_resource type="Script" uid="uid://c8w77dm6kgulw" path="res://scripts/text_renderer.gd" id="2_text"]
+[ext_resource type="Script" uid="uid://b1jkces6w0l7k" path="res://scripts/marker_layer.gd" id="3_marker"]
+[ext_resource type="Script" uid="uid://bwaip5b585rds" path="res://scripts/debug_overlay.gd" id="4_debug"]
+[ext_resource type="Shader" path="res://shaders/document_dither.gdshader" id="5_dither"]
+[ext_resource type="Script" uid="uid://duunugh5j66xl" path="res://scripts/marker_cursor_layer.gd" id="6_cursor"]
+[ext_resource type="Texture2D" uid="uid://beh4ex8madkct" path="res://assets/dither/bayer16tile2.png" id="7_bayer16"]
+[ext_resource type="Shader" path="res://shaders/marker_cursor_dither.gdshader" id="8_cursor_dither"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_paper"]
+bg_color = Color(0.91, 0.84, 0.69, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.48, 0.36, 1)
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 18
+shadow_offset = Vector2(7, 9)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("5_dither")
+shader_parameter/dither_texture = ExtResource("7_bayer16")
+shader_parameter/u_bit_depth = 6
+shader_parameter/u_contrast = 1.1
+shader_parameter/u_offset = 0.0
+shader_parameter/u_dither_size = 2
+shader_parameter/u_intensity = 0.7
+shader_parameter/u_tint_strength = 0.3
+shader_parameter/shadow_color = Color(0.31, 0.25, 0.15, 1)
+shader_parameter/mid_color = Color(0.66, 0.55, 0.34, 1)
+shader_parameter/paper_color = Color(0.96, 0.88, 0.66, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_marker_cursor_dither"]
+shader = ExtResource("8_cursor_dither")
+shader_parameter/dither_texture = ExtResource("7_bayer16")
+shader_parameter/u_bit_depth = 6
+shader_parameter/u_contrast = 1.1
+shader_parameter/u_offset = 0.0
+shader_parameter/u_dither_size = 2
+shader_parameter/u_intensity = 0.7
+shader_parameter/u_tint_strength = 0.3
+shader_parameter/shadow_color = Color(0.31, 0.25, 0.15, 1)
+shader_parameter/mid_color = Color(0.66, 0.55, 0.34, 1)
+shader_parameter/paper_color = Color(0.96, 0.88, 0.66, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ui"]
+bg_color = Color(0.16, 0.15, 0.13, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.39, 0.3, 1)
+
+[node name="RedactionTest" type="Control" unique_id=877229332]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_redact")
+
+[node name="Background" type="ColorRect" parent="." unique_id=895132019]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.09, 0.085, 0.075, 1)
+
+[node name="BackgroundPaper" type="Panel" parent="." unique_id=1729999842]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = 1400.0
+offset_bottom = 1020.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_paper")
+
+[node name="MarkerLayer" type="Control" parent="." unique_id=1291403684]
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = 1400.0
+offset_bottom = 1020.0
+script = ExtResource("3_marker")
+
+[node name="DitherOverlay" type="ColorRect" parent="." unique_id=1991015174]
+material = SubResource("ShaderMaterial_dither")
+layout_mode = 0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = 1400.0
+offset_bottom = 1020.0
+mouse_filter = 2
+
+[node name="TextRenderer" type="Control" parent="." unique_id=1551182615]
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = 1400.0
+offset_bottom = 1020.0
+mouse_filter = 2
+script = ExtResource("2_text")
+
+[node name="MarkerCursorLayer" type="Control" parent="." unique_id=999919093]
+material = SubResource("ShaderMaterial_marker_cursor_dither")
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = 1400.0
+offset_bottom = 1020.0
+mouse_filter = 2
+script = ExtResource("6_cursor")
+
+[node name="DebugOverlay" type="Control" parent="." unique_id=556954865]
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = 1400.0
+offset_bottom = 1020.0
+mouse_filter = 2
+script = ExtResource("4_debug")
+
+[node name="UI" type="Panel" parent="." unique_id=268304216]
+layout_mode = 0
+offset_left = 1430.0
+offset_top = 60.0
+offset_right = 1880.0
+offset_bottom = 1020.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ui")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI" unique_id=813283351]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MarginContainer" unique_id=593792250]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=499501858]
+layout_mode = 2
+text = "MINISTRY OF RECORDS"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="DirectiveLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=1828284061]
+layout_mode = 2
+text = "Directive"
+autowrap_mode = 3
+
+[node name="TimerLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=335177177]
+layout_mode = 2
+text = "Shift clock: 08:00"
+
+[node name="ScoreLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=1029380007]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Drag the marker over forbidden words, then submit."
+autowrap_mode = 3
+
+[node name="SubmitButton" type="Button" parent="UI/MarginContainer/VBoxContainer" unique_id=1477129985]
+layout_mode = 2
+text = "Submit Review"
+
+[node name="NewDocumentButton" type="Button" parent="UI/MarginContainer/VBoxContainer" unique_id=1598728747]
+layout_mode = 2
+text = "New Document"

@@ -1,7 +1,7 @@
 ---
 id: task-05
 title: Build redaction_test.tscn (standalone test bed)
-status: in-progress
+status: done
 complexity: medium
 blocked-by: task-02, task-03, task-04
 ---
@@ -87,20 +87,66 @@ open it in the editor and press F6 (Run Current Scene) or right-click → Run.
 
 ## Acceptance Criteria
 
-- [ ] `potty-secret/scenes/redaction_test.tscn` exists and opens cleanly in
+- [x] `potty-secret/scenes/redaction_test.tscn` exists and opens cleanly in
   the Godot editor with no missing-resource errors.
-- [ ] `potty-secret/scripts/redaction_test.gd` exists and parses with
+- [x] `potty-secret/scripts/redaction_test.gd` exists and parses with
   `--check-only`.
 - [ ] Pressing F6 on `redaction_test.tscn` shows: paper panel, procedurally
   laid-out text, directive panel on the right listing two illegal words.
+  *(must be verified by user in task-06)*
 - [ ] The custom marker cursor appears when the mouse is over the paper, and
   the OS cursor reappears outside it.
+  *(must be verified by user in task-06)*
 - [ ] Drawing a stroke across an illegal word and pressing Submit produces a
   green tick beside the word; drawing on a legal word produces a cross.
+  *(must be verified by user in task-06)*
 - [ ] SPACE toggles the debug overlay (word rects, tolerance bounds, sample
   dots after submit).
+  *(must be verified by user in task-06)*
 - [ ] M flips marker mode between LINE and BRUSH; the score label updates
   accordingly.
-- [ ] `project.godot` is unchanged.
+  *(must be verified by user in task-06)*
+- [x] `project.godot` is unchanged.
 
 ## Notes
+
+### What was done
+
+Built the standalone redaction test scene from scratch, mirroring the source
+`document_scene.tscn` structure but adapted for 1920×1080 and potty-secret's
+resource paths.
+
+### Files created or modified
+
+- `potty-secret/scenes/redaction_test.tscn` — new scene (created `scenes/`
+  subdirectory; all scenes in potty-secret root were flat, but task spec
+  explicitly calls for `scenes/` subdir)
+- `potty-secret/scripts/redaction_test.gd` — near-copy of source
+  `document_scene.gd`; @onready paths match new node names; WordManager NOT
+  wired; hard-coded forbidden_pool + templates retained
+- `potty-secret/scripts/redaction_test.gd.uid` — generated fresh UID
+  `uid://8fg94reodt6k2`
+
+### Key decisions
+
+1. **Shader UIDs omitted for potty-secret shaders**: `document_dither.gdshader`
+   and `marker_cursor_dither.gdshader` in potty-secret have no `.uid` sidecar
+   files yet — referenced by path only in the scene; Godot will assign UIDs on
+   first import.
+2. **Script UIDs**: All ported scripts (text_renderer, marker_layer,
+   debug_overlay) kept their original UIDs from the source project — they match
+   the `.uid` files already in `potty-secret/scripts/`. The
+   `marker_cursor_layer.gd` UID differs from source (potty-secret version is
+   `uid://duunugh5j66xl`).
+3. **Layout**: Paper rect 120/60/1400/1020, UI 1430/60/1880/1020. All six
+   overlay layers share identical offsets — critical for stroke/word alignment.
+4. **Node root name**: `RedactionTest` (not `DocumentScene`) to avoid any
+   confusion when this scene is open alongside the source.
+
+### Concerns / follow-up
+
+- The bayer16tile2.png import file already has `filter=0` (nearest) set in
+  its `.import` params (`compress/mode=0` etc.) — the canvas item texture
+  filter default in `project.godot` is also 0 (nearest). Should be fine, but
+  user should confirm no bilinear bleed in editor.
+- Visual smoke checks (F6, drawing, Submit, SPACE, M) are deferred to task-06.
