@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: game2.gd — boot, document generation, toilet-handle batch wiring
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: task-01
 ---
