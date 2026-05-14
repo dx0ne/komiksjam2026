@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: game2.gd — submit, next-document, marker-mode + debug shortcuts
-status: pending
+status: done
 complexity: medium
 blocked-by: task-02
 ---
@@ -120,23 +120,67 @@ signal but nothing happens.
 - [ ] `potty-secret/game2.gd` still parses cleanly:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --check-only --script game2.gd`
   exits 0.
-- [ ] Full project headless import still succeeds:
+  **Known limitation (same as task-02):** `--check-only --script` exits 1 with
+  `Identifier not found: WordManager` because the autoload is not registered
+  in headless single-script mode. The full project import (below) is the
+  authoritative parse check.
+- [x] Full project headless import still succeeds:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --quit`
   exits 0 with no new warnings.
-- [ ] `SubmitButton.pressed` is connected to `_on_submit_pressed`; the
+  **Verified:** EXIT 0, no warnings.
+- [x] `SubmitButton.pressed` is connected to `_on_submit_pressed`; the
   handler locks the marker, places ticks / crosses, applies missed-word
   blink via `text_renderer.apply_review_states`, and updates the score
   label.
-- [ ] `NewDocumentButton.pressed` is connected to a handler that calls
+- [x] `NewDocumentButton.pressed` is connected to a handler that calls
   `_generate_document` (clears strokes, regenerates text using current
   `WordManager.current_toilet_words`, unlocks marker).
-- [ ] `KEY_SPACE` toggles `DebugOverlay`; `KEY_M` flips marker mode and
+- [x] `KEY_SPACE` toggles `DebugOverlay`; `KEY_M` flips marker mode and
   updates the score label.
-- [ ] `gimme_toilet_btn2` is wired to a no-op / print stub (NOT to
+- [x] `gimme_toilet_btn2` is wired to a no-op / print stub (NOT to
   `_on_time_out`).
-- [ ] Submit does NOT change scene to `ending.tscn`.
-- [ ] `project.godot` is unchanged.
+- [x] Submit does NOT change scene to `ending.tscn`.
+- [x] `project.godot` is unchanged.
 
 ## Notes
 
-(filled in by implementer)
+### What was done
+
+Extended `potty-secret/game2.gd` (task-02 skeleton) with the submit /
+next-document flow and debug shortcuts. No other files were modified.
+
+### Changes to `potty-secret/game2.gd`
+
+- **`_ready`:** Added `submit_button.pressed.connect(_on_submit_pressed)`,
+  `new_document_button.pressed.connect(_generate_document)`, and
+  `$gimme_toilet_btn2.gui_input.connect(_on_gimme_toilet_btn2_gui_input)`.
+- **`_unhandled_input`:** New method — `KEY_SPACE` → `debug_overlay.toggle()`;
+  `KEY_M` → flip `marker_layer.mode` between LINE/BRUSH and update score
+  label. Uses `_unhandled_input` (not `_input`) so buttons absorb their key
+  events first. Game-action shortcuts (`quit`, `rand_toilet_msg`,
+  `rand_document`) remain in the existing `_input`.
+- **`_sample_stroke`**, **`_on_submit_pressed`**, **`_coverage_tier`**,
+  **`_format_score`**: ported verbatim from `potty-secret/scripts/redaction_test.gd`.
+  No node-path adjustments needed — `game2.gd` already used the same
+  `@onready` names as `redaction_test.gd`.
+- **`_on_gimme_toilet_btn2_gui_input`**: no-op stub — prints and returns;
+  does not call `_on_time_out` or change scene.
+- `_on_time_out` stub left unchanged (phase 3 concern).
+
+### Key decisions
+
+- `gimme_toilet_btn2` has no `unique_name_in_owner` in the scene, so it is
+  accessed via `$gimme_toilet_btn2` (direct child path), not `%gimme_toilet_btn2`.
+- `_generate_document` is connected directly to `NewDocumentButton.pressed`
+  (no wrapper function) — it already performs the full clear / regenerate /
+  unlock sequence and does NOT call `WordManager.get_next_batch`, satisfying
+  the "no new batch on New Document" requirement.
+- Submit handler ends with `marker_layer.set_locked(true)` and a comment
+  confirming no scene change; the `_on_time_out` stub is untouched.
+
+### Verification results
+
+| Command | Exit code | Notes |
+|---------|-----------|-------|
+| `--check-only --script game2.gd` | 1 | Expected — WordManager autoload absent in single-script mode (same as task-02) |
+| `--quit` (full project) | 0 | No errors, no warnings |

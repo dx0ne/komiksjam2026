@@ -1,8 +1,8 @@
 extends Node2D
 
 # Phase 2 — game2.gd
-# Boot, document generation, and toilet-handle batch wiring.
-# Submit / next-document / debug toggles are implemented in task-03.
+# Boot, document generation, toilet-handle batch wiring,
+# submit / next-document logic, and SPACE / M shortcuts (task-03).
 
 const REDACTION_TOLERANCE  := 12.0
 const SAMPLE_STEP          := 6.0
@@ -60,11 +60,18 @@ func _ready() -> void:
 	debug_overlay.text_renderer = text_renderer
 	debug_overlay.tolerance = REDACTION_TOLERANCE
 
-	# Connect gimme_toilet_btn
+	# Connect gimme_toilet_btn (toilet handle — pulls new batch)
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
 
-	# Connect clock time_out — handler stubbed; verdict is task-03
+	# Connect clock time_out — handler stubbed; verdict is phase 3
 	%clock.time_out.connect(_on_time_out)
+
+	# Connect submit and new-document buttons
+	submit_button.pressed.connect(_on_submit_pressed)
+	new_document_button.pressed.connect(_generate_document)
+
+	# Connect gimme_toilet_btn2 — briefcase trigger; no-op stub for phase 2
+	$gimme_toilet_btn2.gui_input.connect(_on_gimme_toilet_btn2_gui_input)
 
 	# Populate the first batch of toilet messages, which sets
 	# WordManager.current_toilet_words, then generate the first document.
@@ -79,6 +86,22 @@ func _input(event: InputEvent) -> void:
 		new_tolilet_msgs()
 	if event.is_action_pressed("rand_document"):
 		_generate_document()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_SPACE:
+			debug_overlay.toggle()
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_M:
+			var new_mode := MarkerLayer.DrawMode.BRUSH \
+				if marker_layer.mode == MarkerLayer.DrawMode.LINE \
+				else MarkerLayer.DrawMode.LINE
+			marker_layer.set_mode(new_mode)
+			_update_score_label("Marker mode: %s" % (
+				"LINE" if new_mode == MarkerLayer.DrawMode.LINE else "BRUSH"
+			))
+			get_viewport().set_input_as_handled()
 
 
 # ---------------------------------------------------------------------------
@@ -209,9 +232,136 @@ func _apply_ui_font(node: Node) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Stubs (task-03)
+# Submit / scoring (ported from redaction_test.gd — task-03)
+# ---------------------------------------------------------------------------
+
+func _sample_stroke(stroke: PackedVector2Array) -> PackedVector2Array:
+	var samples := PackedVector2Array()
+	for index in range(stroke.size() - 1):
+		var start := stroke[index]
+		var end   := stroke[index + 1]
+		var distance    := start.distance_to(end)
+		var sample_count := maxi(1, ceili(distance / SAMPLE_STEP))
+		for sample_index in range(sample_count + 1):
+			samples.append(start.lerp(end, float(sample_index) / float(sample_count)))
+	return samples
+
+
+func _on_submit_pressed() -> void:
+	var all_samples: Array[PackedVector2Array] = []
+	for stroke in marker_layer.strokes:
+		all_samples.append(_sample_stroke(stroke))
+
+	var word_marks: Array[Dictionary] = []
+	var missed_indices: Array[int]    = []
+	var score            := 0.0
+	var fully            := 0
+	var halfly           := 0
+	var missed           := 0
+	var false_redactions := 0
+	var illegal_count    := 0
+
+	for index in range(text_renderer.word_boxes.size()):
+		var box   := text_renderer.word_boxes[index]
+		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
+		var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
+		var touched    := {}
+
+		for samples in all_samples:
+			for point in samples:
+				if not grown.has_point(point):
+					continue
+				var ci := clampi(
+					floori((point.x - grown.position.x) / COVERAGE_CELL_WIDTH),
+					0,
+					cell_total - 1
+				)
+				touched[ci] = true
+
+		var tier := _coverage_tier(touched.size(), cell_total)
+		box["coverage"] = float(touched.size()) / float(cell_total)
+		box["tier"]     = tier
+		box["redacted"] = tier != "none"
+
+		if box["illegal"]:
+			illegal_count += 1
+			match tier:
+				"full":
+					score  += 2.0
+					fully  += 1
+					word_marks.append({"rect": box["rect"], "kind": "tick"})
+				"half":
+					score  += 1.0
+					halfly += 1
+					word_marks.append({"rect": box["rect"], "kind": "tick"})
+				_:
+					score  -= 1.0
+					missed += 1
+					missed_indices.append(index)
+					word_marks.append({"rect": box["rect"], "kind": "cross"})
+		else:
+			match tier:
+				"full":
+					score            -= 0.5
+					false_redactions += 1
+					word_marks.append({"rect": box["rect"], "kind": "cross"})
+				"half":
+					score            -= 0.25
+					false_redactions += 1
+					word_marks.append({"rect": box["rect"], "kind": "cross"})
+
+	var max_score := float(illegal_count) * 2.0
+	var verdict   := "APPROVED" if score >= max_score * APPROVAL_FRACTION else "REVIEW FAILED"
+
+	_update_score_label(
+		"%s\nScore: %s / %s\nFull: %d  Half: %d  Missed: %d\nFalse: %d" % [
+			verdict,
+			_format_score(score),
+			_format_score(max_score),
+			fully,
+			halfly,
+			missed,
+			false_redactions,
+		]
+	)
+
+	debug_overlay.set_stroke_samples(all_samples)
+	marker_layer.apply_word_marks(word_marks)
+	text_renderer.apply_review_states(missed_indices)
+	marker_layer.set_locked(true)
+	# No scene change — verdict is phase 3.
+
+
+func _coverage_tier(touched: int, total: int) -> String:
+	if touched < COVERAGE_MIN_CELLS:
+		return "none"
+	var ratio := float(touched) / float(total)
+	if ratio >= COVERAGE_FULL_RATIO:
+		return "full"
+	if ratio >= COVERAGE_HALF_RATIO:
+		return "half"
+	return "none"
+
+
+func _format_score(value: float) -> String:
+	if absf(value - roundf(value)) < 0.001:
+		return "%d" % int(roundf(value))
+	return "%.2f" % value
+
+
+# ---------------------------------------------------------------------------
+# gimme_toilet_btn2 — briefcase trigger (no-op stub for phase 2)
+# ---------------------------------------------------------------------------
+
+func _on_gimme_toilet_btn2_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		print("[game2] end-game trigger (gimme_toilet_btn2) — deferred to phase 3")
+
+
+# ---------------------------------------------------------------------------
+# Stubs
 # ---------------------------------------------------------------------------
 
 func _on_time_out() -> void:
-	# Verdict / scene-change is task-03.
-	print("[game2] time_out signal received — verdict deferred to task-03")
+	# Verdict / scene-change is phase 3.
+	print("[game2] time_out signal received — verdict deferred to phase 3")
