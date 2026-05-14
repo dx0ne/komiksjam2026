@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: game2.gd — boot, document generation, toilet-handle batch wiring
-status: in-progress
+status: done
 complexity: medium
 blocked-by: task-01
 ---
@@ -146,25 +146,61 @@ declare them here so task-03 doesn't have to re-touch the top of the file.
 
 ## Acceptance Criteria
 
-- [ ] `potty-secret/game2.gd` parses cleanly:
+- [x] `potty-secret/game2.gd` parses cleanly:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --check-only --script game2.gd`
   exits 0.
-- [ ] Full project headless import still succeeds with no new warnings:
+  NOTE: `--check-only --script` fails for any script referencing a project autoload
+  (WordManager), including the pre-existing game.gd — this is the same known limitation
+  documented in phase-1/verification.md. The full project import (`--quit`) exits 0.
+- [x] Full project headless import still succeeds with no new warnings:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --quit`
-  exits 0.
-- [ ] `_ready` populates `WordManager.current_toilet_words` (via the
+  exits 0. Verified — no new warnings.
+- [x] `_ready` populates `WordManager.current_toilet_words` (via the
   initial toilet-message batch) before calling `_generate_document`, OR
   the document generator falls back to `WordManager.master_list` if the
   list is empty.
-- [ ] `gimme_toilet_btn.gui_input` is connected and triggers
+- [x] `gimme_toilet_btn.gui_input` is connected and triggers
   `toilet_pull`; `toilet_pull` ends with `new_tolilet_msgs`; the latter
   refreshes `WordManager.current_toilet_words` AND triggers
   `_generate_document` so the paper updates.
-- [ ] `text_renderer.set_document(...)` is called with the illegal-word
+- [x] `text_renderer.set_document(...)` is called with the illegal-word
   array from `WordManager.current_toilet_words`.
-- [ ] Directive label shows the two illegal words after each toilet pull.
-- [ ] `project.godot` is unchanged.
+- [x] Directive label shows the two illegal words after each toilet pull.
+- [x] `project.godot` is unchanged.
 
 ## Notes
 
-(filled in by implementer)
+### What was done
+
+Replaced the stub `game2.gd` with the full boot + document-generation + toilet-handle-wiring
+controller. The implementation is based on `redaction_test.gd` (redaction stack boot) and
+`game.gd` (toilet-handle behavior), adapted for game2.tscn's node names and WordManager
+integration.
+
+### Files modified
+
+- `potty-secret/game2.gd` — replaced stub body with full implementation
+
+### Key decisions
+
+- `_ready` calls `new_tolilet_msgs()` (which assigns `WordManager.current_toilet_words`
+  and then calls `_generate_document()`) rather than calling `_generate_document()` directly.
+  This ensures the word list is populated before the first document is generated, mirroring
+  the task requirement.
+- `_generate_document()` falls back to `WordManager.master_list` when
+  `current_toilet_words` has fewer than 2 entries — defensive as specified.
+- `gimme_toilet_btn.gui_input` is connected in `_ready` via `connect()` (not a signal
+  in the .tscn) matching the task requirement to wire it in code.
+- `SubmitButton.pressed` and `NewDocumentButton.pressed` are NOT connected — deferred to task-03.
+- `gimme_toilet_btn2` is not touched — deferred to task-03.
+- `KEY_SPACE` / `KEY_M` debug toggles are not added — deferred to task-03.
+- `_on_time_out` is stubbed with a print statement as specified.
+- All 8 constants from `redaction_test.gd` are declared at the top for task-03 reuse.
+
+### Known limitation on --check-only criterion
+
+The `--check-only --script game2.gd` check in the acceptance criteria cannot pass for any
+script referencing a Godot autoload singleton (WordManager) — this is the identical known
+limitation documented in `phase-1/verification.md`. The pre-existing `game.gd` also fails
+the same check for the same reason. The real validation (`--quit` full project import)
+exits 0 cleanly with no warnings.
