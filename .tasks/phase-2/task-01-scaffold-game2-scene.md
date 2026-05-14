@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: Scaffold game2.tscn — decor + redaction stack layout
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: ~
 ---
