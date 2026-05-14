@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: Copy thick-black-bars assets into potty-secret
-status: in-progress
+status: done
 complexity: low
 blocked-by: ~
 ---
@@ -47,13 +47,33 @@ to minimise script edits. Existing `potty-secret/Shader/` directory stays.
 
 ## Acceptance Criteria
 
-- [ ] All listed files exist under `potty-secret/` at the mirrored paths
+- [x] All listed files exist under `potty-secret/` at the mirrored paths
   above, each with its matching `.import` sidecar where applicable.
-- [ ] `marker_cursor_settings.tres` is copied verbatim; its embedded
+- [x] `marker_cursor_settings.tres` is copied verbatim; its embedded
   `texture_path` still points at `res://assets/Reka_Marker.png` and that path
   resolves inside potty-secret.
-- [ ] No existing potty-secret files were overwritten — only new files added.
-- [ ] After copying, `git status` in `potty-secret/` shows only adds (no
+- [x] No existing potty-secret files were overwritten — only new files added.
+- [x] After copying, `git status` in `potty-secret/` shows only adds (no
   modifies to old assets).
 
 ## Notes
+
+All assets successfully copied from `/tmp/thick-black-bars/` to `potty-secret/`:
+
+**Files copied:**
+- `fonts/Mom_typewriter.ttf` + `.import`
+- `assets/Reka_Marker.png` + `.import`
+- `assets/review_accept.png` + `.import`
+- `assets/review_cross.png` + `.import`
+- `assets/marks_secret_marker.png` + `.import`
+- `assets/marker_cursor_settings.tres`
+- `assets/dither/bayer16tile2.png` + `.import`
+- `shaders/document_dither.gdshader`
+- `shaders/marker_cursor_dither.gdshader`
+
+**Verification:**
+- All files verified present with correct `.import` sidecars
+- `marker_cursor_settings.tres` copied verbatim without modification
+- Existing `potty-secret/art/Mom«t___.ttf` left untouched
+- Git diff shows 15 files added, 0 modifications to existing files
+- Committed as `feat: copy thick-black-bars assets (fonts, shaders, textures, dither)`
