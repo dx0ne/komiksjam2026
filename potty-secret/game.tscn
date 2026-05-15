@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://dj33rr67bf60" path="res://art/Nogi_zegarek.png" id="12_hb5m1"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
+[ext_resource type="Texture2D" uid="uid://bemxq8g6vhx0s" path="res://art/Tlo_zegarek.png" id="13_qhcbd"]
 [ext_resource type="Texture2D" uid="uid://bkrqlecx8k7h0" path="res://art/Tarcza_zegarek.png" id="13_x5p1p"]
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="14_215e1"]
 [ext_resource type="Texture2D" uid="uid://c67b6idww863d" path="res://art/Reka_zegarek.png" id="14_qhcbd"]
@@ -238,7 +239,7 @@ scale = Vector2(1.09, 1.09)
 texture = ExtResource("11_e36ub")
 
 [node name="TloZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1822745363]
-texture = ExtResource("11_e36ub")
+texture = ExtResource("13_qhcbd")
 
 [node name="NogiZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1997921764]
 texture = ExtResource("12_hb5m1")
