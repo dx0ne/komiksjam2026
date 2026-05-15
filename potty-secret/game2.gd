@@ -95,6 +95,8 @@ func _input(event: InputEvent) -> void:
 		new_tolilet_msgs()
 	if event.is_action_pressed("rand_document"):
 		_generate_document()
+	if event.is_action_pressed("skip_to_ending"):
+		_end_shift()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -373,18 +375,37 @@ func _format_score(value: float) -> String:
 
 
 # ---------------------------------------------------------------------------
-# gimme_toilet_btn2 — briefcase trigger (no-op stub for phase 2)
+# gimme_toilet_btn2 — briefcase trigger
 # ---------------------------------------------------------------------------
 
 func _on_gimme_toilet_btn2_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
-		print("[game2] end-game trigger (gimme_toilet_btn2) — deferred to phase 3")
+		_try_end_shift()
+
+
+func _try_end_shift() -> void:
+	# Mirror game.gd's try_end_game: only end if the player finished
+	# reviewing the current paper. After task-01, that's exactly
+	# "submit_button is currently disabled" (we disable it on
+	# submit, re-enable on new document).
+	if submit_button.disabled:
+		_end_shift()
+	else:
+		print("[game2] briefcase pressed but current paper not yet submitted — ignored")
 
 
 # ---------------------------------------------------------------------------
-# Stubs
+# Verdict / ending transition
 # ---------------------------------------------------------------------------
 
 func _on_time_out() -> void:
-	# Verdict / scene-change is phase 3.
-	print("[game2] time_out signal received — verdict deferred to phase 3")
+	_end_shift()
+
+
+func _end_shift() -> void:
+	var win := paper_results.size() > 0
+	for passed in paper_results:
+		if not passed:
+			win = false
+	WordManager.good_ending = win
+	get_tree().change_scene_to_file("res://ending.tscn")

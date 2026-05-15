@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: game2.gd — verdict + ending.tscn transition (clock, briefcase, debug shortcut)
-status: in-progress
+status: done
 complexity: medium
 blocked-by: task-01
 ---
@@ -140,22 +140,46 @@ time without reviewing a single paper.
 
 ## Acceptance Criteria
 
-- [ ] Full project headless import succeeds:
+- [x] Full project headless import succeeds:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --quit`
   exits 0 with no new warnings.
-- [ ] `_on_time_out` calls `_end_shift()`.
-- [ ] `_end_shift()` exists and: (a) computes `win` per the spec, (b)
+- [x] `_on_time_out` calls `_end_shift()`.
+- [x] `_end_shift()` exists and: (a) computes `win` per the spec, (b)
   sets `WordManager.good_ending`, (c) calls
   `get_tree().change_scene_to_file("res://ending.tscn")`.
-- [ ] `_on_gimme_toilet_btn2_gui_input` calls `_try_end_shift()` on
+- [x] `_on_gimme_toilet_btn2_gui_input` calls `_try_end_shift()` on
   mouse-button press; `_try_end_shift()` only runs `_end_shift()` when
   `submit_button.disabled` is true.
-- [ ] `skip_to_ending` action is wired in `_input` (or it's documented
+- [x] `skip_to_ending` action is wired in `_input` (or it's documented
   in Notes that the action is missing from `project.godot`).
-- [ ] No edits outside `potty-secret/game2.gd`.
+- [x] No edits outside `potty-secret/game2.gd`.
 
 ## Notes
 
-(To be filled in by the implementing subagent: what was changed, the
-final exit codes from the headless commands, whether `skip_to_ending`
-was found in `project.godot`, and any deviations from the spec.)
+### What was done
+
+Implemented verdict + ending transition in `potty-secret/game2.gd`:
+
+1. **`_on_time_out`** — replaced the stub print with a call to `_end_shift()`.
+2. **`_end_shift()`** — new function; computes `win` from `paper_results` (false if empty or any false result), sets `WordManager.good_ending`, calls `get_tree().change_scene_to_file("res://ending.tscn")`.
+3. **`_on_gimme_toilet_btn2_gui_input`** — replaced no-op stub with a call to `_try_end_shift()` on any mouse-button press.
+4. **`_try_end_shift()`** — new function; checks `submit_button.disabled`; calls `_end_shift()` if true, otherwise prints an ignored message.
+5. **`skip_to_ending` shortcut** — added `if event.is_action_pressed("skip_to_ending"): _end_shift()` to the existing `_input` block. The action was confirmed present in `project.godot` (line 64: `skip_to_ending={`).
+
+### Files modified
+
+- `potty-secret/game2.gd` (only file changed)
+
+### Verification
+
+- Headless import (baseline before changes): exit 0, no warnings.
+- Headless import (after implementation): exit 0, no warnings.
+- `git diff --name-only HEAD` shows only `potty-secret/game2.gd` modified.
+
+### `skip_to_ending` in project.godot
+
+**Found.** `project.godot` line 64 defines the `skip_to_ending` input action. Handler wired as specified.
+
+### Deviations from spec
+
+None. Implementation matches the spec exactly.
