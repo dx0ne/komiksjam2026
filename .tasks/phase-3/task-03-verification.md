@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Phase 3 verification — headless parse + manual smoke checks
-status: in-progress
+status: done
 complexity: low
 blocked-by: task-02
 ---
@@ -98,21 +98,48 @@ The Godot binary path on this machine is
 
 ## Acceptance Criteria
 
-- [ ] `.tasks/phase-3/verification.md` exists.
-- [ ] It includes the headless `--check-only` command for `game2.gd`
+- [x] `.tasks/phase-3/verification.md` exists.
+- [x] It includes the headless `--check-only` command for `game2.gd`
   with the carry-over WordManager-autoload note.
-- [ ] It includes the full-project `--quit` import command.
-- [ ] It includes the phase-2 smoke checks (or references them) AND the
+- [x] It includes the full-project `--quit` import command.
+- [x] It includes the phase-2 smoke checks (or references them) AND the
   phase-3-specific checks listed above, each as a `[ ] user-run`
   checkbox.
-- [ ] The actual key for `skip_to_ending` is read from
+- [x] The actual key for `skip_to_ending` is read from
   `project.godot` and named in the verification doc.
-- [ ] It includes the `game.tscn` regression check.
-- [ ] The headless commands have been executed locally by the
+- [x] It includes the `game.tscn` regression check.
+- [x] The headless commands have been executed locally by the
   implementing subagent — record exit codes + any output in this
   task's Notes section. Manual editor checks are deferred to the user.
 
 ## Notes
 
-(To be filled in by the implementing subagent: exit codes, the
-`skip_to_ending` key binding found, and any deviations.)
+### Headless command results (run by implementing subagent)
+
+**Command 1 — `--check-only --script game2.gd`:**
+- Exit code: **1** (expected; documented carry-over)
+- Output:
+  ```
+  SCRIPT ERROR: Compile Error: Identifier not found: WordManager
+     at: GDScript::reload (res://game2.gd:153)
+  ERROR: Failed to load script "res://game2.gd" with error "Compilation failed".
+  ```
+- This matches the known WordManager autoload limitation documented in phase 2. Not a real error.
+
+**Command 2 — `--quit` (full project import):**
+- Exit code: **0** (success)
+- Output: clean (only the Godot version banner line; no warnings or errors)
+
+### `skip_to_ending` key binding
+
+Found in `potty-secret/project.godot` under `[input]`:
+- `physical_keycode=55`, `unicode=55` — this is the **7** key on a standard keyboard.
+- The verification doc names the key as **7** and includes the physical keycode for reference.
+
+### Files created
+
+- `D:\Projects\komiksjam2026\.tasks\phase-3\verification.md` (new file)
+
+### Deviations
+
+None. The verification doc mirrors the phase-2 format exactly, carrying forward all 8 phase-2 smoke checks and adding 7 phase-3-specific checks (6 mandatory + 1 optional slow clock test).
