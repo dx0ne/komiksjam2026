@@ -31,6 +31,10 @@ var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
 var _ui_font: Font
 
+# Session-scoped list of per-paper pass/fail results.
+# Populated by _on_submit_pressed; reset only on _ready (full session reset).
+var paper_results: Array[bool] = []
+
 var templates: Array[String] = [
 	"Citizen {name} discussed {illegal_a} activity near the western tram depot. Witnesses also reported possession of {illegal_b} material.",
 	"Report mentions {illegal_a} literature distribution by subject {name}. Secondary notes reference unauthorized {illegal_b} gathering after curfew.",
@@ -77,6 +81,11 @@ func _ready() -> void:
 	# WordManager.current_toilet_words, then generate the first document.
 	new_tolilet_msgs()
 	# Note: new_tolilet_msgs calls _generate_document at its end.
+
+	# Set initial button state after the first document is generated.
+	# Override whatever _generate_document just set to ensure correctness.
+	submit_button.disabled = false
+	new_document_button.disabled = true
 
 
 func _input(event: InputEvent) -> void:
@@ -187,6 +196,10 @@ func _generate_document() -> void:
 	debug_overlay.clear_stroke_samples()
 	_update_directive()
 	_update_score_label("Drag the marker over forbidden words, then submit.")
+
+	# A fresh document is ready — player must submit before advancing.
+	submit_button.disabled = false
+	new_document_button.disabled = true
 
 
 # ---------------------------------------------------------------------------
@@ -311,10 +324,14 @@ func _on_submit_pressed() -> void:
 					word_marks.append({"rect": box["rect"], "kind": "cross"})
 
 	var max_score := float(illegal_count) * 2.0
-	var verdict   := "APPROVED" if score >= max_score * APPROVAL_FRACTION else "REVIEW FAILED"
+	var passed    := score >= max_score * APPROVAL_FRACTION
+	var verdict   := "APPROVED" if passed else "REVIEW FAILED"
+
+	# Record this paper's result in the session list.
+	paper_results.append(passed)
 
 	_update_score_label(
-		"%s\nScore: %s / %s\nFull: %d  Half: %d  Missed: %d\nFalse: %d" % [
+		"%s\nScore: %s / %s\nFull: %d  Half: %d  Missed: %d\nFalse: %d\nPapers reviewed: %d · passed: %d" % [
 			verdict,
 			_format_score(score),
 			_format_score(max_score),
@@ -322,6 +339,8 @@ func _on_submit_pressed() -> void:
 			halfly,
 			missed,
 			false_redactions,
+			paper_results.size(),
+			paper_results.count(true),
 		]
 	)
 
@@ -329,6 +348,10 @@ func _on_submit_pressed() -> void:
 	marker_layer.apply_word_marks(word_marks)
 	text_renderer.apply_review_states(missed_indices)
 	marker_layer.set_locked(true)
+
+	# Paper submitted — allow advancing to the next document.
+	submit_button.disabled = true
+	new_document_button.disabled = false
 	# No scene change — verdict is phase 3.
 
 

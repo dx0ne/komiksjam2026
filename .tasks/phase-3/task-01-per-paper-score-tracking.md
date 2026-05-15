@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: game2.gd — per-paper score record + submit/new-document gating
-status: pending
+status: done
 complexity: medium
 blocked-by: ~
 ---
@@ -107,28 +107,57 @@ the session list.
 
 ## Acceptance Criteria
 
-- [ ] Full project headless import succeeds:
+- [x] Full project headless import succeeds:
   `& "D:\Godot\Godot_v4.6.1\Godot_v4.6.1-stable_win64_console.exe" --headless --path potty-secret --quit`
   exits 0 with no new warnings. (This is the authoritative parse check
   per phase-2 verification.md — the `--check-only --script game2.gd`
   command will fail with the documented WordManager autoload limitation
   and that is expected.)
-- [ ] `game2.gd` defines `paper_results: Array[bool]` (or equivalent
+- [x] `game2.gd` defines `paper_results: Array[bool]` (or equivalent
   typed array of pass/fail records), populated in `_on_submit_pressed`,
   initialized empty.
-- [ ] `_on_submit_pressed` disables `submit_button` and enables
+- [x] `_on_submit_pressed` disables `submit_button` and enables
   `new_document_button` after recording the result.
-- [ ] `_generate_document` enables `submit_button` and disables
+- [x] `_generate_document` enables `submit_button` and disables
   `new_document_button`.
-- [ ] `_ready` sets initial button enabled state (Submit enabled, New
+- [x] `_ready` sets initial button enabled state (Submit enabled, New
   Document disabled) AFTER the first `new_tolilet_msgs()` /
   `_generate_document` call so the order of state writes is correct.
-- [ ] The score label after submit includes a `Papers reviewed: N ·
+- [x] The score label after submit includes a `Papers reviewed: N ·
   passed: K` line.
-- [ ] No edits outside `potty-secret/game2.gd`.
+- [x] No edits outside `potty-secret/game2.gd`.
 
 ## Notes
 
-(To be filled in by the implementing subagent: what was changed, the
-final exit codes from the headless commands, and any deviations from
-the spec.)
+### Changes made (potty-secret/game2.gd only)
+
+1. Added `var paper_results: Array[bool] = []` as a class-level field
+   (after `_ui_font`, before `templates`). Session-scoped; never reset
+   mid-session.
+
+2. `_on_submit_pressed`: replaced the local `verdict` string with a
+   `passed` bool (`score >= max_score * APPROVAL_FRACTION`), appended
+   `passed` to `paper_results`, extended the score label format string
+   to include `\nPapers reviewed: %d · passed: %d`, then after
+   `marker_layer.set_locked(true)` set `submit_button.disabled = true`
+   and `new_document_button.disabled = false`.
+
+3. `_generate_document`: appended `submit_button.disabled = false` and
+   `new_document_button.disabled = true` after the existing
+   `_update_score_label(...)` call. This covers both the toilet-handle
+   path (via `new_tolilet_msgs → _generate_document`) and the
+   New Document button path.
+
+4. `_ready`: added explicit initial state assignment (`submit_button
+   .disabled = false`, `new_document_button.disabled = true`) AFTER
+   `new_tolilet_msgs()` to guarantee correct ordering regardless of
+   what `_generate_document` may set.
+
+### Headless import result
+
+```
+Godot Engine v4.6.1.stable.official.14d19694e
+Exit code: 0
+```
+
+No new warnings. No deviations from spec.
