@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Phase 3 verification — headless parse + manual smoke checks
-status: pending
+status: in-progress
 complexity: low
 blocked-by: task-02
 ---
