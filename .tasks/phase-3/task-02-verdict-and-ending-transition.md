@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: game2.gd — verdict + ending.tscn transition (clock, briefcase, debug shortcut)
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: task-01
 ---
