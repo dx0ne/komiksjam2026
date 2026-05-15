@@ -153,28 +153,28 @@ texture = ExtResource("4_hve3p")
 unique_name_in_owner = true
 position = Vector2(302.74304, -225.57344)
 
-[node name="Zegarek" type="Node2D" parent="." unique_id=1405725869]
+[node name="ZegarekMyszka" type="Node2D" parent="." unique_id=1405725869]
 position = Vector2(320, 950)
 scale = Vector2(0.5, 0.5)
 
-[node name="TloZegarek" type="Sprite2D" parent="Zegarek" unique_id=1822745363]
+[node name="TloZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1822745363]
 scale = Vector2(1.1872278, 1.1872278)
 texture = ExtResource("11_e36ub")
 
-[node name="NogiZegarek" type="Sprite2D" parent="Zegarek" unique_id=1997921764]
+[node name="NogiZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1997921764]
 texture = ExtResource("12_hb5m1")
 
-[node name="TarczaZegarek" type="Sprite2D" parent="Zegarek" unique_id=1922372246]
+[node name="TarczaZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1922372246]
 texture = ExtResource("13_x5p1p")
 
-[node name="RekaZegarek" type="Sprite2D" parent="Zegarek" unique_id=33134517]
+[node name="RekaZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=33134517]
 rotation = 3.3510323
 texture = ExtResource("14_qhcbd")
 
-[node name="TimerZegarek" type="Sprite2D" parent="Zegarek" unique_id=1434839920]
+[node name="TimerZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1434839920]
 texture = ExtResource("15_f1jbl")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Zegarek" unique_id=1482066019]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ZegarekMyszka" unique_id=1482066019]
 libraries/ = SubResource("AnimationLibrary_x5p1p")
 autoplay = &"nogi"
 
