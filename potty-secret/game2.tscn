@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://b8x5pqwcnt7z6"]
+[gd_scene format=3 uid="uid://b8x5pqwcnt706"]
 
 [ext_resource type="Script" uid="uid://d3x7yqnmr4c8p" path="res://game2.gd" id="1_game2"]
 [ext_resource type="Texture2D" uid="uid://wrwjn0h24j63" path="res://art/Tlo.png" id="2_j5wjh"]
@@ -21,21 +21,6 @@
 [ext_resource type="Shader" uid="uid://be4ywi6gucasj" path="res://shaders/document_dither.gdshader" id="20_dither"]
 [ext_resource type="Shader" uid="uid://dyaoxr1lldri5" path="res://shaders/marker_cursor_dither.gdshader" id="21_cdither"]
 [ext_resource type="Texture2D" uid="uid://beh4ex8madkct" path="res://assets/dither/bayer16tile2.png" id="22_bayer"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
-shader = ExtResource("14_215e1")
-shader_parameter/texture_mode = 1
-shader_parameter/alpha_mode = 0
-shader_parameter/quantize_size = 3
-shader_parameter/snap_to_world = true
-shader_parameter/limit_subpixels = true
-shader_parameter/dither_enabled = true
-shader_parameter/dither_pattern = 2
-shader_parameter/levels = 9
-shader_parameter/contrast = 1.1930000566675
-shader_parameter/brightness = 0.01900004840249991
-shader_parameter/average = 0.0
-shader_parameter/palette_mode = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_paper"]
 bg_color = Color(0.91, 0.84, 0.69, 1)
@@ -82,6 +67,21 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.45, 0.39, 0.3, 1)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
+shader = ExtResource("14_215e1")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
+
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_game2")
 
@@ -94,7 +94,6 @@ position = Vector2(960, 541)
 texture = ExtResource("3_vef74")
 
 [node name="BackgroundPaper" type="Panel" parent="." unique_id=1729999842]
-layout_mode = 0
 offset_left = 480.0
 offset_top = 120.0
 offset_right = 1460.0
@@ -102,6 +101,7 @@ offset_bottom = 1020.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_paper")
 
 [node name="MarkerLayer" type="Control" parent="." unique_id=1291403684]
+layout_mode = 3
 anchors_preset = 0
 offset_left = 480.0
 offset_top = 120.0
@@ -111,7 +111,6 @@ script = ExtResource("16_mlayer")
 
 [node name="DitherOverlay" type="ColorRect" parent="." unique_id=1991015174]
 material = SubResource("ShaderMaterial_dither")
-layout_mode = 0
 offset_left = 480.0
 offset_top = 120.0
 offset_right = 1460.0
@@ -119,6 +118,7 @@ offset_bottom = 1020.0
 mouse_filter = 2
 
 [node name="TextRenderer" type="Control" parent="." unique_id=1551182615]
+layout_mode = 3
 anchors_preset = 0
 offset_left = 480.0
 offset_top = 120.0
@@ -129,6 +129,7 @@ script = ExtResource("17_trender")
 
 [node name="MarkerCursorLayer" type="Control" parent="." unique_id=999919093]
 material = SubResource("ShaderMaterial_marker_cursor_dither")
+layout_mode = 3
 anchors_preset = 0
 offset_left = 480.0
 offset_top = 120.0
@@ -138,6 +139,7 @@ mouse_filter = 2
 script = ExtResource("19_cursor")
 
 [node name="DebugOverlay" type="Control" parent="." unique_id=556954865]
+layout_mode = 3
 anchors_preset = 0
 offset_left = 480.0
 offset_top = 120.0
@@ -147,7 +149,6 @@ mouse_filter = 2
 script = ExtResource("18_debug")
 
 [node name="UI" type="Panel" parent="." unique_id=268304216]
-layout_mode = 0
 offset_left = 1470.0
 offset_top = 120.0
 offset_right = 1900.0
@@ -237,7 +238,7 @@ unique_name_in_owner = true
 position = Vector2(302.74304, -225.57344)
 
 [node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
-position = Vector2(796, 126)
+position = Vector2(760, -87)
 texture = ExtResource("10_mfdv2")
 
 [node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
@@ -267,6 +268,7 @@ position = Vector2(-23, 9)
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=309520377]
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=329970364]
+visible = false
 material = SubResource("ShaderMaterial_7sc4i")
 anchors_preset = 15
 anchor_right = 1.0
