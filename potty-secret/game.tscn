@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
-[ext_resource type="Texture2D" uid="uid://bemxq8g6vhx0s" path="res://art/Tlo_zegarek.png" id="11_e36ub"]
+[ext_resource type="Texture2D" uid="uid://bx7h8g5wgduhv" path="res://art/Cien_zegarek.png" id="11_e36ub"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://dj33rr67bf60" path="res://art/Nogi_zegarek.png" id="12_hb5m1"]
@@ -157,8 +157,12 @@ position = Vector2(302.74304, -225.57344)
 position = Vector2(320, 950)
 scale = Vector2(0.5, 0.5)
 
+[node name="CienZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1156816433]
+position = Vector2(-10, 7)
+scale = Vector2(1.09, 1.09)
+texture = ExtResource("11_e36ub")
+
 [node name="TloZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1822745363]
-scale = Vector2(1.1872278, 1.1872278)
 texture = ExtResource("11_e36ub")
 
 [node name="NogiZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1997921764]
@@ -204,6 +208,7 @@ offset_bottom = 372.0
 texture_normal = ExtResource("7_mfdv2")
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+visible = false
 position = Vector2(-23, 9)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=309520377]
@@ -213,10 +218,10 @@ material = SubResource("ShaderMaterial_7sc4i")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 5.0
-offset_right = 4.0
-offset_bottom = 5.0
+offset_left = -17.0
+offset_top = 16.0
+offset_right = -17.0
+offset_bottom = 16.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
