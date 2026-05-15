@@ -22,7 +22,9 @@
 [ext_resource type="Texture2D" uid="uid://c67b6idww863d" path="res://art/Reka_zegarek.png" id="14_qhcbd"]
 [ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
 [ext_resource type="Texture2D" uid="uid://d2vpjqq7oobfd" path="res://art/Timer_zegarek.png" id="15_f1jbl"]
+[ext_resource type="Texture2D" uid="uid://ce1nae31pbljl" path="res://art/Kawa_Serce.png" id="19_vaj68"]
 [ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="23_qhcbd"]
+[ext_resource type="Texture2D" uid="uid://dpay8s0orfcy5" path="res://art/smoke_03.png" id="24_f1jbl"]
 
 [sub_resource type="Animation" id="Animation_x5p1p"]
 length = 0.001
@@ -148,6 +150,68 @@ _data = {
 &"nogi": SubResource("Animation_hb5m1")
 }
 
+[sub_resource type="Animation" id="Animation_i2p71"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("KawaSerce:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(45, -44)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("KawaSerce:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_xa8c5"]
+resource_name = "kawa"
+length = 120.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("KawaSerce:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(45, -44)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("KawaSerce:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 120),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.283185307179586]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_5b14r"]
+_data = {
+&"RESET": SubResource("Animation_i2p71"),
+&"kawa": SubResource("Animation_xa8c5")
+}
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
 shader = ExtResource("14_215e1")
 shader_parameter/texture_mode = 1
@@ -162,6 +226,38 @@ shader_parameter/contrast = 1.1930000566675
 shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
+
+[sub_resource type="Curve" id="Curve_f1jbl"]
+_data = [Vector2(0, 0.003748417), 0.0, 0.0, 0, 0, Vector2(0.34192035, 0.6615993), 0.0, 0.0, 0, 0, Vector2(0.9976581, 0.9864639), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_vaj68"]
+curve = SubResource("Curve_f1jbl")
+
+[sub_resource type="Gradient" id="Gradient_i2p71"]
+colors = PackedColorArray(18.892157, 18.892157, 18.892157, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_xa8c5"]
+gradient = SubResource("Gradient_i2p71")
+
+[sub_resource type="Curve" id="Curve_vaj68"]
+_data = [Vector2(0.0023419205, 0.011870027), 0.0, 3.4024966, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_i2p71"]
+curve = SubResource("Curve_vaj68")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xa8c5"]
+particle_flag_disable_z = true
+gravity = Vector3(0, -300, 0)
+scale_curve = SubResource("CurveTexture_i2p71")
+color = Color(0.80784315, 1, 1, 1)
+color_ramp = SubResource("GradientTexture1D_xa8c5")
+anim_speed_curve = SubResource("CurveTexture_vaj68")
+turbulence_enabled = true
+turbulence_noise_strength = 20.0
+turbulence_noise_scale = 9.187
+turbulence_noise_speed_random = 0.17
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_e2o6t")
@@ -205,7 +301,7 @@ unique_name_in_owner = true
 position = Vector2(425, 0)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=653389244]
-position = Vector2(1550, 17)
+position = Vector2(1550.0001, 41)
 scale = Vector2(0.81707317, 0.81707317)
 texture = ExtResource("5_hve3p")
 
@@ -262,6 +358,14 @@ autoplay = &"nogi"
 [node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
 position = Vector2(796, 126)
 texture = ExtResource("10_mfdv2")
+
+[node name="KawaSerce" type="Sprite2D" parent="Kawa" unique_id=623437513]
+position = Vector2(45, -44)
+texture = ExtResource("19_vaj68")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Kawa" unique_id=1457173367]
+libraries/ = SubResource("AnimationLibrary_5b14r")
+autoplay = &"kawa"
 
 [node name="paperclip_node2d" parent="." unique_id=1130567401 instance=ExtResource("3_feb5d")]
 position = Vector2(1744.6615, 642.0069)
@@ -332,6 +436,16 @@ layout_mode = 2
 position = Vector2(1553, 730)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("23_qhcbd")
+
+[node name="Smoke" type="Node2D" parent="." unique_id=1802242317]
+position = Vector2(1600, 60)
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="Smoke" unique_id=1616578406]
+amount = 3
+texture = ExtResource("24_f1jbl")
+lifetime = 3.0
+speed_scale = 0.3
+process_material = SubResource("ParticleProcessMaterial_xa8c5")
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
