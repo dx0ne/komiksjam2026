@@ -1,9 +1,9 @@
 ---
 phase: 3
 title: Scoring & verdict wiring
-status: open
+status: closed
 opened: 2026-05-15
-closed: ~
+closed: 2026-05-15
 ---
 
 ## Goal
@@ -46,6 +46,6 @@ or briefcase trigger, every paper's pass/fail is rolled up into
 
 ## Tasks
 
-- [ ] task-01-per-paper-score-tracking.md
-- [ ] task-02-verdict-and-ending-transition.md
-- [ ] task-03-verification.md
+- [x] task-01-per-paper-score-tracking.md
+- [x] task-02-verdict-and-ending-transition.md
+- [x] task-03-verification.md (manual editor checks await user execution)
