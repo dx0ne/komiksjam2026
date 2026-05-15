@@ -22,6 +22,7 @@
 [ext_resource type="Texture2D" uid="uid://c67b6idww863d" path="res://art/Reka_zegarek.png" id="14_qhcbd"]
 [ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
 [ext_resource type="Texture2D" uid="uid://d2vpjqq7oobfd" path="res://art/Timer_zegarek.png" id="15_f1jbl"]
+[ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="23_qhcbd"]
 
 [sub_resource type="Animation" id="Animation_x5p1p"]
 length = 0.001
@@ -326,6 +327,11 @@ script = ExtResource("15_7sc4i")
 
 [node name="OptionButton" type="OptionButton" parent="Options/HBoxContainer/Options _Settings" unique_id=690648783]
 layout_mode = 2
+
+[node name="Stempel" type="Sprite2D" parent="." unique_id=1853570612]
+position = Vector2(1553, 730)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("23_qhcbd")
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
