@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="5_7jktm"]
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://bwwd7daweox3k" path="res://art/Palec.png" id="10_hb5m1"]
 [ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://bx7h8g5wgduhv" path="res://art/Cien_zegarek.png" id="11_e36ub"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
@@ -20,6 +21,68 @@
 [ext_resource type="Texture2D" uid="uid://c67b6idww863d" path="res://art/Reka_zegarek.png" id="14_qhcbd"]
 [ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
 [ext_resource type="Texture2D" uid="uid://d2vpjqq7oobfd" path="res://art/Timer_zegarek.png" id="15_f1jbl"]
+
+[sub_resource type="Animation" id="Animation_x5p1p"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Palec:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(706.3108, -86.04736)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Palec:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [-0.43807763]
+}
+
+[sub_resource type="Animation" id="Animation_qhcbd"]
+resource_name = "palec"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Palec:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(600, -33)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Palec:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-0.43807763, 0.0, -0.4380776422505771]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_f1jbl"]
+_data = {
+&"RESET": SubResource("Animation_x5p1p"),
+&"palec": SubResource("Animation_qhcbd")
+}
 
 [sub_resource type="Animation" id="Animation_e36ub"]
 length = 0.001
@@ -145,16 +208,28 @@ scale = Vector2(0.81707317, 0.81707317)
 texture = ExtResource("5_hve3p")
 
 [node name="RekaZegar" type="Sprite2D" parent="." unique_id=1667004532]
-position = Vector2(34.00001, 1151.0001)
+position = Vector2(57.99996, 1145)
+rotation = -0.43807763
 scale = Vector2(0.84229827, 0.84229827)
 texture = ExtResource("4_hve3p")
+
+[node name="Palec" type="Sprite2D" parent="RekaZegar" unique_id=1621754494]
+position = Vector2(706.3108, -86.04736)
+rotation = -0.43807763
+scale = Vector2(1.1872278, 1.1872278)
+texture = ExtResource("10_hb5m1")
+offset = Vector2(100, 0)
+
+[node name="Palec2" type="AnimationPlayer" parent="RekaZegar" unique_id=329636367]
+libraries/ = SubResource("AnimationLibrary_f1jbl")
+autoplay = &"palec"
 
 [node name="clock" parent="RekaZegar" unique_id=488091232 instance=ExtResource("11_lc2xo")]
 unique_name_in_owner = true
 position = Vector2(302.74304, -225.57344)
 
 [node name="ZegarekMyszka" type="Node2D" parent="." unique_id=1405725869]
-position = Vector2(320, 950)
+position = Vector2(200, 950)
 scale = Vector2(0.5, 0.5)
 
 [node name="CienZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1156816433]
@@ -208,7 +283,6 @@ offset_bottom = 372.0
 texture_normal = ExtResource("7_mfdv2")
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
-visible = false
 position = Vector2(-23, 9)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=309520377]
