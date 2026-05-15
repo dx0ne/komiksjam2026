@@ -10,11 +10,78 @@
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://bemxq8g6vhx0s" path="res://art/Tlo_zegarek.png" id="11_e36ub"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
+[ext_resource type="Texture2D" uid="uid://dj33rr67bf60" path="res://art/Nogi_zegarek.png" id="12_hb5m1"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
+[ext_resource type="Texture2D" uid="uid://bkrqlecx8k7h0" path="res://art/Tarcza_zegarek.png" id="13_x5p1p"]
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="14_215e1"]
+[ext_resource type="Texture2D" uid="uid://c67b6idww863d" path="res://art/Reka_zegarek.png" id="14_qhcbd"]
 [ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
+[ext_resource type="Texture2D" uid="uid://d2vpjqq7oobfd" path="res://art/Timer_zegarek.png" id="15_f1jbl"]
+
+[sub_resource type="Animation" id="Animation_e36ub"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("NogiZegarek:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("NogiZegarek:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_hb5m1"]
+resource_name = "nogi"
+length = 1.5
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("NogiZegarek:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("NogiZegarek:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [6.283185307179586, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_x5p1p"]
+_data = {
+&"RESET": SubResource("Animation_e36ub"),
+&"nogi": SubResource("Animation_hb5m1")
+}
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7sc4i"]
 shader = ExtResource("14_215e1")
@@ -85,6 +152,31 @@ texture = ExtResource("4_hve3p")
 [node name="clock" parent="RekaZegar" unique_id=488091232 instance=ExtResource("11_lc2xo")]
 unique_name_in_owner = true
 position = Vector2(302.74304, -225.57344)
+
+[node name="Zegarek" type="Node2D" parent="." unique_id=1405725869]
+position = Vector2(320, 950)
+scale = Vector2(0.5, 0.5)
+
+[node name="TloZegarek" type="Sprite2D" parent="Zegarek" unique_id=1822745363]
+scale = Vector2(1.1872278, 1.1872278)
+texture = ExtResource("11_e36ub")
+
+[node name="NogiZegarek" type="Sprite2D" parent="Zegarek" unique_id=1997921764]
+texture = ExtResource("12_hb5m1")
+
+[node name="TarczaZegarek" type="Sprite2D" parent="Zegarek" unique_id=1922372246]
+texture = ExtResource("13_x5p1p")
+
+[node name="RekaZegarek" type="Sprite2D" parent="Zegarek" unique_id=33134517]
+rotation = 3.3510323
+texture = ExtResource("14_qhcbd")
+
+[node name="TimerZegarek" type="Sprite2D" parent="Zegarek" unique_id=1434839920]
+texture = ExtResource("15_f1jbl")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Zegarek" unique_id=1482066019]
+libraries/ = SubResource("AnimationLibrary_x5p1p")
+autoplay = &"nogi"
 
 [node name="Kawa" type="Sprite2D" parent="." unique_id=2041212742]
 position = Vector2(796, 126)
