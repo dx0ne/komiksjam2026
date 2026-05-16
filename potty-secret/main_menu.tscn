@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_nlkkf"]
 [ext_resource type="Texture2D" uid="uid://d2cx3eo1iltlt" path="res://art/controls.png" id="6_nlkkf"]
 [ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="7_qe12f"]
+[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="8_8qtwp"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_nlkkf"]
 font = ExtResource("4_glbon")
@@ -14,6 +15,21 @@ font_size = 42
 font_color = Color(1, 0.116666675, 0, 0.76862746)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dy7ct"]
+shader = ExtResource("8_8qtwp")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
 
 [node name="Control" type="Control" unique_id=1793360781]
 layout_mode = 3
@@ -83,6 +99,21 @@ autostart = true
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("7_qe12f")]
 unique_name_in_owner = true
 position = Vector2(-23, 9)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1313605369]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=186425947]
+material = SubResource("ShaderMaterial_dy7ct")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = -2.0
+offset_right = 1.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
