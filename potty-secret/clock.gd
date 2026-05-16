@@ -1,7 +1,11 @@
 extends Node2D
 
-@onready var game_timer = $Timer
+@onready var game_timer:Timer = %Timer
 @onready var progress_bar = $ProgressBar
+@onready var reka_zegarek: Sprite2D = %RekaZegarek
+@onready var animation_player: AnimationPlayer = %AnimationPlayer
+
+var _reka_start_rotation: float
 
 signal time_out();
 
@@ -11,12 +15,24 @@ func _on_timer_timeout() -> void:
 
 
 func _on_ready() -> void:
-	game_timer.wait_time=180;
+	game_timer.wait_time = 10.0
 	progress_bar.max_value = game_timer.wait_time
 	progress_bar.value = game_timer.wait_time
-	game_timer.start();
-	pass # Replace with function body.
+	_reka_start_rotation = reka_zegarek.rotation
+	game_timer.start()
+
+
+func add_time(seconds: float) -> void:
+	if game_timer.is_stopped():
+		return
+	game_timer.start(game_timer.time_left + seconds)
+	progress_bar.max_value = game_timer.wait_time
+	progress_bar.value = game_timer.time_left
+
 
 func _process(_delta):
 	if not game_timer.is_stopped():
 		progress_bar.value = game_timer.time_left
+		var progress: float = 1.0 - (game_timer.time_left / game_timer.wait_time)
+		reka_zegarek.rotation = _reka_start_rotation + progress * TAU
+		animation_player.speed_scale = 2.0 if progress >= 0.75 else 1.0

@@ -23,6 +23,8 @@ const MARKER_CURSOR_SCALE := Vector2(0.08, 0.08)
 const MARKER_CURSOR_ROTATION := deg_to_rad(125.0)
 const MARKER_CURSOR_HOTSPOT := Vector2(1655.0, 304.0)
 
+@export var hide_os_cursor := true
+
 var mode: DrawMode = DrawMode.LINE
 var strokes: Array[PackedVector2Array] = []
 var stroke_colors: Array[Color] = []
@@ -260,14 +262,14 @@ func _on_mouse_exited() -> void:
 	queue_redraw()
 
 func _hide_os_cursor() -> void:
-	if _owns_hidden_cursor:
+	if not hide_os_cursor or _owns_hidden_cursor:
 		return
 	_previous_mouse_mode = Input.get_mouse_mode()
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	_owns_hidden_cursor = true
 
 func _restore_os_cursor() -> void:
-	if not _owns_hidden_cursor:
+	if not hide_os_cursor or not _owns_hidden_cursor:
 		return
 	Input.set_mouse_mode(_previous_mouse_mode)
 	_owns_hidden_cursor = false

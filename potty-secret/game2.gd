@@ -24,7 +24,8 @@ const TOILET_SCN := preload("res://toilet_msg.tscn")
 @onready var score_label:           Label             = $UI/MarginContainer/VBoxContainer/ScoreLabel
 @onready var submit_button:         Button            = $UI/MarginContainer/VBoxContainer/SubmitButton
 @onready var new_document_button:   Button            = $UI/MarginContainer/VBoxContainer/NewDocumentButton
-@onready var right_hand: Node2D = %RightHand
+@onready var clock: Node2D = %clock_scn
+
 
 var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
@@ -66,7 +67,7 @@ func _ready() -> void:
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
 
 	# Connect clock time_out — handler stubbed; verdict is phase 3
-	%clock.time_out.connect(_on_time_out)
+	clock.time_out.connect(_on_time_out)
 
 	# Connect submit and new-document buttons
 	submit_button.pressed.connect(_on_submit_pressed)
@@ -87,6 +88,11 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse := event as InputEventMouseButton
+		if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
+			if _try_cofefe_click(mouse):
+				return
 	if event.is_action_pressed("quit"):
 		get_tree().quit()
 	if event.is_action_pressed("rand_toilet_msg"):
@@ -111,6 +117,21 @@ func _unhandled_input(event: InputEvent) -> void:
 				"LINE" if new_mode == MarkerLayer.DrawMode.LINE else "BRUSH"
 			))
 			get_viewport().set_input_as_handled()
+
+
+# ---------------------------------------------------------------------------
+# Cofefe — extra shift time
+# ---------------------------------------------------------------------------
+
+func _try_cofefe_click(event: InputEventMouseButton) -> bool:
+	var cofefe: Node2D = %Cofefe
+	if not cofefe.has_method("contains_global_point"):
+		return false
+	if not cofefe.contains_global_point(event.global_position):
+		return false
+	clock.add_time(10.0)
+	get_viewport().set_input_as_handled()
+	return true
 
 
 # ---------------------------------------------------------------------------

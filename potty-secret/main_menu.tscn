@@ -1,14 +1,30 @@
 [gd_scene format=3 uid="uid://bv1tr2lokc5v"]
 
-[ext_resource type="Texture2D" uid="uid://cbtm0ncewhwjp" path="res://art/title.png" id="1_06t4h"]
 [ext_resource type="Script" uid="uid://buy18lfy33481" path="res://main_menu.gd" id="1_jix8l"]
 [ext_resource type="Texture2D" uid="uid://1k2wos1rull7" path="res://art/Karteczka_02.png" id="3_glbon"]
 [ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="4_glbon"]
 [ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_nlkkf"]
 [ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="6_dy7ct"]
 [ext_resource type="Texture2D" uid="uid://d2cx3eo1iltlt" path="res://art/controls.png" id="6_nlkkf"]
-[ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="7_qe12f"]
-[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="8_8qtwp"]
+[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="7_shader"]
+[ext_resource type="PackedScene" uid="uid://rwgbfuhc2nil" path="res://scenes/right_hand.tscn" id="8_rhand"]
+[ext_resource type="Script" uid="uid://b1jkces6w0l7k" path="res://scripts/marker_layer.gd" id="9_mlayer"]
+[ext_resource type="Script" uid="uid://uda4xlhfe33p" path="res://scripts/menu_redaction_debug.gd" id="10_debug"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bg"]
+shader = ExtResource("7_shader")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_nlkkf"]
 font = ExtResource("4_glbon")
@@ -17,8 +33,23 @@ font_color = Color(0, 0, 0, 0.76862746)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dy7ct"]
-shader = ExtResource("8_8qtwp")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_strokes"]
+shader = ExtResource("7_shader")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hand"]
+shader = ExtResource("7_shader")
 shader_parameter/texture_mode = 1
 shader_parameter/alpha_mode = 0
 shader_parameter/quantize_size = 3
@@ -39,15 +70,24 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_jix8l")
 
-[node name="Controls" type="Sprite2D" parent="." unique_id=124528707]
+[node name="CanvasLayer_background" type="CanvasLayer" parent="." unique_id=2063896491]
+layer = 0
+
+[node name="CanvasGroup" type="CanvasGroup" parent="CanvasLayer_background" unique_id=1113547260]
+material = SubResource("ShaderMaterial_bg")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="Background" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup" unique_id=124528707]
 position = Vector2(953, 525)
 texture = ExtResource("6_nlkkf")
 
-[node name="PlayButton" type="TextureButton" parent="." unique_id=130900983]
+[node name="PlayButton" type="TextureButton" parent="CanvasLayer_background/CanvasGroup" unique_id=130900983]
 unique_name_in_owner = true
-layout_mode = 0
+visible = false
 offset_left = 1401.0
 offset_top = 719.0
 offset_right = 1684.0
@@ -56,17 +96,27 @@ size_flags_horizontal = 4
 texture_normal = ExtResource("3_glbon")
 texture_pressed = ExtResource("4_nlkkf")
 
-[node name="Label" type="Label" parent="PlayButton" unique_id=1162963837]
-layout_mode = 1
+[node name="PointLight2D" type="PointLight2D" parent="CanvasLayer_background/CanvasGroup" unique_id=1619130767]
+position = Vector2(1060.9999, 487)
+scale = Vector2(0.76543957, 0.80716807)
+color = Color(0.6666667, 0.8666667, 0.7372549, 1)
+energy = 0.2
+texture = ExtResource("6_dy7ct")
+texture_scale = 3.37
+
+[node name="CanvasLayer_label" type="CanvasLayer" parent="." unique_id=2022288524]
+
+[node name="PlayLabel" type="Label" parent="CanvasLayer_label" unique_id=1162963837]
+unique_name_in_owner = true
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -1225.0
-offset_top = -143.5
-offset_right = -163.0
-offset_bottom = -92.5
+offset_left = -172.0
+offset_top = 149.0
+offset_right = 44.0
+offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "PLAY"
@@ -74,55 +124,46 @@ label_settings = SubResource("LabelSettings_nlkkf")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PointLight2D" type="PointLight2D" parent="PlayButton" unique_id=1619130767]
-position = Vector2(-340.0001, -232)
-scale = Vector2(0.76543957, 0.80716807)
-color = Color(0.6666667, 0.8666667, 0.7372549, 1)
-energy = 0.2
-texture = ExtResource("6_dy7ct")
-texture_scale = 3.37
+[node name="CanvasLayer_strokes" type="CanvasLayer" parent="." unique_id=1436699562]
+layer = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1532667731]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="CanvasGroup" type="CanvasGroup" parent="CanvasLayer_strokes" unique_id=1451228788]
+material = SubResource("ShaderMaterial_strokes")
+fit_margin = 0.0
+clear_margin = 0.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=163147358]
-visible = false
-layout_mode = 2
+[node name="MarkerLayer" type="Control" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1291403684]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+script = ExtResource("9_mlayer")
 
-[node name="TextureRect" type="TextureRect" parent="CenterContainer/VBoxContainer" unique_id=1784225229]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 4
-texture = ExtResource("1_06t4h")
+[node name="RedactionDebug" type="Control" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1988772293]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("10_debug")
 
 [node name="Timer" type="Timer" parent="." unique_id=2023511068]
 wait_time = 15.0
 autostart = true
 
-[node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("7_qe12f")]
+[node name="CanvasLayer_hand" type="CanvasLayer" parent="." unique_id=1880257764]
+layer = 4
+
+[node name="CanvasGroup" type="CanvasGroup" parent="CanvasLayer_hand" unique_id=1730697179]
+material = SubResource("ShaderMaterial_hand")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="RightHand" parent="CanvasLayer_hand/CanvasGroup" unique_id=1371813690 instance=ExtResource("8_rhand")]
 unique_name_in_owner = true
 position = Vector2(-23, 9)
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1313605369]
-
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=186425947]
-material = SubResource("ShaderMaterial_dy7ct")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 1.0
-offset_top = -2.0
-offset_right = 1.0
-offset_bottom = -2.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="CanvasLayer_background/CanvasGroup/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

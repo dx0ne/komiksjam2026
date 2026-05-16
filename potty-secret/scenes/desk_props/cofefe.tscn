@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://bk6otlfx6rr5k"]
+
+[ext_resource type="Script" path="res://scenes/desk_props/cofefe.gd" id="1_cofefe"]
+[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="1_3oppv"]
+[ext_resource type="Shader" path="res://shaders/cofefe_gentle.gdshader" id="2_7ft0p"]
+[ext_resource type="Texture2D" uid="uid://ce1nae31pbljl" path="res://art/Kawa_Serce.png" id="2_8ppki"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_heugr"]
+shader = ExtResource("2_7ft0p")
+shader_parameter/center = Vector2(0.5, 0.5)
+shader_parameter/spin_speed = 0.28
+shader_parameter/swirl_strength = 0.12
+shader_parameter/morph_strength = 0.018
+shader_parameter/morph_speed = 1.15
+shader_parameter/rotation_offset = 0.0
+shader_parameter/clip_to_shape = true
+
+[node name="Cofefe" type="Node2D" unique_id=313940496]
+script = ExtResource("1_cofefe")
+
+[node name="Mug" type="Sprite2D" parent="." unique_id=1738059579]
+texture = ExtResource("1_3oppv")
+
+[node name="Inside" type="Sprite2D" parent="." unique_id=2147196860]
+material = SubResource("ShaderMaterial_heugr")
+position = Vector2(42, -40)
+texture = ExtResource("2_8ppki")

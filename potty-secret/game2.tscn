@@ -8,16 +8,21 @@
 [ext_resource type="Texture2D" uid="uid://c8k6jmxo282dx" path="res://art/Reka_Zegar.png" id="4_hve3p"]
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="5_boqrt"]
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
+[ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="6_nuj7l"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
-[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
+[ext_resource type="PackedScene" uid="uid://bk6otlfx6rr5k" path="res://scenes/desk_props/cofefe.tscn" id="10_boqrt"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
+[ext_resource type="Texture2D" uid="uid://bwwd7daweox3k" path="res://art/Palec.png" id="13_52qbx"]
+[ext_resource type="Texture2D" uid="uid://d21cppih2i60n" path="res://art/black_mark.png" id="15_5gpan"]
 [ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
 [ext_resource type="Script" uid="uid://b1jkces6w0l7k" path="res://scripts/marker_layer.gd" id="16_mlayer"]
 [ext_resource type="PackedScene" uid="uid://rwgbfuhc2nil" path="res://scenes/right_hand.tscn" id="17_cps6k"]
 [ext_resource type="Script" uid="uid://c8w77dm6kgulw" path="res://scripts/text_renderer.gd" id="17_trender"]
 [ext_resource type="Script" uid="uid://bwaip5b585rds" path="res://scripts/debug_overlay.gd" id="18_debug"]
+[ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="19_boqrt"]
+[ext_resource type="Texture2D" uid="uid://dpay8s0orfcy5" path="res://art/smoke_03.png" id="20_vfwdf"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8tca4"]
 shader = ExtResource("5_boqrt")
@@ -30,7 +35,7 @@ shader_parameter/dither_enabled = true
 shader_parameter/dither_pattern = 2
 shader_parameter/levels = 9
 shader_parameter/contrast = 1.1930000566675
-shader_parameter/brightness = 0.019000048402499914
+shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
 
@@ -45,7 +50,7 @@ shader_parameter/dither_enabled = true
 shader_parameter/dither_pattern = 2
 shader_parameter/levels = 9
 shader_parameter/contrast = 1.1930000566675
-shader_parameter/brightness = 0.019000048402499914
+shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
 
@@ -60,9 +65,71 @@ shader_parameter/dither_enabled = true
 shader_parameter/dither_pattern = 2
 shader_parameter/levels = 9
 shader_parameter/contrast = 1.1930000566675
-shader_parameter/brightness = 0.019000048402499914
+shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
+
+[sub_resource type="Animation" id="Animation_x5p1p"]
+length = 1.3666667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Palec:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(706.3108, -86.04736)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Palec:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [-0.43807763]
+}
+
+[sub_resource type="Animation" id="Animation_qhcbd"]
+resource_name = "palec"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Palec:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(600, -33)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Palec:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-0.43807763, 0.0, -0.4380776422505771]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3mwu3"]
+_data = {
+&"RESET": SubResource("Animation_x5p1p"),
+&"palec": SubResource("Animation_qhcbd")
+}
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ui"]
 bg_color = Color(0.16, 0.15, 0.13, 1)
@@ -71,6 +138,38 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.45, 0.39, 0.3, 1)
+
+[sub_resource type="Curve" id="Curve_5gpan"]
+_data = [Vector2(0, 0.003748417), 0.0, 0.0, 0, 0, Vector2(0.34192035, 0.6615993), 0.0, 0.0, 0, 0, Vector2(0.9976581, 0.9864639), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_vaj68"]
+curve = SubResource("Curve_5gpan")
+
+[sub_resource type="Gradient" id="Gradient_nuj7l"]
+colors = PackedColorArray(18.892157, 18.892157, 18.892157, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_xa8c5"]
+gradient = SubResource("Gradient_nuj7l")
+
+[sub_resource type="Curve" id="Curve_7drl1"]
+_data = [Vector2(0.0023419205, 0.011870027), 0.0, 3.4024966, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_i2p71"]
+curve = SubResource("Curve_7drl1")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_2wyxb"]
+particle_flag_disable_z = true
+gravity = Vector3(0, -300, 0)
+scale_curve = SubResource("CurveTexture_i2p71")
+color = Color(0.80784315, 1, 1, 1)
+color_ramp = SubResource("GradientTexture1D_xa8c5")
+anim_speed_curve = SubResource("CurveTexture_vaj68")
+turbulence_enabled = true
+turbulence_noise_strength = 20.0
+turbulence_noise_scale = 9.187
+turbulence_noise_speed_random = 0.17
 
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_game2")
@@ -98,6 +197,11 @@ texture = ExtResource("3_vef74")
 position = Vector2(1073, 712)
 texture = ExtResource("4_cps6k")
 
+[node name="Stempel" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=2135037805]
+position = Vector2(1485, 921)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("6_nuj7l")
+
 [node name="Teczka" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=1944249299]
 position = Vector2(1901, 466)
 texture = ExtResource("11_iotsf")
@@ -121,15 +225,6 @@ texture_normal = ExtResource("7_mfdv2")
 unique_name_in_owner = true
 position = Vector2(425, 0)
 
-[node name="popielniczka" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=653389244]
-position = Vector2(1550, 17)
-scale = Vector2(0.81707317, 0.81707317)
-texture = ExtResource("5_hve3p")
-
-[node name="Kawa" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=2041212742]
-position = Vector2(699, 125)
-texture = ExtResource("10_mfdv2")
-
 [node name="paperclip_node2d" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=1130567401 instance=ExtResource("3_feb5d")]
 position = Vector2(1744.6615, 642.0069)
 rotation = 0.53265446
@@ -143,23 +238,18 @@ position = Vector2(1763.6615, 753.00684)
 rotation = -0.41111943
 scale = Vector2(0.33036909, 0.33333334)
 
-[node name="RekaZegar" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=1667004532]
-position = Vector2(34.00001, 1151.0001)
-scale = Vector2(0.84229827, 0.84229827)
-texture = ExtResource("4_hve3p")
-
-[node name="clock" parent="CanvasLayer_background/CanvasGroup/Node2D/RekaZegar" unique_id=488091232 instance=ExtResource("11_lc2xo")]
-unique_name_in_owner = true
-position = Vector2(302.74304, -225.57344)
-
 [node name="send_to_briefieng" type="TextureButton" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=1343838258]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0)
-offset_left = 1763.0
-offset_top = -646.0
-offset_right = 1835.0
-offset_bottom = 372.0
-texture_normal = ExtResource("7_mfdv2")
+offset_left = 1766.0
+offset_top = 98.00002
+offset_right = 1877.0
+offset_bottom = 374.00003
+rotation = -0.06187095
+scale = Vector2(0.8403027, 1)
+texture_normal = ExtResource("15_5gpan")
+ignore_texture_size = true
+stretch_mode = 0
 
 [node name="CanvasLayer_text" type="CanvasLayer" parent="." unique_id=2022288524]
 
@@ -201,6 +291,15 @@ offset_right = 1610.0
 offset_bottom = 1408.0
 script = ExtResource("16_mlayer")
 
+[node name="popielniczka" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=653389244]
+position = Vector2(1550, 17)
+scale = Vector2(0.81707317, 0.81707317)
+texture = ExtResource("5_hve3p")
+
+[node name="Cofefe" parent="CanvasLayer_strokes/CanvasGroup" unique_id=313940496 instance=ExtResource("10_boqrt")]
+unique_name_in_owner = true
+position = Vector2(696, 130)
+
 [node name="CanvasLayer_hand" type="CanvasLayer" parent="." unique_id=1880257764]
 layer = 4
 
@@ -208,6 +307,27 @@ layer = 4
 material = SubResource("ShaderMaterial_boqrt")
 fit_margin = 0.0
 clear_margin = 0.0
+
+[node name="LeftHand" type="Sprite2D" parent="CanvasLayer_hand/CanvasGroup" unique_id=1799404259]
+position = Vector2(57.99996, 1145)
+rotation = -0.43807763
+scale = Vector2(0.84229827, 0.84229827)
+texture = ExtResource("4_hve3p")
+
+[node name="Palec" type="Sprite2D" parent="CanvasLayer_hand/CanvasGroup/LeftHand" unique_id=1388661231]
+position = Vector2(706.3108, -86.04736)
+rotation = -0.43807763
+scale = Vector2(1.1872278, 1.1872278)
+texture = ExtResource("13_52qbx")
+offset = Vector2(100, 0)
+
+[node name="Palec2" type="AnimationPlayer" parent="CanvasLayer_hand/CanvasGroup/LeftHand" unique_id=1585384487]
+libraries/ = SubResource("AnimationLibrary_3mwu3")
+autoplay = &"palec"
+
+[node name="clock_scn" parent="CanvasLayer_hand/CanvasGroup/LeftHand" unique_id=488091232 instance=ExtResource("11_lc2xo")]
+unique_name_in_owner = true
+position = Vector2(315.13675, -138.18372)
 
 [node name="RightHand" parent="CanvasLayer_hand/CanvasGroup" unique_id=143189384 instance=ExtResource("17_cps6k")]
 unique_name_in_owner = true
@@ -292,3 +412,29 @@ script = ExtResource("15_7sc4i")
 
 [node name="OptionButton" type="OptionButton" parent="Options/HBoxContainer/Options _Settings" unique_id=690648783]
 layout_mode = 2
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
+visible = false
+position = Vector2(1250, 427)
+color = Color(0.6666667, 0.8666667, 0.7372549, 1)
+energy = 0.2
+texture = ExtResource("19_boqrt")
+texture_scale = 3.37
+
+[node name="CanvasLayer_vfx" type="CanvasLayer" parent="." unique_id=237625313]
+layer = 5
+
+[node name="CanvasGroup" type="CanvasGroup" parent="CanvasLayer_vfx" unique_id=712774815]
+material = SubResource("ShaderMaterial_boqrt")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="Smoke" type="Node2D" parent="CanvasLayer_vfx/CanvasGroup" unique_id=451858509]
+position = Vector2(1600, 60)
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="CanvasLayer_vfx/CanvasGroup/Smoke" unique_id=2011213832]
+amount = 3
+texture = ExtResource("20_vfwdf")
+lifetime = 3.0
+speed_scale = 0.3
+process_material = SubResource("ParticleProcessMaterial_2wyxb")

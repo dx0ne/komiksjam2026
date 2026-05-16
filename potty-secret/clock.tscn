@@ -1,13 +1,81 @@
 [gd_scene format=3 uid="uid://cm4o4rmuagg1a"]
 
 [ext_resource type="Script" uid="uid://dcocu5xug1yuu" path="res://clock.gd" id="1_venu5"]
+[ext_resource type="Texture2D" uid="uid://bx7h8g5wgduhv" path="res://art/Cien_zegarek.png" id="2_nmps5"]
+[ext_resource type="Texture2D" uid="uid://bemxq8g6vhx0s" path="res://art/Tlo_zegarek.png" id="3_rwv3y"]
+[ext_resource type="Texture2D" uid="uid://dj33rr67bf60" path="res://art/Nogi_zegarek.png" id="4_20ang"]
+[ext_resource type="Texture2D" uid="uid://bkrqlecx8k7h0" path="res://art/Tarcza_zegarek.png" id="5_r11bh"]
+[ext_resource type="Texture2D" uid="uid://c67b6idww863d" path="res://art/Reka_zegarek.png" id="6_umrnc"]
+[ext_resource type="Texture2D" uid="uid://d2vpjqq7oobfd" path="res://art/Timer_zegarek.png" id="7_gy52w"]
+
+[sub_resource type="Animation" id="Animation_e36ub"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("NogiZegarek:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("NogiZegarek:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_hb5m1"]
+resource_name = "nogi"
+length = 1.5
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("NogiZegarek:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("NogiZegarek:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [6.283185307179586, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_thogr"]
+_data = {
+&"RESET": SubResource("Animation_e36ub"),
+&"nogi": SubResource("Animation_hb5m1")
+}
 
 [node name="Node2D" type="Node2D" unique_id=488091232]
 script = ExtResource("1_venu5")
 
 [node name="Timer" type="Timer" parent="." unique_id=54382079]
 unique_name_in_owner = true
-wait_time = 180.0
+wait_time = 10.0
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=747452574]
 unique_name_in_owner = true
@@ -16,6 +84,37 @@ offset_bottom = 27.0
 scale = Vector2(2.4761906, 2.142857)
 max_value = 180.0
 value = 180.0
+
+[node name="ZegarekMyszka" type="Node2D" parent="." unique_id=406307548]
+scale = Vector2(0.5, 0.5)
+
+[node name="CienZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1135336752]
+position = Vector2(-10, 7)
+scale = Vector2(1.09, 1.09)
+texture = ExtResource("2_nmps5")
+
+[node name="TloZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1789277006]
+texture = ExtResource("3_rwv3y")
+
+[node name="NogiZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=1487673725]
+unique_name_in_owner = true
+texture = ExtResource("4_20ang")
+
+[node name="TarczaZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=801082387]
+texture = ExtResource("5_r11bh")
+
+[node name="RekaZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=2050750331]
+unique_name_in_owner = true
+rotation = 6.174975
+texture = ExtResource("6_umrnc")
+
+[node name="TimerZegarek" type="Sprite2D" parent="ZegarekMyszka" unique_id=848572581]
+texture = ExtResource("7_gy52w")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ZegarekMyszka" unique_id=301834330]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_thogr")
+autoplay = &"nogi"
 
 [connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
