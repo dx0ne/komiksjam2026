@@ -389,6 +389,7 @@ offset_bottom = 372.0
 texture_normal = ExtResource("7_mfdv2")
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
+visible = false
 position = Vector2(-23, 9)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=309520377]
