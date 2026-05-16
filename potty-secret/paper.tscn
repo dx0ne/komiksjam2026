@@ -6,13 +6,14 @@
 [ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="4_h5hlm"]
 [ext_resource type="PackedScene" uid="uid://b6cbv3dlom18" path="res://lines.tscn" id="5_h5hlm"]
 [ext_resource type="LabelSettings" uid="uid://xiopkx42p8lf" path="res://new_label_settings.tres" id="6_stmvh"]
+[ext_resource type="Texture2D" uid="uid://bkotcg8ogccy" path="res://art/posit.png" id="7_ea577"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_rhp03"]
+[sub_resource type="LabelSettings" id="LabelSettings_stmvh"]
 font = ExtResource("4_h5hlm")
 font_size = 63
-font_color = Color(0, 0.43917945, 0.84256375, 1)
-outline_size = 6
-outline_color = Color(0, 0.4392157, 0.84313726, 1)
+font_color = Color(1, 0.92941177, 0.6666667, 1)
+outline_size = 20
+outline_color = Color(0.33333334, 0.13333334, 0.2627451, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_h5hlm"]
 font = ExtResource("4_h5hlm")
@@ -21,12 +22,12 @@ font_color = Color(0.99999994, 0.08977976, 0.07007859, 1)
 outline_size = 2
 outline_color = Color(1, 0.09019608, 0.07058824, 1)
 
-[sub_resource type="LabelSettings" id="LabelSettings_stmvh"]
+[sub_resource type="LabelSettings" id="LabelSettings_rhp03"]
 font = ExtResource("4_h5hlm")
-font_size = 63
-font_color = Color(0.070151605, 0.5897205, 0, 1)
-outline_size = 2
-outline_color = Color(0.7223249, 0.64947903, 0.0050017475, 1)
+font_size = 60
+font_color = Color(0.33333334, 0.13333334, 0.2627451, 1)
+outline_size = 6
+outline_color = Color(0.33333334, 0.13333334, 0.2627451, 1)
 
 [node name="Node2D2" type="Node2D" unique_id=1504223162]
 script = ExtResource("1_rhp03")
@@ -68,39 +69,44 @@ position = Vector2(629.21094, 729.8012)
 [node name="Node2D3" parent="Sprite2D/interactables" unique_id=191514642 instance=ExtResource("3_stmvh")]
 position = Vector2(433.97067, 984.43555)
 
-[node name="pointsLabel" type="Label" parent="Sprite2D" unique_id=1384508791]
-unique_name_in_owner = true
-offset_left = 937.46606
-offset_top = 391.77692
-offset_right = 1034.4661
-offset_bottom = 483.77692
-text = "5/5"
-label_settings = SubResource("LabelSettings_rhp03")
-horizontal_alignment = 2
-
-[node name="pointsLabel_bad" type="Label" parent="Sprite2D" unique_id=94134126]
-unique_name_in_owner = true
-offset_left = 937.46606
-offset_top = 455.2792
-offset_right = 1034.4661
-offset_bottom = 547.2792
-text = "-1"
-label_settings = SubResource("LabelSettings_h5hlm")
-horizontal_alignment = 2
-
-[node name="pointsLabel_good" type="Label" parent="Sprite2D" unique_id=373392256]
-unique_name_in_owner = true
-offset_left = 869.6585
-offset_top = 454.20288
-offset_right = 966.6585
-offset_bottom = 546.2029
-text = "+1"
-label_settings = SubResource("LabelSettings_stmvh")
-horizontal_alignment = 2
-
 [node name="lines" parent="Sprite2D" unique_id=1050759444 instance=ExtResource("5_h5hlm")]
 unique_name_in_owner = true
 rotation = -0.021050822
 scale = Vector2(1.0763102, 1.0763103)
+
+[node name="Posit" type="Sprite2D" parent="." unique_id=2146702897]
+position = Vector2(1014.00006, 477)
+scale = Vector2(0.8347339, 0.83473396)
+texture = ExtResource("7_ea577")
+
+[node name="pointsLabel_good" type="Label" parent="." unique_id=373392256]
+unique_name_in_owner = true
+offset_left = 883.0
+offset_top = 429.0
+offset_right = 980.0
+offset_bottom = 521.0
+text = "+1"
+label_settings = SubResource("LabelSettings_stmvh")
+horizontal_alignment = 2
+
+[node name="pointsLabel_bad" type="Label" parent="." unique_id=94134126]
+unique_name_in_owner = true
+offset_left = 943.0
+offset_top = 429.0
+offset_right = 1040.0
+offset_bottom = 521.0
+text = "-1"
+label_settings = SubResource("LabelSettings_h5hlm")
+horizontal_alignment = 2
+
+[node name="pointsLabel" type="Label" parent="." unique_id=1384508791]
+unique_name_in_owner = true
+offset_left = 923.0
+offset_top = 361.0
+offset_right = 1029.0
+offset_bottom = 478.0
+text = "5/5"
+label_settings = SubResource("LabelSettings_rhp03")
+horizontal_alignment = 2
 
 [connection signal="ready" from="." to="." method="_on_ready"]
