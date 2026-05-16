@@ -1,45 +1,34 @@
 extends Node2D
 
-# Phase 2 — game2.gd
-# Boot, document generation, toilet-handle batch wiring,
-# submit / next-document logic, and SPACE / M shortcuts (task-03).
-
 const REDACTION_TOLERANCE  := 12.0
 const SAMPLE_STEP          := 6.0
 const COVERAGE_CELL_WIDTH  := 8.0
 const COVERAGE_HALF_RATIO  := 0.50
 const COVERAGE_FULL_RATIO  := 0.70
 const COVERAGE_MIN_CELLS   := 2
-const APPROVAL_FRACTION    := 0.75
 const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
+const TOILET_INTEL_COUNT   := 3
+const WORDS_IN_DOCUMENT    := 6
 
 const TOILET_SCN := preload("res://toilet_msg.tscn")
+const PAPER_SCN  := preload("res://paper.tscn")
 
-@onready var text_renderer:         TextRenderer      = %TextRenderer
-@onready var marker_layer:          MarkerLayer       = %MarkerLayer
-@onready var debug_overlay:         DebugOverlay      = %DebugOverlay
-@onready var title_label:           Label             = $UI/MarginContainer/VBoxContainer/TitleLabel
-@onready var directive_label:       Label             = $UI/MarginContainer/VBoxContainer/DirectiveLabel
-@onready var timer_label:           Label             = $UI/MarginContainer/VBoxContainer/TimerLabel
-@onready var score_label:           Label             = $UI/MarginContainer/VBoxContainer/ScoreLabel
-@onready var submit_button:         Button            = $UI/MarginContainer/VBoxContainer/SubmitButton
-@onready var new_document_button:   Button            = $UI/MarginContainer/VBoxContainer/NewDocumentButton
-@onready var clock: Node2D = %clock_scn
-
+@onready var text_renderer: TextRenderer = %TextRenderer
+@onready var marker_layer: MarkerLayer = %MarkerLayer
+@onready var debug_overlay: DebugOverlay = %DebugOverlay
+@onready var clock: ShiftClock = %clock_scn
 
 var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
-var _ui_font: Font
 
-# Session-scoped list of per-paper pass/fail results.
-# Populated by _on_submit_pressed; reset only on _ready (full session reset).
-var paper_results: Array[bool] = []
+var active_paper: Paper = null
+var session: Dictionary = {}
 
 var templates: Array[String] = [
-	"Citizen {name} discussed {illegal_a} activity near the western tram depot. Witnesses also reported possession of {illegal_b} material.",
-	"Report mentions {illegal_a} literature distribution by subject {name}. Secondary notes reference unauthorized {illegal_b} gathering after curfew.",
-	"Subject {name} attended a private lecture concerning {illegal_a}. The lecture minutes include repeated praise for {illegal_b} and public dissent.",
-	"Inspection of apartment assigned to {name} discovered correspondence about {illegal_a}. Clerk annotation suggests possible {illegal_b} coordination.",
+	"Memo: operative {w0} met contact citing {w1}. Archive notes mention {w2}, {w3}, and deny any {w4} link to {w5}.",
+	"Field report on {w0}: witnesses repeat {w1} and {w2}. Subject {w3} refuses comment about {w4} or {w5}.",
+	"Cable from desk officer: {w0} material crossed with {w1}. Courier also carried {w2}, {w3}, {w4}, {w5}.",
+	"Internal review lists {w0}, {w1}, {w2} as recurring phrases. Clerk flags {w3} beside {w4} and {w5}.",
 ]
 
 var names: Array[String] = [
@@ -55,36 +44,21 @@ func _ready() -> void:
 	rng.randomize()
 	viewport_size = get_viewport().get_visible_rect().size
 
-	# Typewriter font
-	_ui_font = _load_typewriter_font()
-	_apply_ui_font($UI)
-
-	# Wire redaction stack
 	debug_overlay.text_renderer = text_renderer
 	debug_overlay.tolerance = REDACTION_TOLERANCE
 
-	# Connect gimme_toilet_btn (toilet handle — pulls new batch)
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
-
-	# Connect clock time_out — handler stubbed; verdict is phase 3
+	%send_to_briefieng.gui_input.connect(_on_send_to_briefieng_gui_input)
 	clock.time_out.connect(_on_time_out)
+	marker_layer.stroke_finished.connect(_on_stroke_finished)
 
-	# Connect submit and new-document buttons
-	submit_button.pressed.connect(_on_submit_pressed)
-	new_document_button.pressed.connect(_generate_document)
+	var bg_paper: Node = get_node_or_null("CanvasLayer_background/CanvasGroup/Node2D/BackgroundPaper")
+	if bg_paper is CanvasItem:
+		(bg_paper as CanvasItem).visible = false
 
-	# Connect gimme_toilet_btn2 — briefcase trigger; no-op stub for phase 2
-	%send_to_briefieng.gui_input.connect(_on_gimme_toilet_btn2_gui_input)
-
-	# Populate the first batch of toilet messages, which sets
-	# WordManager.current_toilet_words, then generate the first document.
-	new_tolilet_msgs()
-	# Note: new_tolilet_msgs calls _generate_document at its end.
-
-	# Set initial button state after the first document is generated.
-	# Override whatever _generate_document just set to ensure correctness.
-	submit_button.disabled = false
-	new_document_button.disabled = true
+	WordManager.shift_correct_illegal = 0
+	_spawn_fresh_paper(false)
+	_roll_toilet_intel(true)
 
 
 func _input(event: InputEvent) -> void:
@@ -96,16 +70,16 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("quit"):
 		get_tree().quit()
 	if event.is_action_pressed("rand_toilet_msg"):
-		new_tolilet_msgs()
+		toilet_pull()
 	if event.is_action_pressed("rand_document"):
-		_generate_document()
+		_send_to_briefing()
 	if event.is_action_pressed("skip_to_ending"):
 		_end_shift()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_SPACE:
+		if event.keycode == KEY_D:
 			debug_overlay.toggle()
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_M:
@@ -113,70 +87,131 @@ func _unhandled_input(event: InputEvent) -> void:
 				if marker_layer.mode == MarkerLayer.DrawMode.LINE \
 				else MarkerLayer.DrawMode.LINE
 			marker_layer.set_mode(new_mode)
-			_update_score_label("Marker mode: %s" % (
-				"LINE" if new_mode == MarkerLayer.DrawMode.LINE else "BRUSH"
-			))
 			get_viewport().set_input_as_handled()
 
 
 # ---------------------------------------------------------------------------
-# Cofefe — extra shift time
+# Paper lifecycle
 # ---------------------------------------------------------------------------
 
-func _try_cofefe_click(event: InputEventMouseButton) -> bool:
-	var cofefe: Node2D = %Cofefe
-	if not cofefe.has_method("contains_global_point"):
-		return false
-	if not cofefe.contains_global_point(event.global_position):
-		return false
-	clock.add_time(10.0)
-	get_viewport().set_input_as_handled()
-	return true
+func _spawn_fresh_paper(animate_in: bool) -> void:
+	if active_paper:
+		active_paper.queue_free()
+		active_paper = null
+
+	active_paper = PAPER_SCN.instantiate()
+	%papers_container.add_child(active_paper)
+	active_paper.prepare_for_game2_overlay()
+
+	var offset_pos := Vector2(randf_range(-30.0, 0.0), randf_range(-30.0, 0.0))
+	if animate_in:
+		active_paper.position += Vector2(200, 100)
+		var tween := create_tween()
+		tween.tween_property(active_paper, "position", offset_pos, 0.35) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	else:
+		active_paper.position = offset_pos
+
+	session = _build_session()
+	_load_session()
+	_refresh_postit_and_penalty()
+
+
+func _build_session() -> Dictionary:
+	var document_words := _pick_document_word_pool()
+	var text := _build_document_text(document_words)
+	return {
+		"text": text,
+		"document_words": document_words,
+		"strokes": [] as Array[PackedVector2Array],
+		"stamped": false,
+	}
+
+
+func _single_token_master_words() -> Array[String]:
+	var pool: Array[String] = []
+	for word in WordManager.master_list:
+		if word.find(" ") == -1:
+			pool.append(word)
+	return pool if not pool.is_empty() else WordManager.master_list.duplicate()
+
+
+func _pick_document_word_pool() -> Array[String]:
+	var pool: Array[String] = _single_token_master_words()
+	pool.shuffle()
+	while pool.size() < WORDS_IN_DOCUMENT:
+		pool.append_array(_single_token_master_words())
+		pool.shuffle()
+	var picked: Array[String] = []
+	for i in range(mini(WORDS_IN_DOCUMENT, pool.size())):
+		picked.append(pool[i])
+	return picked
+
+
+func _build_document_text(document_words: Array[String]) -> String:
+	var text := templates[rng.randi_range(0, templates.size() - 1)]
+	for index in range(document_words.size()):
+		text = text.replace("{w%d}" % index, document_words[index])
+	text += " Handler copy for ministry review. Subject %s." % names[rng.randi_range(0, names.size() - 1)]
+	return text
+
+
+func _load_session() -> void:
+	text_renderer.set_document(session["text"], WordManager.current_toilet_words)
+	marker_layer.clear_strokes()
+	marker_layer.clear_word_marks()
+	marker_layer.set_locked(false)
+	text_renderer.reset_review()
+	debug_overlay.clear_stroke_samples()
+	active_paper.set_stamp_visible(session.get("stamped", false))
+
+
+func _save_session() -> void:
+	session["strokes"] = _duplicate_strokes(marker_layer.strokes)
 
 
 # ---------------------------------------------------------------------------
-# Toilet-handle wiring
+# Toilet intel
 # ---------------------------------------------------------------------------
 
 func _on_gimme_toilet_btn_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			toilet_pull()
-		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			toilet_pull()
+	if event is InputEventMouseButton and event.pressed:
+		toilet_pull()
 
 
 func toilet_pull() -> void:
-	var original_pos := Vector2(0, 0)
-	var offset_pos   := original_pos + Vector2(0, 100)
-	var trans_time   := 0.2
+	var original_pos := Vector2.ZERO
+	var offset_pos := original_pos + Vector2(0, 100)
+	var trans_time := 0.2
 
 	var tween := create_tween()
 	tween.tween_property(%toilet_handle, "position", offset_pos, trans_time) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(%toilet_handle, "position", original_pos, trans_time) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.tween_callback(new_tolilet_msgs)
+	tween.tween_callback(_roll_toilet_intel)
 
 
-func new_tolilet_msgs() -> void:
-	# Clear previous messages
+func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 	for child in %toilet_msgs_container.get_children():
 		child.queue_free()
 
-	var max_msgs  := 3
+	WordManager.current_toilet_words = _pick_toilet_words_for_session()
+
+	if not animate_msgs:
+		if session.has("text"):
+			_apply_toilet_to_current_paper()
+		return
+
 	var y_pad_perct := 0.2
 	var y_padding := viewport_size.y * y_pad_perct
-	var y_spacer  := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / max_msgs
+	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / TOILET_INTEL_COUNT
 
-	var words := WordManager.get_next_batch(max_msgs)
-	WordManager.current_toilet_words = words
-
-	for i in range(max_msgs):
+	for i in range(WordManager.current_toilet_words.size()):
 		var toilet_msg = TOILET_SCN.instantiate()
 		%toilet_msgs_container.add_child(toilet_msg)
 		toilet_msg.position.y = -100
-		toilet_msg.set_label(words[i])
+		toilet_msg.set_label(WordManager.current_toilet_words[i])
 		toilet_msg.prep_tween()
 
 		var tween := create_tween().set_parallel(true)
@@ -188,119 +223,166 @@ func new_tolilet_msgs() -> void:
 		tween.tween_property(toilet_msg, "position:x", target_x, 0.6) \
 			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 
-	_generate_document()
+	if session.has("text"):
+		_apply_toilet_to_current_paper()
 
 
-# ---------------------------------------------------------------------------
-# Document generation
-# ---------------------------------------------------------------------------
+func _pick_toilet_words_for_session() -> Array[String]:
+	var pool: Array = session.get("document_words", [])
+	if pool.is_empty():
+		return WordManager.pick_random_words(TOILET_INTEL_COUNT)
+	var picks: Array[String] = []
+	for word in pool:
+		picks.append(word)
+	picks.shuffle()
+	var count := mini(TOILET_INTEL_COUNT, picks.size())
+	var batch: Array[String] = []
+	for i in range(count):
+		batch.append(picks[i])
+	return batch
 
-func _generate_document() -> void:
-	# Pull the illegal words from WordManager.  Fall back to master_list if
-	# current_toilet_words is empty (e.g. called before first toilet pull).
-	var source: Array[String] = WordManager.current_toilet_words
-	if source.size() < 2:
-		source = WordManager.master_list
 
-	var illegal_words: Array[String] = [source[0], source[1]]
+func _apply_toilet_to_current_paper() -> void:
+	_save_session()
+	text_renderer.set_forbidden_words(WordManager.current_toilet_words)
+	_load_session_strokes()
+	_refresh_postit_and_penalty()
 
-	var text := templates[rng.randi_range(0, templates.size() - 1)]
-	text = text.replace("{name}",      names[rng.randi_range(0, names.size() - 1)])
-	text = text.replace("{illegal_a}", illegal_words[0])
-	text = text.replace("{illegal_b}", illegal_words[1])
-	text += " File handler must obscure all prohibited terms before forwarding to the archive desk."
 
-	text_renderer.set_document(text, illegal_words)
+func _load_session_strokes() -> void:
 	marker_layer.clear_strokes()
-	text_renderer.reset_review()
+	marker_layer.clear_word_marks()
+	for stroke in session.get("strokes", []):
+		if stroke is PackedVector2Array:
+			marker_layer.strokes.append(stroke.duplicate())
+			marker_layer.stroke_colors.append(marker_layer.marker_color)
 	marker_layer.set_locked(false)
-	debug_overlay.clear_stroke_samples()
-	_update_directive()
-	_update_score_label("Drag the marker over forbidden words, then submit.")
-
-	# A fresh document is ready — player must submit before advancing.
-	submit_button.disabled = false
-	new_document_button.disabled = true
+	text_renderer.reset_review()
 
 
 # ---------------------------------------------------------------------------
-# UI helpers
+# Briefing / new paper
 # ---------------------------------------------------------------------------
 
-func _update_directive() -> void:
-	var words: Array[String] = WordManager.current_toilet_words
-	if words.size() < 2:
-		words = WordManager.master_list
-	directive_label.text = "Directive\nRedact these terms:\n• %s\n• %s" % [
-		words[0].to_upper(),
-		words[1].to_upper(),
-	]
-	timer_label.text = "Shift clock: 08:00"
+func _on_send_to_briefieng_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_send_to_briefing()
 
 
-func _update_score_label(message: String) -> void:
-	score_label.text = message
-
-
-func _load_typewriter_font() -> Font:
-	var resource := load(TYPEWRITER_FONT_PATH)
-	if resource is Font:
-		return resource
-	push_warning("Could not load typewriter font: %s" % TYPEWRITER_FONT_PATH)
-	return null
-
-
-func _apply_ui_font(node: Node) -> void:
-	if _ui_font == null:
+func _send_to_briefing(advance_paper: bool = true) -> void:
+	if active_paper == null:
 		return
-	if node is Control:
-		node.add_theme_font_override("font", _ui_font)
-	if node is Button:
-		node.add_theme_font_size_override("font_size", 18)
-	elif node is Label:
-		node.add_theme_font_size_override("font_size", 18)
-		if node.name == "TitleLabel":
-			node.add_theme_font_size_override("font_size", 22)
-	for child in node.get_children():
-		_apply_ui_font(child)
+
+	_save_session()
+	var result := _evaluate_paper(session["text"], WordManager.current_toilet_words, session["strokes"])
+
+	WordManager.shift_correct_illegal += result["correct_illegal"]
+
+	var earned_stamp: bool = bool(result["all_illegal_marked"]) and int(result["false_redactions"]) == 0
+	if earned_stamp:
+		active_paper.set_stamp_visible(true)
+
+	if not advance_paper:
+		return
+
+	if earned_stamp:
+		var tween := create_tween()
+		tween.tween_interval(0.75)
+		tween.tween_callback(_spawn_fresh_paper.bind(true))
+	else:
+		_spawn_fresh_paper(true)
 
 
 # ---------------------------------------------------------------------------
-# Submit / scoring (ported from redaction_test.gd — task-03)
+# Scoring / post-it
 # ---------------------------------------------------------------------------
 
-func _sample_stroke(stroke: PackedVector2Array) -> PackedVector2Array:
-	var samples := PackedVector2Array()
-	for index in range(stroke.size() - 1):
-		var start := stroke[index]
-		var end   := stroke[index + 1]
-		var distance    := start.distance_to(end)
-		var sample_count := maxi(1, ceili(distance / SAMPLE_STEP))
-		for sample_index in range(sample_count + 1):
-			samples.append(start.lerp(end, float(sample_index) / float(sample_count)))
-	return samples
+func _on_stroke_finished(stroke: PackedVector2Array) -> void:
+	_save_session()
+	var result := _evaluate_paper(
+		session["text"],
+		WordManager.current_toilet_words,
+		session["strokes"]
+	)
+	_color_stroke_by_result(stroke, result)
+	_refresh_postit_and_penalty()
 
 
-func _on_submit_pressed() -> void:
-	var all_samples: Array[PackedVector2Array] = []
-	for stroke in marker_layer.strokes:
-		all_samples.append(_sample_stroke(stroke))
+func _color_stroke_by_result(stroke: PackedVector2Array, result: Dictionary) -> void:
+	if marker_layer.strokes.is_empty():
+		return
+	var stroke_index := marker_layer.strokes.size() - 1
+	var touched_illegal := false
+	var touched_legal := false
 
-	var word_marks: Array[Dictionary] = []
-	var missed_indices: Array[int]    = []
-	var score            := 0.0
-	var fully            := 0
-	var halfly           := 0
-	var missed           := 0
+	var samples := _stroke_samples_in_text_space(stroke)
+	var lookup := _toilet_lookup(WordManager.current_toilet_words)
+	for box in text_renderer.word_boxes:
+		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
+		for point in samples:
+			if not grown.has_point(point):
+				continue
+			if box.get("illegal", false) and lookup.has(box["word"]):
+				touched_illegal = true
+			elif not box.get("illegal", false):
+				touched_legal = true
+
+	if touched_legal and not touched_illegal:
+		if stroke_index < marker_layer.stroke_colors.size():
+			marker_layer.stroke_colors[stroke_index] = Color(0.75, 0.1, 0.1, 0.9)
+		if active_paper and active_paper.has_method("set_penalty"):
+			var result_live := _evaluate_paper(
+				session["text"],
+				WordManager.current_toilet_words,
+				session["strokes"]
+			)
+			active_paper.set_penalty(result_live["false_redactions"])
+	marker_layer.queue_redraw()
+
+
+func _refresh_postit_and_penalty() -> void:
+	if active_paper == null:
+		return
+	var result := _evaluate_paper(
+		session.get("text", ""),
+		WordManager.current_toilet_words,
+		session.get("strokes", [])
+	)
+	active_paper.set_postit(result["correct_illegal"], result["illegal_count"])
+	active_paper.set_shift_score(WordManager.shift_correct_illegal)
+	active_paper.set_penalty(result["false_redactions"])
+
+
+func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) -> Dictionary:
+	var restore_text := text_renderer.document_text
+	var restore_forbidden := text_renderer.illegal_words.duplicate()
+	var restore_strokes := _duplicate_strokes(marker_layer.strokes)
+	var restore_colors: Array[Color] = []
+	for color in marker_layer.stroke_colors:
+		restore_colors.append(color)
+
+	text_renderer.set_document(text, toilet_words)
+	marker_layer.clear_strokes()
+	for stroke in strokes:
+		if stroke is PackedVector2Array:
+			marker_layer.strokes.append(stroke)
+
+	var all_samples := _stroke_samples_in_text_space_from_array(strokes)
+
+	var correct_illegal := 0
+	var marked_illegal := 0
+	var missed_illegal := 0
 	var false_redactions := 0
-	var illegal_count    := 0
+	var illegal_count := 0
 
-	for index in range(text_renderer.word_boxes.size()):
-		var box   := text_renderer.word_boxes[index]
+	for box in text_renderer.word_boxes:
+		if not box.get("illegal", false):
+			continue
+		illegal_count += 1
+
 		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
 		var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
-		var touched    := {}
-
+		var touched := {}
 		for samples in all_samples:
 			for point in samples:
 				if not grown.has_point(point):
@@ -313,67 +395,60 @@ func _on_submit_pressed() -> void:
 				touched[ci] = true
 
 		var tier := _coverage_tier(touched.size(), cell_total)
-		box["coverage"] = float(touched.size()) / float(cell_total)
-		box["tier"]     = tier
-		box["redacted"] = tier != "none"
+		if tier != "none":
+			marked_illegal += 1
+		match tier:
+			"full", "half":
+				correct_illegal += 1
+			_:
+				missed_illegal += 1
 
-		if box["illegal"]:
-			illegal_count += 1
-			match tier:
-				"full":
-					score  += 2.0
-					fully  += 1
-					word_marks.append({"rect": box["rect"], "kind": "tick"})
-				"half":
-					score  += 1.0
-					halfly += 1
-					word_marks.append({"rect": box["rect"], "kind": "tick"})
-				_:
-					score  -= 1.0
-					missed += 1
-					missed_indices.append(index)
-					word_marks.append({"rect": box["rect"], "kind": "cross"})
-		else:
-			match tier:
-				"full":
-					score            -= 0.5
-					false_redactions += 1
-					word_marks.append({"rect": box["rect"], "kind": "cross"})
-				"half":
-					score            -= 0.25
-					false_redactions += 1
-					word_marks.append({"rect": box["rect"], "kind": "cross"})
+	for box in text_renderer.word_boxes:
+		if box.get("illegal", false):
+			continue
+		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
+		var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
+		var touched := {}
+		for samples in all_samples:
+			for point in samples:
+				if not grown.has_point(point):
+					continue
+				var ci := clampi(
+					floori((point.x - grown.position.x) / COVERAGE_CELL_WIDTH),
+					0,
+					cell_total - 1
+				)
+				touched[ci] = true
+		var tier := _coverage_tier(touched.size(), cell_total)
+		if tier == "full" or tier == "half":
+			false_redactions += 1
 
-	var max_score := float(illegal_count) * 2.0
-	var passed    := score >= max_score * APPROVAL_FRACTION
-	var verdict   := "APPROVED" if passed else "REVIEW FAILED"
+	var all_illegal_marked := illegal_count > 0 and missed_illegal == 0 and marked_illegal == illegal_count
 
-	# Record this paper's result in the session list.
-	paper_results.append(passed)
+	text_renderer.set_document(restore_text, restore_forbidden)
+	marker_layer.clear_strokes()
+	for index in range(restore_strokes.size()):
+		marker_layer.strokes.append(restore_strokes[index])
+		var color := marker_layer.marker_color
+		if index < restore_colors.size():
+			color = restore_colors[index]
+		marker_layer.stroke_colors.append(color)
 
-	_update_score_label(
-		"%s\nScore: %s / %s\nFull: %d  Half: %d  Missed: %d\nFalse: %d\nPapers reviewed: %d · passed: %d" % [
-			verdict,
-			_format_score(score),
-			_format_score(max_score),
-			fully,
-			halfly,
-			missed,
-			false_redactions,
-			paper_results.size(),
-			paper_results.count(true),
-		]
-	)
+	return {
+		"correct_illegal": correct_illegal,
+		"marked_illegal": marked_illegal,
+		"illegal_count": illegal_count,
+		"missed_illegal": missed_illegal,
+		"false_redactions": false_redactions,
+		"all_illegal_marked": all_illegal_marked,
+	}
 
-	debug_overlay.set_stroke_samples(all_samples)
-	marker_layer.apply_word_marks(word_marks)
-	text_renderer.apply_review_states(missed_indices)
-	marker_layer.set_locked(true)
 
-	# Paper submitted — allow advancing to the next document.
-	submit_button.disabled = true
-	new_document_button.disabled = false
-	# No scene change — verdict is phase 3.
+func _toilet_lookup(toilet_words: Array[String]) -> Dictionary:
+	var lookup := {}
+	for word in toilet_words:
+		lookup[text_renderer.normalize_word(word)] = true
+	return lookup
 
 
 func _coverage_tier(touched: int, total: int) -> String:
@@ -387,44 +462,66 @@ func _coverage_tier(touched: int, total: int) -> String:
 	return "none"
 
 
-func _format_score(value: float) -> String:
-	if absf(value - roundf(value)) < 0.001:
-		return "%d" % int(roundf(value))
-	return "%.2f" % value
+func _sample_stroke(stroke: PackedVector2Array) -> PackedVector2Array:
+	var samples := PackedVector2Array()
+	for index in range(stroke.size() - 1):
+		var start := stroke[index]
+		var end := stroke[index + 1]
+		var distance := start.distance_to(end)
+		var sample_count := maxi(1, ceili(distance / SAMPLE_STEP))
+		for sample_index in range(sample_count + 1):
+			samples.append(start.lerp(end, float(sample_index) / float(sample_count)))
+	return samples
+
+
+func _marker_point_to_text_local(point: Vector2) -> Vector2:
+	var global_point := marker_layer.get_global_transform_with_canvas() * point
+	return text_renderer.get_global_transform_with_canvas().affine_inverse() * global_point
+
+
+func _stroke_samples_in_text_space(stroke: PackedVector2Array) -> PackedVector2Array:
+	var samples := PackedVector2Array()
+	for point in _sample_stroke(stroke):
+		samples.append(_marker_point_to_text_local(point))
+	return samples
+
+
+func _stroke_samples_in_text_space_from_array(strokes: Array) -> Array[PackedVector2Array]:
+	var all_samples: Array[PackedVector2Array] = []
+	for stroke in strokes:
+		if stroke is PackedVector2Array:
+			all_samples.append(_stroke_samples_in_text_space(stroke))
+	return all_samples
+
+
+func _duplicate_strokes(source: Array) -> Array[PackedVector2Array]:
+	var copy: Array[PackedVector2Array] = []
+	for stroke in source:
+		if stroke is PackedVector2Array:
+			copy.append(stroke.duplicate())
+	return copy
 
 
 # ---------------------------------------------------------------------------
-# gimme_toilet_btn2 — briefcase trigger
+# Cofefe / end shift
 # ---------------------------------------------------------------------------
 
-func _on_gimme_toilet_btn2_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		_try_end_shift()
+func _try_cofefe_click(event: InputEventMouseButton) -> bool:
+	var cofefe: Node2D = %Cofefe
+	if not cofefe.has_method("contains_global_point"):
+		return false
+	if not cofefe.contains_global_point(event.global_position):
+		return false
+	clock.add_time(10.0)
+	get_viewport().set_input_as_handled()
+	return true
 
-
-func _try_end_shift() -> void:
-	# Mirror game.gd's try_end_game: only end if the player finished
-	# reviewing the current paper. After task-01, that's exactly
-	# "submit_button is currently disabled" (we disable it on
-	# submit, re-enable on new document).
-	if submit_button.disabled:
-		_end_shift()
-	else:
-		print("[game2] briefcase pressed but current paper not yet submitted — ignored")
-
-
-# ---------------------------------------------------------------------------
-# Verdict / ending transition
-# ---------------------------------------------------------------------------
 
 func _on_time_out() -> void:
+	_send_to_briefing(false)
 	_end_shift()
 
 
 func _end_shift() -> void:
-	var win := paper_results.size() > 0
-	for passed in paper_results:
-		if not passed:
-			win = false
-	WordManager.good_ending = win
+	WordManager.good_ending = WordManager.shift_correct_illegal > 0
 	get_tree().change_scene_to_file("res://ending.tscn")

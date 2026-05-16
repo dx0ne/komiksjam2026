@@ -1,6 +1,7 @@
+class_name ShiftClock
 extends Node2D
 
-@onready var game_timer:Timer = %Timer
+@onready var game_timer: Timer = %Timer
 @onready var progress_bar = $ProgressBar
 @onready var reka_zegarek: Sprite2D = %RekaZegarek
 @onready var animation_player: AnimationPlayer = %AnimationPlayer

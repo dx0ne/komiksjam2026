@@ -32,6 +32,28 @@ func set_document(text: String, forbidden_words: Array[String]) -> void:
 	illegal_words = forbidden_words
 	_relayout()
 
+
+func set_forbidden_words(forbidden_words: Array[String]) -> void:
+	illegal_words = forbidden_words
+	var forbidden_lookup := {}
+	for forbidden_word in illegal_words:
+		forbidden_lookup[_normalize_word(forbidden_word)] = true
+	for box in word_boxes:
+		box["illegal"] = forbidden_lookup.has(box["word"])
+		box["redacted"] = false
+		box["coverage"] = 0.0
+		box["tier"] = "none"
+		box["review"] = ""
+	queue_redraw()
+
+
+func count_illegal_tokens() -> int:
+	var total := 0
+	for box in word_boxes:
+		if box.get("illegal", false):
+			total += 1
+	return total
+
 func apply_review_states(missed_indices: Array[int]) -> void:
 	for index in range(word_boxes.size()):
 		word_boxes[index]["review"] = ""
@@ -103,6 +125,10 @@ func _draw_letterhead() -> void:
 	draw_rect(header_rect, Color(0.18, 0.15, 0.11, 0.35))
 	draw_string(_font, Vector2(PAPER_INSET, 36.0), "MINISTRY REVIEW COPY", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
 	draw_string(_font, Vector2(size.x - PAPER_INSET - 160.0, 36.0), "CLASSIFIED", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
+
+func normalize_word(value: String) -> String:
+	return _normalize_word(value)
+
 
 func _normalize_word(value: String) -> String:
 	var normalized := value.to_lower()
