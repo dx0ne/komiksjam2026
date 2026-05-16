@@ -5,14 +5,15 @@
 [ext_resource type="Texture2D" uid="uid://1k2wos1rull7" path="res://art/Karteczka_02.png" id="3_glbon"]
 [ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="4_glbon"]
 [ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_nlkkf"]
+[ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="6_dy7ct"]
 [ext_resource type="Texture2D" uid="uid://d2cx3eo1iltlt" path="res://art/controls.png" id="6_nlkkf"]
 [ext_resource type="PackedScene" uid="uid://coi6b8h5bhedp" path="res://marker.tscn" id="7_qe12f"]
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="8_8qtwp"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_nlkkf"]
 font = ExtResource("4_glbon")
-font_size = 42
-font_color = Color(1, 0.116666675, 0, 0.76862746)
+font_size = 36
+font_color = Color(0, 0, 0, 0.76862746)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
 
@@ -62,16 +63,24 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -531.0
-offset_top = -25.5
-offset_right = 531.0
-offset_bottom = 25.5
+offset_left = -1225.0
+offset_top = -143.5
+offset_right = -163.0
+offset_bottom = -92.5
 grow_horizontal = 2
 grow_vertical = 2
 text = "PLAY"
 label_settings = SubResource("LabelSettings_nlkkf")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PointLight2D" type="PointLight2D" parent="PlayButton" unique_id=1619130767]
+position = Vector2(-340.0001, -232)
+scale = Vector2(0.76543957, 0.80716807)
+color = Color(0.6666667, 0.8666667, 0.7372549, 1)
+energy = 0.2
+texture = ExtResource("6_dy7ct")
+texture_scale = 3.37
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1532667731]
 visible = false
