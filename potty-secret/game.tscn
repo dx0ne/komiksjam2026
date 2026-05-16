@@ -25,6 +25,7 @@
 [ext_resource type="Texture2D" uid="uid://ce1nae31pbljl" path="res://art/Kawa_Serce.png" id="19_vaj68"]
 [ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="23_qhcbd"]
 [ext_resource type="Texture2D" uid="uid://dpay8s0orfcy5" path="res://art/smoke_03.png" id="24_f1jbl"]
+[ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="26_i2p71"]
 
 [sub_resource type="Animation" id="Animation_x5p1p"]
 length = 0.001
@@ -446,6 +447,13 @@ texture = ExtResource("24_f1jbl")
 lifetime = 3.0
 speed_scale = 0.3
 process_material = SubResource("ParticleProcessMaterial_xa8c5")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=2059761491]
+position = Vector2(1250, 427)
+color = Color(0.6666667, 0.8666667, 0.7372549, 1)
+energy = 0.2
+texture = ExtResource("26_i2p71")
+texture_scale = 3.37
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="ready" from="." to="." method="_on_ready"]
