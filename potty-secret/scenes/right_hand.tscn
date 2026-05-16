@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://rwgbfuhc2nil"]
+
+[ext_resource type="Texture2D" uid="uid://dogcrqm4rj3cd" path="res://art/Reka_Marker.png" id="1_sxmbg"]
+
+[node name="RightHand" type="Node2D" unique_id=143189384]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1571052993]
+position = Vector2(-1, -5)
+rotation = 0.7815154
+texture = ExtResource("1_sxmbg")
+offset = Vector2(877, 103)

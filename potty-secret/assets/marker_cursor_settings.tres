@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="MarkerCursorSettings" format=3]
+[gd_resource type="Resource" script_class="MarkerCursorSettings" format=3 uid="uid://nillhrhgblud"]
 
-[ext_resource type="Script" path="res://scripts/marker_cursor_settings.gd" id="1_settings"]
+[ext_resource type="Script" uid="uid://coj4qn28usu6b" path="res://scripts/marker_cursor_settings.gd" id="1_settings"]
 
 [resource]
 script = ExtResource("1_settings")
-cursor_scale = 0.7479999999999998
-rotation_degrees = 38.0
+cursor_scale = 1.0
+rotation_degrees = 44.8
 hotspot = Vector2(0.86828613, 201.88712)

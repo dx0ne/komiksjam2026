@@ -15,17 +15,16 @@ const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
 
 const TOILET_SCN := preload("res://toilet_msg.tscn")
 
-@onready var background_paper:      Panel             = $BackgroundPaper
-@onready var text_renderer:         TextRenderer      = $TextRenderer
-@onready var marker_layer:          MarkerLayer       = $MarkerLayer
-@onready var marker_cursor_layer:   MarkerCursorLayer = $MarkerCursorLayer
-@onready var debug_overlay:         DebugOverlay      = $DebugOverlay
+@onready var text_renderer:         TextRenderer      = %TextRenderer
+@onready var marker_layer:          MarkerLayer       = %MarkerLayer
+@onready var debug_overlay:         DebugOverlay      = %DebugOverlay
 @onready var title_label:           Label             = $UI/MarginContainer/VBoxContainer/TitleLabel
 @onready var directive_label:       Label             = $UI/MarginContainer/VBoxContainer/DirectiveLabel
 @onready var timer_label:           Label             = $UI/MarginContainer/VBoxContainer/TimerLabel
 @onready var score_label:           Label             = $UI/MarginContainer/VBoxContainer/ScoreLabel
 @onready var submit_button:         Button            = $UI/MarginContainer/VBoxContainer/SubmitButton
 @onready var new_document_button:   Button            = $UI/MarginContainer/VBoxContainer/NewDocumentButton
+@onready var right_hand: Node2D = %RightHand
 
 var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
@@ -60,7 +59,6 @@ func _ready() -> void:
 	_apply_ui_font($UI)
 
 	# Wire redaction stack
-	marker_cursor_layer.set_marker_layer(marker_layer)
 	debug_overlay.text_renderer = text_renderer
 	debug_overlay.tolerance = REDACTION_TOLERANCE
 
@@ -75,7 +73,7 @@ func _ready() -> void:
 	new_document_button.pressed.connect(_generate_document)
 
 	# Connect gimme_toilet_btn2 — briefcase trigger; no-op stub for phase 2
-	$gimme_toilet_btn2.gui_input.connect(_on_gimme_toilet_btn2_gui_input)
+	%send_to_briefieng.gui_input.connect(_on_gimme_toilet_btn2_gui_input)
 
 	# Populate the first batch of toilet messages, which sets
 	# WordManager.current_toilet_words, then generate the first document.

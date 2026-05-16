@@ -17,7 +17,7 @@ var paper_node: Node2D;;
 
 var current_words:Array[String];
 
-@onready var game_timer = $Timer
+@onready var game_timer = %clock
 
 func _input(event):
 	if event.is_action_pressed("quit"):

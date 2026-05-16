@@ -27,6 +27,6 @@ func _on_option_button_item_selected(index: int) -> void:
 	Centre_Window()
 	
 func Centre_Window():
-	var Centre_Screen = DisplayServer.screen_get_position() + DisplayServer.screen_get_size() / 2
+	var Centre_Screen = (DisplayServer.screen_get_position() + DisplayServer.screen_get_size()) / 2
 	var Window_Size = get_window().get_size_with_decorations()
 	get_window().set_position(Centre_Screen-Window_Size/2)
