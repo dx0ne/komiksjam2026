@@ -15,7 +15,7 @@ func _on_timer_timeout() -> void:
 
 
 func _on_ready() -> void:
-	game_timer.wait_time = 10.0
+	game_timer.wait_time = 180.0
 	progress_bar.max_value = game_timer.wait_time
 	progress_bar.value = game_timer.wait_time
 	_reka_start_rotation = reka_zegarek.rotation
