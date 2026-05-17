@@ -9,7 +9,7 @@ var is_dragging:bool=false;
 var line_color:Color = Color(Color.CRIMSON);
 
 const TOILET_SCN = preload("res://toilet_msg.tscn");
-const PAPER_SCN = preload("res://paper.tscn");
+const PAPER_SCN = preload("res://paper_legacy.tscn");
 
 var papers:Array[Paper];
 var current_paper_idx:int=-1;

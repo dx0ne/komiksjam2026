@@ -6,57 +6,45 @@ const COVERAGE_CELL_WIDTH  := 8.0
 const COVERAGE_HALF_RATIO  := 0.50
 const COVERAGE_FULL_RATIO  := 0.70
 const COVERAGE_MIN_CELLS   := 2
-const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
 const TOILET_INTEL_COUNT   := 3
-const WORDS_IN_DOCUMENT    := 6
+const WORDS_IN_DOCUMENT    := 3
 
 const TOILET_SCN := preload("res://toilet_msg.tscn")
 const PAPER_SCN  := preload("res://paper.tscn")
 
-@onready var text_renderer: TextRenderer = %TextRenderer
-@onready var marker_layer: MarkerLayer = %MarkerLayer
-@onready var debug_overlay: DebugOverlay = %DebugOverlay
 @onready var clock: ShiftClock = %clock_scn
+@onready var _desk_stamp: Sprite2D = %Stempel
 
 var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
 
-var active_paper: Paper = null
+var active_paper: GamePaper = null
 var session: Dictionary = {}
 
-var templates: Array[String] = [
-	"Memo: operative {w0} met contact citing {w1}. Archive notes mention {w2}, {w3}, and deny any {w4} link to {w5}.",
-	"Field report on {w0}: witnesses repeat {w1} and {w2}. Subject {w3} refuses comment about {w4} or {w5}.",
-	"Cable from desk officer: {w0} material crossed with {w1}. Courier also carried {w2}, {w3}, {w4}, {w5}.",
-	"Internal review lists {w0}, {w1}, {w2} as recurring phrases. Clerk flags {w3} beside {w4} and {w5}.",
-]
 
-var names: Array[String] = [
-	"Anya Volkov",
-	"Marek Orlov",
-	"Elena Voss",
-	"Tomas Ilyin",
-	"Kira Novak",
-]
+func _text_renderer() -> TextRenderer:
+	return active_paper.text_renderer if active_paper else null
+
+
+func _marker_layer() -> MarkerLayer:
+	return active_paper.marker_layer if active_paper else null
+
+
+func _debug_overlay() -> DebugOverlay:
+	return active_paper.debug_overlay if active_paper else null
 
 
 func _ready() -> void:
 	rng.randomize()
 	viewport_size = get_viewport().get_visible_rect().size
 
-	debug_overlay.text_renderer = text_renderer
-	debug_overlay.tolerance = REDACTION_TOLERANCE
-
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
 	%send_to_briefieng.gui_input.connect(_on_send_to_briefieng_gui_input)
 	clock.time_out.connect(_on_time_out)
-	marker_layer.stroke_finished.connect(_on_stroke_finished)
-
-	var bg_paper: Node = get_node_or_null("CanvasLayer_background/CanvasGroup/Node2D/BackgroundPaper")
-	if bg_paper is CanvasItem:
-		(bg_paper as CanvasItem).visible = false
 
 	WordManager.shift_correct_illegal = 0
+	if _desk_stamp:
+		_desk_stamp.visible = false
 	_spawn_fresh_paper(false)
 	_roll_toilet_intel(true)
 
@@ -78,11 +66,15 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if active_paper == null:
+		return
+	var marker_layer := _marker_layer()
+	var debug_overlay := _debug_overlay()
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_D:
+		if event.keycode == KEY_D and debug_overlay:
 			debug_overlay.toggle()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_M:
+		elif event.keycode == KEY_M and marker_layer:
 			var new_mode := MarkerLayer.DrawMode.BRUSH \
 				if marker_layer.mode == MarkerLayer.DrawMode.LINE \
 				else MarkerLayer.DrawMode.LINE
@@ -96,12 +88,19 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _spawn_fresh_paper(animate_in: bool) -> void:
 	if active_paper:
+		if active_paper.marker_layer.stroke_finished.is_connected(_on_stroke_finished):
+			active_paper.marker_layer.stroke_finished.disconnect(_on_stroke_finished)
 		active_paper.queue_free()
 		active_paper = null
 
+	if _desk_stamp:
+		_desk_stamp.visible = false
+
 	active_paper = PAPER_SCN.instantiate()
 	%papers_container.add_child(active_paper)
-	active_paper.prepare_for_game2_overlay()
+	active_paper.marker_layer.stroke_finished.connect(_on_stroke_finished)
+	active_paper.debug_overlay.text_renderer = active_paper.text_renderer
+	active_paper.debug_overlay.tolerance = REDACTION_TOLERANCE
 
 	var offset_pos := Vector2(randf_range(-30.0, 0.0), randf_range(-30.0, 0.0))
 	if animate_in:
@@ -118,8 +117,10 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 
 
 func _build_session() -> Dictionary:
-	var document_words := _pick_document_word_pool()
-	var text := _build_document_text(document_words)
+	var template := WordManager.templates[rng.randi_range(0, WordManager.templates.size() - 1)]
+	var word_count := 3 if template.find("{illegal_c}") != -1 else 2
+	var document_words := _pick_document_word_pool(word_count)
+	var text := _build_document_text(template, document_words)
 	return {
 		"text": text,
 		"document_words": document_words,
@@ -136,27 +137,35 @@ func _single_token_master_words() -> Array[String]:
 	return pool if not pool.is_empty() else WordManager.master_list.duplicate()
 
 
-func _pick_document_word_pool() -> Array[String]:
+func _pick_document_word_pool(count: int = WORDS_IN_DOCUMENT) -> Array[String]:
 	var pool: Array[String] = _single_token_master_words()
 	pool.shuffle()
-	while pool.size() < WORDS_IN_DOCUMENT:
+	while pool.size() < count:
 		pool.append_array(_single_token_master_words())
 		pool.shuffle()
 	var picked: Array[String] = []
-	for i in range(mini(WORDS_IN_DOCUMENT, pool.size())):
+	for i in range(mini(count, pool.size())):
 		picked.append(pool[i])
 	return picked
 
 
-func _build_document_text(document_words: Array[String]) -> String:
-	var text := templates[rng.randi_range(0, templates.size() - 1)]
-	for index in range(document_words.size()):
-		text = text.replace("{w%d}" % index, document_words[index])
-	text += " Handler copy for ministry review. Subject %s." % names[rng.randi_range(0, names.size() - 1)]
+func _build_document_text(template: String, document_words: Array[String]) -> String:
+	var text := template
+	var name := WordManager.names[rng.randi_range(0, WordManager.names.size() - 1)]
+	text = text.replace("{name}", name)
+	text = text.replace("{illegal_a}", document_words[0])
+	text = text.replace("{illegal_b}", document_words[1])
+	if text.find("{illegal_c}") != -1 and document_words.size() > 2:
+		text = text.replace("{illegal_c}", document_words[2])
 	return text
 
 
 func _load_session() -> void:
+	if active_paper == null:
+		return
+	var text_renderer := _text_renderer()
+	var marker_layer := _marker_layer()
+	var debug_overlay := _debug_overlay()
 	text_renderer.set_document(session["text"], WordManager.current_toilet_words)
 	marker_layer.clear_strokes()
 	marker_layer.clear_word_marks()
@@ -167,7 +176,9 @@ func _load_session() -> void:
 
 
 func _save_session() -> void:
-	session["strokes"] = _duplicate_strokes(marker_layer.strokes)
+	var marker_layer := _marker_layer()
+	if marker_layer:
+		session["strokes"] = _duplicate_strokes(marker_layer.strokes)
 
 
 # ---------------------------------------------------------------------------
@@ -244,12 +255,14 @@ func _pick_toilet_words_for_session() -> Array[String]:
 
 func _apply_toilet_to_current_paper() -> void:
 	_save_session()
-	text_renderer.set_forbidden_words(WordManager.current_toilet_words)
+	_text_renderer().set_forbidden_words(WordManager.current_toilet_words)
 	_load_session_strokes()
 	_refresh_postit_and_penalty()
 
 
 func _load_session_strokes() -> void:
+	var marker_layer := _marker_layer()
+	var text_renderer := _text_renderer()
 	marker_layer.clear_strokes()
 	marker_layer.clear_word_marks()
 	for stroke in session.get("strokes", []):
@@ -280,14 +293,17 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 
 	var earned_stamp: bool = bool(result["all_illegal_marked"]) and int(result["false_redactions"]) == 0
 	if earned_stamp:
+		session["stamped"] = true
 		active_paper.set_stamp_visible(true)
+		if _desk_stamp:
+			_desk_stamp.visible = true
 
 	if not advance_paper:
 		return
 
 	if earned_stamp:
 		var tween := create_tween()
-		tween.tween_interval(0.75)
+		tween.tween_interval(1.25)
 		tween.tween_callback(_spawn_fresh_paper.bind(true))
 	else:
 		_spawn_fresh_paper(true)
@@ -309,6 +325,8 @@ func _on_stroke_finished(stroke: PackedVector2Array) -> void:
 
 
 func _color_stroke_by_result(stroke: PackedVector2Array, result: Dictionary) -> void:
+	var marker_layer := _marker_layer()
+	var text_renderer := _text_renderer()
 	if marker_layer.strokes.is_empty():
 		return
 	var stroke_index := marker_layer.strokes.size() - 1
@@ -330,7 +348,7 @@ func _color_stroke_by_result(stroke: PackedVector2Array, result: Dictionary) -> 
 	if touched_legal and not touched_illegal:
 		if stroke_index < marker_layer.stroke_colors.size():
 			marker_layer.stroke_colors[stroke_index] = Color(0.75, 0.1, 0.1, 0.9)
-		if active_paper and active_paper.has_method("set_penalty"):
+		if active_paper:
 			var result_live := _evaluate_paper(
 				session["text"],
 				WordManager.current_toilet_words,
@@ -354,6 +372,8 @@ func _refresh_postit_and_penalty() -> void:
 
 
 func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) -> Dictionary:
+	var text_renderer := _text_renderer()
+	var marker_layer := _marker_layer()
 	var restore_text := text_renderer.document_text
 	var restore_forbidden := text_renderer.illegal_words.duplicate()
 	var restore_strokes := _duplicate_strokes(marker_layer.strokes)
@@ -446,6 +466,7 @@ func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) 
 
 func _toilet_lookup(toilet_words: Array[String]) -> Dictionary:
 	var lookup := {}
+	var text_renderer := _text_renderer()
 	for word in toilet_words:
 		lookup[text_renderer.normalize_word(word)] = true
 	return lookup
@@ -475,8 +496,7 @@ func _sample_stroke(stroke: PackedVector2Array) -> PackedVector2Array:
 
 
 func _marker_point_to_text_local(point: Vector2) -> Vector2:
-	var global_point := marker_layer.get_global_transform_with_canvas() * point
-	return text_renderer.get_global_transform_with_canvas().affine_inverse() * global_point
+	return active_paper.marker_point_to_text_local(point)
 
 
 func _stroke_samples_in_text_space(stroke: PackedVector2Array) -> PackedVector2Array:
