@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cggyjbbmibssx"]
 
-[ext_resource type="PackedScene" path="res://paper_legacy.tscn" id="1_80nbo"]
+[ext_resource type="PackedScene" uid="uid://b4tu7dnfmilia" path="res://paper_legacy.tscn" id="1_80nbo"]
 [ext_resource type="Script" uid="uid://dl7j6u4gf2v17" path="res://game.gd" id="1_e2o6t"]
 [ext_resource type="Texture2D" uid="uid://wrwjn0h24j63" path="res://art/Tlo.png" id="2_j5wjh"]
 [ext_resource type="PackedScene" uid="uid://be4ckl5tcikud" path="res://item_draggable.tscn" id="3_feb5d"]
@@ -390,7 +390,7 @@ offset_left = 1763.0
 offset_top = -646.0
 offset_right = 1835.0
 offset_bottom = 372.0
-texture_normal = ExtResource("7_mfdv2")
+ignore_texture_size = true
 
 [node name="marker_Node2D" parent="." unique_id=1371813690 instance=ExtResource("5_7jktm")]
 position = Vector2(-23, 9)

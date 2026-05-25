@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bcjerb5lw5qt3"]
+[gd_scene format=3 uid="uid://bcjerb5lw5qt3"]
 
 [ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://paper.gd" id="1_paper"]
 [ext_resource type="Texture2D" uid="uid://cjfvdb7u0h4qq" path="res://art/Page_01.png" id="2_page"]
@@ -22,6 +22,21 @@ shader_parameter/dither_pattern = 2
 shader_parameter/levels = 9
 shader_parameter/contrast = 1.1930000566675
 shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pxe6b"]
+shader = ExtResource("3_shader")
+shader_parameter/texture_mode = 0
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 2
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.0
+shader_parameter/brightness = 0.0
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
 
@@ -96,17 +111,10 @@ grow_vertical = 2
 script = ExtResource("5_marker")
 
 [node name="Posit" type="Sprite2D" parent="." unique_id=1296476220]
+material = SubResource("ShaderMaterial_pxe6b")
 position = Vector2(1014, 477)
 scale = Vector2(0.8347339, 0.83473396)
 texture = ExtResource("7_posit")
-
-[node name="Stamp" type="Sprite2D" parent="." unique_id=3847291051]
-unique_name_in_owner = true
-visible = false
-z_index = 10
-position = Vector2(520, 720)
-scale = Vector2(0.55, 0.55)
-texture = ExtResource("9_stamp")
 
 [node name="pointsLabel_good" type="Label" parent="Posit" unique_id=919131354]
 unique_name_in_owner = true
@@ -137,3 +145,11 @@ offset_bottom = -21.966461
 text = "0/0"
 label_settings = SubResource("LabelSettings_count")
 horizontal_alignment = 2
+
+[node name="Stamp" type="Sprite2D" parent="." unique_id=-447676245]
+unique_name_in_owner = true
+visible = false
+z_index = 10
+position = Vector2(520, 720)
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("9_stamp")
