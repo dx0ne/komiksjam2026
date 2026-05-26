@@ -130,7 +130,8 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 func _build_session() -> Dictionary:
 	var template := WordManager.templates[rng.randi_range(0, WordManager.templates.size() - 1)]
 	var word_count := 3 if template.find("{illegal_c}") != -1 else 2
-	var planted_words := _pick_document_word_pool(word_count)
+	var k := _current_k(word_count)
+	var planted_words := _pick_document_word_pool(word_count, k)
 	var text := _build_document_text(template, planted_words)
 	return {
 		"text": text,
@@ -150,15 +151,57 @@ func _single_token_master_words() -> Array[String]:
 	return pool if not pool.is_empty() else WordManager.master_list.duplicate()
 
 
-func _pick_document_word_pool(count: int = WORDS_IN_DOCUMENT) -> Array[String]:
-	var pool: Array[String] = _single_token_master_words()
-	pool.shuffle()
-	while pool.size() < count:
-		pool.append_array(_single_token_master_words())
-		pool.shuffle()
+func _current_k(slot_count: int) -> int:
+	if _paper_index == 0:
+		return 0
+	var elapsed := 180.0 - clock.time_left
+	var k: int
+	if elapsed < 60.0:
+		k = slot_count
+	elif elapsed < 120.0:
+		k = 1
+	else:
+		k = 0
+	return clampi(k, 0, slot_count)
+
+
+func _pick_document_word_pool(count: int, k_from_intel: int) -> Array[String]:
 	var picked: Array[String] = []
-	for i in range(mini(count, pool.size())):
-		picked.append(pool[i])
+
+	# Take up to k_from_intel distinct words from current toilet intel.
+	var intel := WordManager.current_toilet_words
+	if intel.size() > 0 and k_from_intel > 0:
+		var intel_copy: Array[String] = []
+		for w in intel:
+			intel_copy.append(w)
+		intel_copy.shuffle()
+		var take := mini(k_from_intel, intel_copy.size())
+		for i in range(take):
+			picked.append(intel_copy[i])
+
+	# Top up remaining slots from the master pool, excluding already-picked words.
+	var remaining := count - picked.size()
+	if remaining > 0:
+		var pool: Array[String] = _single_token_master_words()
+		# Remove words already picked to avoid duplicates.
+		var exclude := {}
+		for w in picked:
+			exclude[w] = true
+		var filtered: Array[String] = []
+		for w in pool:
+			if not exclude.has(w):
+				filtered.append(w)
+		filtered.shuffle()
+		# If filtered pool is too small, reshuffle the full pool as fallback.
+		while filtered.size() < remaining:
+			var extra: Array[String] = _single_token_master_words()
+			extra.shuffle()
+			for w in extra:
+				if not exclude.has(w) and not filtered.has(w):
+					filtered.append(w)
+		for i in range(mini(remaining, filtered.size())):
+			picked.append(filtered[i])
+
 	return picked
 
 
@@ -256,7 +299,7 @@ func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 	for child in %toilet_msgs_container.get_children():
 		child.queue_free()
 
-	WordManager.current_toilet_words = _pick_toilet_words_for_session()
+	WordManager.current_toilet_words = WordManager.pick_random_words(TOILET_INTEL_COUNT)
 
 	if not animate_msgs:
 		if session.has("text"):
@@ -285,21 +328,6 @@ func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 
 	if session.has("text"):
 		_apply_toilet_to_current_paper()
-
-
-func _pick_toilet_words_for_session() -> Array[String]:
-	var pool: Array = session.get("planted_words", [])
-	if pool.is_empty():
-		return WordManager.pick_random_words(TOILET_INTEL_COUNT)
-	var picks: Array[String] = []
-	for word in pool:
-		picks.append(word)
-	picks.shuffle()
-	var count := mini(TOILET_INTEL_COUNT, picks.size())
-	var batch: Array[String] = []
-	for i in range(count):
-		batch.append(picks[i])
-	return batch
 
 
 func _apply_toilet_to_current_paper() -> void:
