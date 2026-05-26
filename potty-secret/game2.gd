@@ -331,6 +331,8 @@ func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 
 
 func _apply_toilet_to_current_paper() -> void:
+	# Invariant: does NOT touch session["word_scores"]. Per-word scores are locked
+	# at stroke time and must not be re-evaluated when intel changes.
 	_save_session()
 	_text_renderer().set_forbidden_words(WordManager.current_toilet_words)
 	_load_session_strokes()
@@ -366,8 +368,6 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 	_save_session()
 	var result := _evaluate_paper(session["text"], WordManager.current_toilet_words, session["strokes"])
 
-	WordManager.shift_score += float(result["correct_illegal"])
-
 	var earned_stamp: bool = bool(result["all_illegal_marked"]) and int(result["false_redactions"]) == 0
 	if earned_stamp:
 		session["stamped"] = true
@@ -390,6 +390,8 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 
 func _on_stroke_finished(stroke: PackedVector2Array) -> void:
 	_save_session()
+	# Run incremental scorer first — locks per-word deltas and mutates shift_score.
+	var _incremental_result := _score_stroke_incremental(_marker_layer().strokes.size() - 1)
 	var result := _evaluate_paper(
 		session["text"],
 		WordManager.current_toilet_words,
@@ -446,6 +448,25 @@ func _refresh_postit_and_penalty() -> void:
 	active_paper.set_penalty(result["false_redactions"])
 
 
+func _word_coverage_tier_from_strokes(box: Dictionary, all_samples: Array[PackedVector2Array]) -> String:
+	# Returns "none" | "half" | "full" using existing COVERAGE_* constants.
+	# Shared helper used by both _evaluate_paper and _score_stroke_incremental.
+	var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
+	var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
+	var touched := {}
+	for samples in all_samples:
+		for point in samples:
+			if not grown.has_point(point):
+				continue
+			var ci := clampi(
+				floori((point.x - grown.position.x) / COVERAGE_CELL_WIDTH),
+				0,
+				cell_total - 1
+			)
+			touched[ci] = true
+	return _coverage_tier(touched.size(), cell_total)
+
+
 func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) -> Dictionary:
 	var text_renderer := _text_renderer()
 	var marker_layer := _marker_layer()
@@ -474,22 +495,7 @@ func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) 
 		if not box.get("illegal", false):
 			continue
 		illegal_count += 1
-
-		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
-		var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
-		var touched := {}
-		for samples in all_samples:
-			for point in samples:
-				if not grown.has_point(point):
-					continue
-				var ci := clampi(
-					floori((point.x - grown.position.x) / COVERAGE_CELL_WIDTH),
-					0,
-					cell_total - 1
-				)
-				touched[ci] = true
-
-		var tier := _coverage_tier(touched.size(), cell_total)
+		var tier := _word_coverage_tier_from_strokes(box, all_samples)
 		if tier != "none":
 			marked_illegal += 1
 		match tier:
@@ -501,20 +507,7 @@ func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) 
 	for box in text_renderer.word_boxes:
 		if box.get("illegal", false):
 			continue
-		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
-		var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
-		var touched := {}
-		for samples in all_samples:
-			for point in samples:
-				if not grown.has_point(point):
-					continue
-				var ci := clampi(
-					floori((point.x - grown.position.x) / COVERAGE_CELL_WIDTH),
-					0,
-					cell_total - 1
-				)
-				touched[ci] = true
-		var tier := _coverage_tier(touched.size(), cell_total)
+		var tier := _word_coverage_tier_from_strokes(box, all_samples)
 		if tier == "full" or tier == "half":
 			false_redactions += 1
 
@@ -537,6 +530,97 @@ func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) 
 		"false_redactions": false_redactions,
 		"all_illegal_marked": all_illegal_marked,
 	}
+
+
+# Applies the spec §2 transition table per word_box. Must be called after
+# _save_session so session["strokes"] is current. Returns a summary dict:
+#   { "deltas": Array[Dictionary], "sum": float, "wrongs_added": int }
+# Each element of deltas: { word_index: int, delta: float, new_state: String, rect: Rect2 }
+func _score_stroke_incremental(_stroke_index: int) -> Dictionary:
+	var text_renderer := _text_renderer()
+	if text_renderer == null:
+		return {"deltas": [], "sum": 0.0, "wrongs_added": 0}
+
+	# Build cumulative samples from ALL strokes on this paper.
+	var all_samples := _stroke_samples_in_text_space_from_array(session.get("strokes", []))
+
+	var deltas: Array = []
+	var total_sum := 0.0
+	var wrongs_added := 0
+
+	for i in range(text_renderer.word_boxes.size()):
+		var box: Dictionary = text_renderer.word_boxes[i]
+
+		# Retrieve prior scoring state (missing key == untouched / 0.0).
+		var word_scores: Dictionary = session.get("word_scores", {})
+		var prior_entry: Dictionary = word_scores.get(i, {"state": "untouched", "points": 0.0})
+		var prior_state: String = prior_entry.get("state", "untouched")
+
+		# Row 6: prior already at full / wrong → no-op. (partial may upgrade to full below.)
+		if prior_state == "full" or prior_state == "wrong":
+			continue
+
+		var tier := _word_coverage_tier_from_strokes(box, all_samples)
+
+		# Tier "none" → no transition regardless.
+		if tier == "none":
+			continue
+
+		var planted: bool = box.get("planted", false)
+		var on_intel: bool = box.get("illegal", false)
+		var is_target: bool = planted and on_intel
+
+		var new_state: String = ""
+		var delta: float = 0.0
+		var do_transition := false
+
+		if is_target:
+			if prior_state == "untouched":
+				if tier == "half":
+					# Row 1: untouched → partial, +1.
+					new_state = "partial"
+					delta = 1.0
+					do_transition = true
+				else:  # tier == "full"
+					# Row 2: untouched → full, +2.
+					new_state = "full"
+					delta = 2.0
+					do_transition = true
+			elif prior_state == "partial" and tier == "full":
+				# Row 3: partial → full, +1 (delta).
+				new_state = "full"
+				delta = 1.0
+				do_transition = true
+			# Row 4: partial + tier==half → no-op (already partial, can't downgrade).
+		else:
+			if prior_state == "untouched":
+				# Row 5: not (planted ∧ on-intel), coverage reached, prior untouched → wrong.
+				new_state = "wrong"
+				delta = -0.5
+				do_transition = true
+			# Row 6 covers prior==partial here too (partial stays partial for non-targets).
+
+		if not do_transition:
+			continue
+
+		# Apply transition.
+		var prior_points: float = prior_entry.get("points", 0.0)
+		if not session.has("word_scores"):
+			session["word_scores"] = {}
+		session["word_scores"][i] = {"state": new_state, "points": prior_points + delta}
+		WordManager.shift_score += delta
+		total_sum += delta
+		if new_state == "wrong":
+			wrongs_added += 1
+
+		deltas.append({
+			"word_index": i,
+			"delta": delta,
+			"new_state": new_state,
+			"rect": box["rect"],
+		})
+
+	return {"deltas": deltas, "sum": total_sum, "wrongs_added": wrongs_added}
 
 
 func _toilet_lookup(toilet_words: Array[String]) -> Dictionary:
