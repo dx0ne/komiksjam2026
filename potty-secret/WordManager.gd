@@ -5,7 +5,7 @@ var active_queue: Array[String] = []
 var current_toilet_words:Array[String] = [];
 
 var good_ending: bool = false
-var shift_correct_illegal: int = 0
+var shift_score: float = 0.0
 
 
 func pick_random_words(count: int) -> Array[String]:

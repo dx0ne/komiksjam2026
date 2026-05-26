@@ -25,6 +25,7 @@ var session: Dictionary = {}
 
 var _idle_time: float = 0.0
 var _attract_tween: Tween = null
+var _paper_index: int = 0
 
 
 func _text_renderer() -> TextRenderer:
@@ -47,7 +48,7 @@ func _ready() -> void:
 	%send_to_briefieng.gui_input.connect(_on_send_to_briefieng_gui_input)
 	clock.time_out.connect(_on_time_out)
 
-	WordManager.shift_correct_illegal = 0
+	WordManager.shift_score = 0.0
 	_spawn_fresh_paper(false)
 	_roll_toilet_intel(true)
 
@@ -123,16 +124,19 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 	session = _build_session()
 	_load_session()
 	_refresh_postit_and_penalty()
+	_paper_index += 1
 
 
 func _build_session() -> Dictionary:
 	var template := WordManager.templates[rng.randi_range(0, WordManager.templates.size() - 1)]
 	var word_count := 3 if template.find("{illegal_c}") != -1 else 2
-	var document_words := _pick_document_word_pool(word_count)
-	var text := _build_document_text(template, document_words)
+	var planted_words := _pick_document_word_pool(word_count)
+	var text := _build_document_text(template, planted_words)
 	return {
 		"text": text,
-		"document_words": document_words,
+		"planted_words": planted_words,
+		"planted_total": word_count,
+		"word_scores": {} as Dictionary,
 		"strokes": [] as Array[PackedVector2Array],
 		"stamped": false,
 	}
@@ -176,6 +180,7 @@ func _load_session() -> void:
 	var marker_layer := _marker_layer()
 	var debug_overlay := _debug_overlay()
 	text_renderer.set_document(session["text"], WordManager.current_toilet_words)
+	text_renderer.set_planted_words(session["planted_words"])
 	marker_layer.clear_strokes()
 	marker_layer.clear_word_marks()
 	marker_layer.set_locked(false)
@@ -283,7 +288,7 @@ func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 
 
 func _pick_toilet_words_for_session() -> Array[String]:
-	var pool: Array = session.get("document_words", [])
+	var pool: Array = session.get("planted_words", [])
 	if pool.is_empty():
 		return WordManager.pick_random_words(TOILET_INTEL_COUNT)
 	var picks: Array[String] = []
@@ -333,7 +338,7 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 	_save_session()
 	var result := _evaluate_paper(session["text"], WordManager.current_toilet_words, session["strokes"])
 
-	WordManager.shift_correct_illegal += result["correct_illegal"]
+	WordManager.shift_score += float(result["correct_illegal"])
 
 	var earned_stamp: bool = bool(result["all_illegal_marked"]) and int(result["false_redactions"]) == 0
 	if earned_stamp:
@@ -409,7 +414,7 @@ func _refresh_postit_and_penalty() -> void:
 		session.get("strokes", [])
 	)
 	active_paper.set_postit(result["correct_illegal"], result["illegal_count"])
-	active_paper.set_shift_score(WordManager.shift_correct_illegal)
+	active_paper.set_shift_score(WordManager.shift_score)
 	active_paper.set_penalty(result["false_redactions"])
 
 
@@ -585,5 +590,5 @@ func _on_time_out() -> void:
 
 
 func _end_shift() -> void:
-	WordManager.good_ending = WordManager.shift_correct_illegal > 0
+	WordManager.good_ending = WordManager.shift_score > 0
 	get_tree().change_scene_to_file("res://ending.tscn")
