@@ -366,12 +366,29 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 		return
 
 	_save_session()
-	var result := _evaluate_paper(session["text"], WordManager.current_toilet_words, session["strokes"])
+	_apply_submit_penalty()
 
-	var earned_stamp: bool = bool(result["all_illegal_marked"]) and int(result["false_redactions"]) == 0
+	# Stamp eligibility: all planted words marked (partial or full) AND zero wrongs.
+	var word_scores: Dictionary = session.get("word_scores", {})
+	var text_renderer := _text_renderer()
+	var marked_planted := 0
+	var wrongs := 0
+	if text_renderer != null:
+		for i in range(text_renderer.word_boxes.size()):
+			var box: Dictionary = text_renderer.word_boxes[i]
+			var entry: Dictionary = word_scores.get(i, {})
+			var state: String = entry.get("state", "untouched")
+			if box.get("planted", false) and (state == "partial" or state == "full"):
+				marked_planted += 1
+			if state == "wrong":
+				wrongs += 1
+
+	var earned_stamp: bool = marked_planted == session.get("planted_total", 0) and wrongs == 0
 	if earned_stamp:
 		session["stamped"] = true
 		active_paper.set_stamp_visible(true)
+
+	_refresh_postit_and_penalty()
 
 	if not advance_paper:
 		return
@@ -428,9 +445,32 @@ func _refresh_postit_and_penalty() -> void:
 	active_paper.set_shift_score(WordManager.shift_score)
 
 
+# Applies submit-time penalty: for each planted word that is still untouched
+# (missing from word_scores or state == "untouched"), set state = "wrong" and
+# deduct -0.5 from shift_score. Returns the count of newly-penalized words.
+func _apply_submit_penalty() -> int:
+	var text_renderer := _text_renderer()
+	if text_renderer == null:
+		return 0
+	if not session.has("word_scores"):
+		session["word_scores"] = {}
+	var penalized := 0
+	for i in range(text_renderer.word_boxes.size()):
+		var box: Dictionary = text_renderer.word_boxes[i]
+		if not box.get("planted", false):
+			continue
+		var entry: Dictionary = session["word_scores"].get(i, {})
+		var state: String = entry.get("state", "untouched")
+		if state == "untouched":
+			session["word_scores"][i] = {"state": "wrong", "points": -0.5}
+			WordManager.shift_score -= 0.5
+			penalized += 1
+	return penalized
+
+
 func _word_coverage_tier_from_strokes(box: Dictionary, all_samples: Array[PackedVector2Array]) -> String:
 	# Returns "none" | "half" | "full" using existing COVERAGE_* constants.
-	# Shared helper used by both _evaluate_paper and _score_stroke_incremental.
+	# Shared helper used by _score_stroke_incremental and _apply_submit_penalty (via word_coverage_tier).
 	var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
 	var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
 	var touched := {}
@@ -445,71 +485,6 @@ func _word_coverage_tier_from_strokes(box: Dictionary, all_samples: Array[Packed
 			)
 			touched[ci] = true
 	return _coverage_tier(touched.size(), cell_total)
-
-
-func _evaluate_paper(text: String, toilet_words: Array[String], strokes: Array) -> Dictionary:
-	var text_renderer := _text_renderer()
-	var marker_layer := _marker_layer()
-	var restore_text := text_renderer.document_text
-	var restore_forbidden := text_renderer.illegal_words.duplicate()
-	var restore_strokes := _duplicate_strokes(marker_layer.strokes)
-	var restore_colors: Array[Color] = []
-	for color in marker_layer.stroke_colors:
-		restore_colors.append(color)
-
-	text_renderer.set_document(text, toilet_words)
-	marker_layer.clear_strokes()
-	for stroke in strokes:
-		if stroke is PackedVector2Array:
-			marker_layer.strokes.append(stroke)
-
-	var all_samples := _stroke_samples_in_text_space_from_array(strokes)
-
-	var correct_illegal := 0
-	var marked_illegal := 0
-	var missed_illegal := 0
-	var false_redactions := 0
-	var illegal_count := 0
-
-	for box in text_renderer.word_boxes:
-		if not box.get("illegal", false):
-			continue
-		illegal_count += 1
-		var tier := _word_coverage_tier_from_strokes(box, all_samples)
-		if tier != "none":
-			marked_illegal += 1
-		match tier:
-			"full", "half":
-				correct_illegal += 1
-			_:
-				missed_illegal += 1
-
-	for box in text_renderer.word_boxes:
-		if box.get("illegal", false):
-			continue
-		var tier := _word_coverage_tier_from_strokes(box, all_samples)
-		if tier == "full" or tier == "half":
-			false_redactions += 1
-
-	var all_illegal_marked := illegal_count > 0 and missed_illegal == 0 and marked_illegal == illegal_count
-
-	text_renderer.set_document(restore_text, restore_forbidden)
-	marker_layer.clear_strokes()
-	for index in range(restore_strokes.size()):
-		marker_layer.strokes.append(restore_strokes[index])
-		var color := marker_layer.marker_color
-		if index < restore_colors.size():
-			color = restore_colors[index]
-		marker_layer.stroke_colors.append(color)
-
-	return {
-		"correct_illegal": correct_illegal,
-		"marked_illegal": marked_illegal,
-		"illegal_count": illegal_count,
-		"missed_illegal": missed_illegal,
-		"false_redactions": false_redactions,
-		"all_illegal_marked": all_illegal_marked,
-	}
 
 
 # Applies the spec §2 transition table per word_box. Must be called after
@@ -601,14 +576,6 @@ func _score_stroke_incremental(_stroke_index: int) -> Dictionary:
 		})
 
 	return {"deltas": deltas, "sum": total_sum, "wrongs_added": wrongs_added}
-
-
-func _toilet_lookup(toilet_words: Array[String]) -> Dictionary:
-	var lookup := {}
-	var text_renderer := _text_renderer()
-	for word in toilet_words:
-		lookup[text_renderer.normalize_word(word)] = true
-	return lookup
 
 
 func _coverage_tier(touched: int, total: int) -> String:

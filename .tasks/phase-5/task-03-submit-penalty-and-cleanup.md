@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Submit penalty + remove _evaluate_paper
-status: in-progress
+status: done
 complexity: medium
 blocked-by: [task-02]
 ---
@@ -33,13 +33,13 @@ authoritative slot count for stamp eligibility.
 
 ## Acceptance Criteria
 
-- [ ] New `_apply_submit_penalty() -> int`:
+- [x] New `_apply_submit_penalty() -> int`:
   - Iterates `word_boxes`. For each box with `planted == true` whose `session["word_scores"]` entry is missing or has `state == "untouched"`:
     - Sets `session["word_scores"][i] = {"state": "wrong", "points": -0.5}`.
     - Adds `-0.5` to `WordManager.shift_score`.
     - Increments a local counter.
   - Returns the count of newly-penalized words.
-- [ ] `_send_to_briefing` is rewritten:
+- [x] `_send_to_briefing` is rewritten:
   - `_save_session()` as today.
   - Call `_apply_submit_penalty()` (return value used for the smoke test / debug if useful, not required for UI).
   - Compute stamp eligibility from `session["word_scores"]`:
@@ -50,9 +50,9 @@ authoritative slot count for stamp eligibility.
   - Call `_refresh_postit_and_penalty()` so the post-it/penalty/shift_score labels reflect the post-penalty state (briefly visible before the new paper animates in).
   - Same advance-paper flow as today (1.25s delay if stamped, else immediate).
   - No call to `_evaluate_paper`.
-- [ ] `_evaluate_paper` and `_color_stroke_by_result` (or whatever task-02 renamed it to — keep the new one) are deleted. Any helpers with zero remaining callers (likely `_toilet_lookup`, possibly `_stroke_samples_in_text_space_from_array`) are deleted. Verify by grep before removing — do not delete a helper that still has callers.
-- [ ] Project compiles, no parse errors, no unresolved identifiers. `game2.tscn` boots and a full shift can be played start to finish.
-- [ ] Manual verification scenarios (each must work):
+- [x] `_evaluate_paper` and `_color_stroke_by_result` (or whatever task-02 renamed it to — keep the new one) are deleted. Any helpers with zero remaining callers (likely `_toilet_lookup`, possibly `_stroke_samples_in_text_space_from_array`) are deleted. Verify by grep before removing — do not delete a helper that still has callers.
+- [ ] Project compiles, no parse errors, no unresolved identifiers. `game2.tscn` boots and a full shift can be played start to finish. *(deferred — human runtime smoke test)*
+- [ ] Manual verification scenarios (each must work): *(deferred — human runtime smoke test)*
   1. Mark a planted-and-on-intel word fully, then reroll: shift_score and post-it persist; the marked word's score is not refunded or duplicated.
   2. Mark a non-planted (or planted-but-not-on-intel) word: -0.5 once. Continuing to extend that stroke does not trigger additional -0.5.
   3. Submit a paper with ≥1 unmarked planted word: each unmarked planted contributes -0.5 to shift_score at submit; the penalty number on the post-it bumps up briefly before the next paper animates in.
@@ -60,4 +60,31 @@ authoritative slot count for stamp eligibility.
 
 ## Notes
 
-_Filled in by the subagent on completion._
+### What was done
+
+Implemented the submit-time penalty pass and retired `_evaluate_paper` entirely.
+
+**Files modified:**
+- `potty-secret/game2.gd` — all changes in this single file.
+
+**Changes made:**
+
+1. **Added `_apply_submit_penalty() -> int`** (after `_refresh_postit_and_penalty`): iterates `word_boxes`, finds any planted word with state `"untouched"` (or no entry in `word_scores`), writes `{"state": "wrong", "points": -0.5}` into `session["word_scores"]`, deducts 0.5 from `WordManager.shift_score`, and returns the count.
+
+2. **Rewrote `_send_to_briefing`**: now calls `_apply_submit_penalty()` before stamp evaluation, computes stamp eligibility directly from `session["word_scores"]` (`marked_planted == planted_total AND wrongs == 0`), calls `_refresh_postit_and_penalty()` after the penalty pass so the UI briefly reflects post-penalty state, then advances paper as before. No call to `_evaluate_paper`.
+
+3. **Deleted `_evaluate_paper`**: the entire function (lines 490–552 in pre-task file) — its only remaining caller was `_send_to_briefing`, now replaced.
+
+4. **Deleted `_toilet_lookup`**: confirmed zero callers via grep (only its definition appeared). Removed.
+
+5. **Kept `_stroke_samples_in_text_space_from_array`**: still called by `_score_stroke_incremental` — not deleted.
+
+6. **Updated stale comment** in `_word_coverage_tier_from_strokes` that mentioned `_evaluate_paper`.
+
+**Key decisions:**
+- `_apply_submit_penalty` only penalizes planted words with state `"untouched"`. Words already at `"partial"`, `"full"`, or `"wrong"` are untouched by the penalty pass — no double-penalizing.
+- `earned_stamp` now requires `wrongs == 0`, which naturally excludes papers where unmarked planted words were just penalized (they become `"wrong"` entries during the penalty pass).
+- `_refresh_postit_and_penalty()` is called after penalty + stamp assignment so the post-it momentarily shows the updated penalty count before the next paper animates in.
+
+**Runtime smoke tests deferred for human playtest:**
+- Criteria 4 (no parse errors / boots) and 5 (all 4 manual scenarios) require running Godot. Static analysis shows no unresolved identifiers or missing function calls.
