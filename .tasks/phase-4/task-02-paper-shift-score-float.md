@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: paper.set_shift_score accepts float, shows negatives
-status: pending
+status: done
 complexity: low
 blocked-by: ~
 ---
@@ -29,11 +29,11 @@ to see a negative running score — it's the only signal that they're bleeding.
 
 ## Acceptance Criteria
 
-- [ ] Signature is `func set_shift_score(score: float) -> void:`.
-- [ ] `score > 0` → `"+%.1f" % score` (e.g. `+28.5`).
-- [ ] `score < 0` → `"%.1f" % score` (the `-` is part of the formatted number, e.g. `-1.5`).
-- [ ] `score == 0` → empty string (unchanged from today).
-- [ ] Existing caller in `game2.gd` (`active_paper.set_shift_score(WordManager.shift_correct_illegal)`) still compiles; passing the old int field is fine because int → float widens.
+- [x] Signature is `func set_shift_score(score: float) -> void:`.
+- [x] `score > 0` → `"+%.1f" % score` (e.g. `+28.5`).
+- [x] `score < 0` → `"%.1f" % score` (the `-` is part of the formatted number, e.g. `-1.5`).
+- [x] `score == 0` → empty string (unchanged from today).
+- [x] Existing caller in `game2.gd` (`active_paper.set_shift_score(WordManager.shift_correct_illegal)`) still compiles; passing the old int field is fine because int → float widens.
 
 ## Notes
 
