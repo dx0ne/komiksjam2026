@@ -1,7 +1,7 @@
 ---
 id: task-04
 title: Migrate game2.gd + WordManager data model
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-02, task-03]
 ---
