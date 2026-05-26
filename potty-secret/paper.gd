@@ -20,11 +20,13 @@ func set_postit(marked: int, total: int) -> void:
 	%pointsLabel.text = "+%d/%d" % [marked, total]
 
 
-func set_shift_score(total_correct: int) -> void:
+func set_shift_score(score: float) -> void:
 	if not is_node_ready():
 		return
-	if total_correct > 0:
-		%pointsLabel_good.text = "+%d" % total_correct
+	if score > 0:
+		%pointsLabel_good.text = "+%.1f" % score
+	elif score < 0:
+		%pointsLabel_good.text = "%.1f" % score
 	else:
 		%pointsLabel_good.text = ""
 
@@ -47,12 +49,12 @@ func set_stamp_visible(show_stamp: bool) -> void:
 		_stamp.scale = Vector2(0.55, 0.55)
 		return
 	_stamp.modulate.a = 0.0
-	_stamp.scale = Vector2(0.35, 0.35)
+	_stamp.scale = Vector2(0.66, 0.66)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(_stamp, "modulate:a", 1.0, 0.15)
-	tween.tween_property(_stamp, "scale", Vector2(0.55, 0.55), 0.3) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_stamp, "modulate:a", 1.0, 0.08)
+	tween.tween_property(_stamp, "scale", Vector2(0.55, 0.55), 0.15) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
 func marker_point_to_text_local(point: Vector2) -> Vector2:

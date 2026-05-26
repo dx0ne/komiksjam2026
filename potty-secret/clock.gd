@@ -8,6 +8,9 @@ extends Node2D
 
 var _reka_start_rotation: float
 
+var time_left: float:
+	get: return game_timer.time_left if game_timer else 0.0
+
 signal time_out();
 
 func _on_timer_timeout() -> void:

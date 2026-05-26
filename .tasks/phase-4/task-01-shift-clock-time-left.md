@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: Add ShiftClock.time_left getter
-status: pending
+status: done
 complexity: low
 blocked-by: ~
 ---
@@ -20,9 +20,9 @@ clean.
 
 ## Acceptance Criteria
 
-- [ ] `ShiftClock.time_left: float` returns `game_timer.time_left` (or equivalent property-getter pattern).
-- [ ] No existing `clock.gd` callers regress.
-- [ ] `clock.time_left` is callable from `game2.gd` without warnings.
+- [x] `ShiftClock.time_left: float` returns `game_timer.time_left` (or equivalent property-getter pattern).
+- [x] No existing `clock.gd` callers regress.
+- [x] `clock.time_left` is callable from `game2.gd` without warnings.
 
 ## Notes
 

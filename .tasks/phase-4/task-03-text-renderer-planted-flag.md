@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Add planted flag and set_planted_words to text_renderer
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: ~
 ---

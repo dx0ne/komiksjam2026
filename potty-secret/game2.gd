@@ -12,14 +12,19 @@ const WORDS_IN_DOCUMENT    := 3
 const TOILET_SCN := preload("res://toilet_msg.tscn")
 const PAPER_SCN  := preload("res://paper.tscn")
 
+const ATTRACT_IDLE_DELAY := 4.0
+const ATTRACT_SWAY_RAD   := 0.035
+
 @onready var clock: ShiftClock = %clock_scn
-@onready var _desk_stamp: Sprite2D = %Stempel
 
 var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
 
 var active_paper: GamePaper = null
 var session: Dictionary = {}
+
+var _idle_time: float = 0.0
+var _attract_tween: Tween = null
 
 
 func _text_renderer() -> TextRenderer:
@@ -43,13 +48,20 @@ func _ready() -> void:
 	clock.time_out.connect(_on_time_out)
 
 	WordManager.shift_correct_illegal = 0
-	if _desk_stamp:
-		_desk_stamp.visible = false
 	_spawn_fresh_paper(false)
 	_roll_toilet_intel(true)
 
 
+func _process(delta: float) -> void:
+	if _attract_tween != null:
+		return
+	_idle_time += delta
+	if _idle_time >= ATTRACT_IDLE_DELAY:
+		_start_handle_attract()
+
+
 func _input(event: InputEvent) -> void:
+	_register_player_activity()
 	if event is InputEventMouseButton:
 		var mouse := event as InputEventMouseButton
 		if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
@@ -92,9 +104,6 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 			active_paper.marker_layer.stroke_finished.disconnect(_on_stroke_finished)
 		active_paper.queue_free()
 		active_paper = null
-
-	if _desk_stamp:
-		_desk_stamp.visible = false
 
 	active_paper = PAPER_SCN.instantiate()
 	%papers_container.add_child(active_paper)
@@ -203,6 +212,41 @@ func toilet_pull() -> void:
 	tween.tween_callback(_roll_toilet_intel)
 
 
+func _register_player_activity() -> void:
+	_idle_time = 0.0
+	if _attract_tween != null:
+		_stop_handle_attract()
+
+
+func _start_handle_attract() -> void:
+	var handle := %toilet_handle
+	_attract_tween = create_tween().set_loops()
+	_attract_tween.tween_property(handle, "rotation", ATTRACT_SWAY_RAD, 0.9) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_attract_tween.tween_property(handle, "rotation", -ATTRACT_SWAY_RAD, 1.8) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_attract_tween.tween_property(handle, "rotation", 0.0, 0.9) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+	var flash := create_tween()
+	flash.tween_property(handle, "modulate", Color(1.6, 1.6, 1.3), 0.12) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	flash.tween_property(handle, "modulate", Color.WHITE, 0.35) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+
+func _stop_handle_attract() -> void:
+	if _attract_tween != null and _attract_tween.is_valid():
+		_attract_tween.kill()
+	_attract_tween = null
+	var handle := %toilet_handle
+	var settle := create_tween().set_parallel(true)
+	settle.tween_property(handle, "rotation", 0.0, 0.2) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	settle.tween_property(handle, "modulate", Color.WHITE, 0.15) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
 func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 	for child in %toilet_msgs_container.get_children():
 		child.queue_free()
@@ -295,8 +339,6 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 	if earned_stamp:
 		session["stamped"] = true
 		active_paper.set_stamp_visible(true)
-		if _desk_stamp:
-			_desk_stamp.visible = true
 
 	if not advance_paper:
 		return

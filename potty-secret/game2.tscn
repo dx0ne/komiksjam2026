@@ -7,7 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://c8k6jmxo282dx" path="res://art/Reka_Zegar.png" id="4_hve3p"]
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="5_boqrt"]
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
-[ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="6_nuj7l"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="PackedScene" uid="uid://bk6otlfx6rr5k" path="res://scenes/desk_props/cofefe.tscn" id="10_boqrt"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
@@ -188,13 +187,6 @@ texture = ExtResource("2_j5wjh")
 [node name="Ramka" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=1743869147]
 position = Vector2(960, 541)
 texture = ExtResource("3_vef74")
-
-[node name="Stempel" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=2135037805]
-unique_name_in_owner = true
-visible = false
-position = Vector2(1485, 921)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("6_nuj7l")
 
 [node name="Teczka" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=1944249299]
 position = Vector2(1901, 466)
