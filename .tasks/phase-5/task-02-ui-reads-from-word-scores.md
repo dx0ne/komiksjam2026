@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: Drive per-paper UI from word_scores
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-01]
 ---
