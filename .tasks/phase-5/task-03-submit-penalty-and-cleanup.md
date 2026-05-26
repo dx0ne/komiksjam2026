@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Submit penalty + remove _evaluate_paper
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-02]
 ---
