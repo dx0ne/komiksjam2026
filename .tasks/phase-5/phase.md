@@ -1,8 +1,8 @@
 ---
 phase: 5
 title: At-mark scoring + submit penalty
-status: pending
-opened: ~
+status: open
+opened: 2026-05-26
 closed: ~
 ---
 
@@ -30,4 +30,6 @@ Design spec: `potty-secret/docs/superpowers/specs/2026-05-26-difficulty-ramp-and
 
 ## Tasks
 
-_Generated when this phase opens._
+- [ ] task-01-incremental-scorer.md
+- [ ] task-02-ui-reads-from-word-scores.md
+- [ ] task-03-submit-penalty-and-cleanup.md
