@@ -1,7 +1,7 @@
 ---
 title: Potty-Secret · Thick-Black-Bars Port
 status: in-progress
-current-phase: 5
+current-phase: 6
 repo: private
 github: https://github.com/dx0ne/komiksjam2026
 created: 2026-05-14
@@ -21,5 +21,5 @@ difficulty ramping and at-mark scoring (see
 - [x] Phase 2: Game scene — build `game2.tscn` driven by `WordManager.current_toilet_words`
 - [x] Phase 3: Scoring & verdict — per-paper tally, briefcase/clock/skip end-shift, ending.tscn transition
 - [x] Phase 4: Foundation & phase-aware document generation — data model migration + K-from-intel doc gen
-- [ ] Phase 5: At-mark scoring + submit penalty — replace whole-paper re-evaluation with locked per-mark deltas
+- [x] Phase 5: At-mark scoring + submit penalty — replace whole-paper re-evaluation with locked per-mark deltas
 - [ ] Phase 6: Score popups + verification — floating +/- numbers, stroke color tuning, doc sync, playtest
