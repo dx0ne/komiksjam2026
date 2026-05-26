@@ -1,9 +1,9 @@
 ---
 phase: 4
 title: Foundation & phase-aware document generation
-status: open
+status: closed
 opened: 2026-05-26
-closed: ~
+closed: 2026-05-26
 ---
 
 ## Goal
@@ -33,8 +33,8 @@ Design spec: `potty-secret/docs/superpowers/specs/2026-05-26-difficulty-ramp-and
 
 ## Tasks
 
-- [ ] task-01-shift-clock-time-left.md
-- [ ] task-02-paper-shift-score-float.md
-- [ ] task-03-text-renderer-planted-flag.md
-- [ ] task-04-game2-data-model-migration.md
-- [ ] task-05-phase-aware-doc-generation.md
+- [x] task-01-shift-clock-time-left.md
+- [x] task-02-paper-shift-score-float.md
+- [x] task-03-text-renderer-planted-flag.md
+- [x] task-04-game2-data-model-migration.md
+- [x] task-05-phase-aware-doc-generation.md
