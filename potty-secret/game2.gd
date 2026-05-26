@@ -388,64 +388,44 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 # Scoring / post-it
 # ---------------------------------------------------------------------------
 
-func _on_stroke_finished(stroke: PackedVector2Array) -> void:
+func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 	_save_session()
 	# Run incremental scorer first — locks per-word deltas and mutates shift_score.
-	var _incremental_result := _score_stroke_incremental(_marker_layer().strokes.size() - 1)
-	var result := _evaluate_paper(
-		session["text"],
-		WordManager.current_toilet_words,
-		session["strokes"]
-	)
-	_color_stroke_by_result(stroke, result)
+	var stroke_index := _marker_layer().strokes.size() - 1
+	var score_result := _score_stroke_incremental(stroke_index)
+	_color_stroke_by_deltas(stroke_index, score_result)
 	_refresh_postit_and_penalty()
 
 
-func _color_stroke_by_result(stroke: PackedVector2Array, result: Dictionary) -> void:
+func _color_stroke_by_deltas(stroke_index: int, score_result: Dictionary) -> void:
 	var marker_layer := _marker_layer()
-	var text_renderer := _text_renderer()
-	if marker_layer.strokes.is_empty():
+	if marker_layer == null or marker_layer.strokes.is_empty():
 		return
-	var stroke_index := marker_layer.strokes.size() - 1
-	var touched_illegal := false
-	var touched_legal := false
-
-	var samples := _stroke_samples_in_text_space(stroke)
-	var lookup := _toilet_lookup(WordManager.current_toilet_words)
-	for box in text_renderer.word_boxes:
-		var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
-		for point in samples:
-			if not grown.has_point(point):
-				continue
-			if box.get("illegal", false) and lookup.has(box["word"]):
-				touched_illegal = true
-			elif not box.get("illegal", false):
-				touched_legal = true
-
-	if touched_legal and not touched_illegal:
+	if score_result.get("sum", 0.0) < 0.0:
 		if stroke_index < marker_layer.stroke_colors.size():
 			marker_layer.stroke_colors[stroke_index] = Color(0.75, 0.1, 0.1, 0.9)
-		if active_paper:
-			var result_live := _evaluate_paper(
-				session["text"],
-				WordManager.current_toilet_words,
-				session["strokes"]
-			)
-			active_paper.set_penalty(result_live["false_redactions"])
 	marker_layer.queue_redraw()
 
 
 func _refresh_postit_and_penalty() -> void:
 	if active_paper == null:
 		return
-	var result := _evaluate_paper(
-		session.get("text", ""),
-		WordManager.current_toilet_words,
-		session.get("strokes", [])
-	)
-	active_paper.set_postit(result["correct_illegal"], result["illegal_count"])
+	var text_renderer := _text_renderer()
+	var word_scores: Dictionary = session.get("word_scores", {})
+	var marked_planted := 0
+	var wrongs := 0
+	if text_renderer != null:
+		for i in range(text_renderer.word_boxes.size()):
+			var box: Dictionary = text_renderer.word_boxes[i]
+			var entry: Dictionary = word_scores.get(i, {})
+			var state: String = entry.get("state", "untouched")
+			if box.get("planted", false) and (state == "partial" or state == "full"):
+				marked_planted += 1
+			if state == "wrong":
+				wrongs += 1
+	active_paper.set_postit(marked_planted, session.get("planted_total", 0))
+	active_paper.set_penalty(wrongs)
 	active_paper.set_shift_score(WordManager.shift_score)
-	active_paper.set_penalty(result["false_redactions"])
 
 
 func _word_coverage_tier_from_strokes(box: Dictionary, all_samples: Array[PackedVector2Array]) -> String:
