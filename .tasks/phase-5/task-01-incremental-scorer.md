@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: Per-stroke incremental scorer (transition table)
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: []
 ---
