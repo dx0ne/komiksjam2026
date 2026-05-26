@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Add planted flag and set_planted_words to text_renderer
-status: in-progress
+status: done
 complexity: medium
 blocked-by: ~
 ---
@@ -27,12 +27,12 @@ Both are needed at stroke-finished time: scoring is positive only if
 
 ## Acceptance Criteria
 
-- [ ] New member variable: `var planted_words: Array[String] = []`.
-- [ ] New setter: `func set_planted_words(words: Array[String]) -> void:` — stores normalized words and re-applies `planted` to all `word_boxes`.
-- [ ] `_relayout()` sets `box["planted"] = planted_lookup.has(box["word"])` for every word_box, alongside the existing `illegal` flag.
-- [ ] `set_forbidden_words()` does NOT alter `planted` — only `illegal`.
-- [ ] Calling `set_planted_words([])` is safe (clears all `planted` flags).
-- [ ] No regressions: a freshly loaded document with both planted-words and forbidden-words set should have `planted` AND `illegal` true for matching boxes.
+- [x] New member variable: `var planted_words: Array[String] = []`.
+- [x] New setter: `func set_planted_words(words: Array[String]) -> void:` — stores normalized words and re-applies `planted` to all `word_boxes`.
+- [x] `_relayout()` sets `box["planted"] = planted_lookup.has(box["word"])` for every word_box, alongside the existing `illegal` flag.
+- [x] `set_forbidden_words()` does NOT alter `planted` — only `illegal`.
+- [x] Calling `set_planted_words([])` is safe (clears all `planted` flags).
+- [x] No regressions: a freshly loaded document with both planted-words and forbidden-words set should have `planted` AND `illegal` true for matching boxes.
 
 ## Notes
 
@@ -42,3 +42,18 @@ matching) so the comparison key matches what `word_boxes` use.
 
 This task adds API only — it does not yet wire `set_planted_words` from
 `game2.gd`. Task-04 does that wiring.
+
+### Implementation (completed)
+
+Modified `D:/Projects/komiksjam2026/potty-secret/scripts/text_renderer.gd`:
+
+- Added `var planted_words: Array[String] = []` member variable (line 16).
+- Added `func set_planted_words(words: Array[String]) -> void:` (lines 51–58):
+  - Uses `planted_words.assign(words)` to store normalized source words.
+  - Builds `planted_lookup` dict via `_normalize_word()` — same normalizer used by `illegal`.
+  - Iterates `word_boxes` setting `box["planted"]` independently of `illegal`.
+  - Calls `queue_redraw()`.
+- Updated `_relayout()` to build a parallel `planted_lookup` and emit `"planted": planted_lookup.has(canonical_word)` in every appended box dict, alongside the existing `"illegal"` key.
+- `set_forbidden_words()` unchanged — it does not touch `planted`.
+- Passing `[]` to `set_planted_words` is safe: empty lookup makes all `planted` false.
+- Both flags use independent dictionaries so a word can be both `planted` and `illegal` simultaneously.

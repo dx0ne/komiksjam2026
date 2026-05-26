@@ -13,6 +13,7 @@ const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
 
 var document_text := ""
 var illegal_words: Array[String] = []
+var planted_words: Array[String] = []
 var word_boxes: Array[Dictionary] = []
 
 var _font: Font
@@ -44,6 +45,16 @@ func set_forbidden_words(forbidden_words: Array[String]) -> void:
 		box["coverage"] = 0.0
 		box["tier"] = "none"
 		box["review"] = ""
+	queue_redraw()
+
+
+func set_planted_words(words: Array[String]) -> void:
+	planted_words.assign(words)
+	var planted_lookup := {}
+	for planted_word in planted_words:
+		planted_lookup[_normalize_word(planted_word)] = true
+	for box in word_boxes:
+		box["planted"] = planted_lookup.has(box["word"])
 	queue_redraw()
 
 
@@ -81,6 +92,9 @@ func _relayout() -> void:
 	var forbidden_lookup := {}
 	for forbidden_word in illegal_words:
 		forbidden_lookup[_normalize_word(forbidden_word)] = true
+	var planted_lookup := {}
+	for planted_word in planted_words:
+		planted_lookup[_normalize_word(planted_word)] = true
 
 	for display_word in document_text.split(" ", false):
 		var word_width := _font.get_string_size(display_word, HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size).x
@@ -98,6 +112,7 @@ func _relayout() -> void:
 			"display": display_word,
 			"rect": rect,
 			"illegal": forbidden_lookup.has(canonical_word),
+			"planted": planted_lookup.has(canonical_word),
 			"redacted": false,
 			"coverage": 0.0,
 			"tier": "none",
