@@ -1,7 +1,7 @@
 ---
 id: task-05
 title: Phase-aware document generation
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-04]
 ---
