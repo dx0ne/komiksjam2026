@@ -22,30 +22,30 @@ script = ExtResource("1_sr2dh")
 unique_name_in_owner = true
 
 [node name="ToiletPaper1" type="Sprite2D" parent="rot_node" unique_id=84428212]
-position = Vector2(32, 5)
+position = Vector2(13, 5)
 rotation = -0.35807616
 scale = Vector2(1, 0.942)
 texture = ExtResource("2_3q7nb")
 
 [node name="ToiletPaper2" type="Sprite2D" parent="rot_node" unique_id=1840567605]
-position = Vector2(15.000002, 5.0000005)
+position = Vector2(-3.9999962, 5.0000005)
 scale = Vector2(1, 0.942)
 texture = ExtResource("3_4a3vv")
 
 [node name="ToiletPaper3" type="Sprite2D" parent="rot_node" unique_id=1212455253]
-position = Vector2(-9.999998, -11.999999)
+position = Vector2(-28.999996, -11.999999)
 rotation = 0.6710451
 scale = Vector2(1, 0.982)
 texture = ExtResource("4_yka1r")
 
 [node name="ToiletPaper4" type="Sprite2D" parent="rot_node" unique_id=1727218948]
-position = Vector2(41.000004, -3)
+position = Vector2(22.000004, -3)
 rotation = -0.31243956
 scale = Vector2(1, 0.942)
 texture = ExtResource("5_jck6c")
 
 [node name="ToiletPaper5" type="Sprite2D" parent="rot_node" unique_id=2060906287]
-position = Vector2(36, 0.9999999)
+position = Vector2(17.000002, 0.9999999)
 scale = Vector2(1, 0.942)
 texture = ExtResource("6_4v8kd")
 
