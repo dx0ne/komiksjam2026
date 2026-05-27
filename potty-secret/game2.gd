@@ -195,14 +195,19 @@ func _current_phase() -> Phase:
 
 
 ## Returns the VariantMode to use for a single planted paper slot given the current phase.
-## NOTE: FULL phase is 50/50 CANONICAL or TYPO — call this PER PLANTED SLOT, not once per paper,
-## so each slot gets its own independent random draw.
+## NOTE: LIGHT is 50/50 CANONICAL/TYPO; FULL is 80/20 TYPO/CANONICAL — call this
+## PER PLANTED SLOT, not once per paper, so each slot gets its own independent draw.
+## SYNONYM is never returned here: synonyms are intel-only.
 func _paper_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode:
 	match phase:
-		Phase.TEACHING, Phase.LIGHT:
+		Phase.TEACHING:
+			return WordManager.VariantMode.CANONICAL
+		Phase.LIGHT:
+			if rng.randf() < 0.5:
+				return WordManager.VariantMode.TYPO
 			return WordManager.VariantMode.CANONICAL
 		Phase.FULL:
-			if rng.randf() < 0.5:
+			if rng.randf() < 0.8:
 				return WordManager.VariantMode.TYPO
 			return WordManager.VariantMode.CANONICAL
 	return WordManager.VariantMode.CANONICAL

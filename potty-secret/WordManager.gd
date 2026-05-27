@@ -97,14 +97,20 @@ func display_variants(canonical: String, mode: VariantMode) -> Array[String]:
 				VariantMode.CANONICAL:
 					return [canonical]
 				VariantMode.TYPO:
-					return typos if not typos.is_empty() else [canonical]
+					if not typos.is_empty():
+						return typos
+					return [canonical]
 				VariantMode.SYNONYM:
-					return synonyms if not synonyms.is_empty() else [canonical]
+					if not synonyms.is_empty():
+						return synonyms
+					return [canonical]
 				VariantMode.TYPO_OR_SYNONYM:
 					var pool: Array[String] = []
 					pool.append_array(typos)
 					pool.append_array(synonyms)
-					return pool if not pool.is_empty() else [canonical]
+					if not pool.is_empty():
+						return pool
+					return [canonical]
 	# canonical not found — programmer error
 	return []
 
@@ -168,7 +174,7 @@ var master_list: Array[Dictionary] = [
 	{
 		"canonical": "aliens",
 		"typos":    ["allens", "aloiens", "alienz", "alians"],
-		"synonyms": ["them", "outsiders", "visitors"],
+		"synonyms": ["Them", "space people", "visitors"],
 	},
 	{
 		"canonical": "Elvis",
@@ -178,42 +184,42 @@ var master_list: Array[Dictionary] = [
 	{
 		"canonical": "bigfoot",
 		"typos":    ["bigfooot", "bifoot", "bigfot"],
-		"synonyms": ["sasquatch", "the creature"],
+		"synonyms": ["sasquatch", "the hairy creature"],
 	},
 	{
 		"canonical": "reptilians",
 		"typos":    ["reptilans", "reptilions", "reptelians"],
-		"synonyms": ["lizard men", "shapeshifters"],
+		"synonyms": ["lizard men", "snake people"],
 	},
 	{
 		"canonical": "Big Secret",
 		"typos":    ["Biq Secret", "Big Secreet"],
-		"synonyms": ["the matter", "the truth"],
+		"synonyms": ["The Secret", "Beautiful Secret"],
 	},
 	{
 		"canonical": "Area 51",
 		"typos":    ["Area 15", "Ares 51", "Aera 51"],
-		"synonyms": ["the base", "Dreamland"],
+		"synonyms": ["The Base", "Secret Base"],
 	},
 	{
 		"canonical": "Roswell",
 		"typos":    ["Rosswell", "Roswel", "Rosswel"],
-		"synonyms": ["the crash", "the incident"],
+		"synonyms": ["crash site", "incident 1947"],
 	},
 	{
 		"canonical": "MKUltra",
 		"typos":    ["MKUlrta", "MkUltra", "MKUltraa", "MKUlra"],
-		"synonyms": ["the program", "the experiments"],
+		"synonyms": ["Secret Program", "Secret Experiment"],
 	},
 	{
 		"canonical": "Mothman",
 		"typos":    ["Mothmen", "Mothmann", "Mothnman"],
-		"synonyms": ["the winged one", "the prophet"],
+		"synonyms": ["Fly Man", "Bug Man"],
 	},
 	{
 		"canonical": "chemtrails",
 		"typos":    ["chemtrils", "chemtrales", "chemtraills"],
-		"synonyms": ["the spraying", "aerosols"],
+		"synonyms": ["sky lines", "sky chemicals"],
 	},
 	{
 		"canonical": "Illuminati",
@@ -223,17 +229,17 @@ var master_list: Array[Dictionary] = [
 	{
 		"canonical": "UFOs",
 		"typos":    ["UF0s", "UFOss", "UGOs"],
-		"synonyms": ["the lights", "bogeys"],
+		"synonyms": ["bogeys"],
 	},
 	{
 		"canonical": "the Grays",
 		"typos":    ["the Greys", "the Graays"],
-		"synonyms": ["little men", "small ones"],
+		"synonyms": ["space men", "space ones"],
 	},
 	{
 		"canonical": "flying saucers",
 		"typos":    ["flying saucres", "flyng saucers"],
-		"synonyms": ["discs", "the craft"],
+		"synonyms": ["discs", "alien ships"],
 	},
 	{
 		"canonical": "abductions",
@@ -253,57 +259,52 @@ var master_list: Array[Dictionary] = [
 	{
 		"canonical": "the Yeti",
 		"typos":    ["the Yeeti", "the Yetti"],
-		"synonyms": ["abominable", "snowman"],
+		"synonyms": ["snow creature", "snowman"],
 	},
 	{
 		"canonical": "Project Blue Book",
 		"typos":    ["Project Bleu Book", "Project Bule Book"],
-		"synonyms": ["the study", "the files"],
-	},
-	{
-		"canonical": "Dulce Base",
-		"typos":    ["Dulce Baes", "Dulce Bese", "Dulce Basse"],
-		"synonyms": ["the underground", "Level 7"],
+		"synonyms": [],
 	},
 	{
 		"canonical": "the Bermuda Triangle",
 		"typos":    ["the Bermuda Triange", "the Bermuda Triangel"],
-		"synonyms": ["the zone", "the vortex"],
+		"synonyms": [],
 	},
 	{
 		"canonical": "the Moon Landing",
 		"typos":    ["the Moon Lnading", "the Moon Landign"],
-		"synonyms": ["the hoax", "the broadcast"],
+		"synonyms": ["the Moon trip", "the Moon visit"],
 	},
 	{
 		"canonical": "Hollow Earth",
 		"typos":    ["Holloow Earth", "Hollow Eath", "Holllow Earth"],
-		"synonyms": ["the inner world", "Agharta"],
+		"synonyms": ["Agharta"],
 	},
 	{
 		"canonical": "JFK",
 		"typos":    ["JFk", "JFK1", "JGK"],
-		"synonyms": ["the president", "Dallas"],
+		"synonyms": ["killed president", "Dallas thing", "jfk"],
 	},
 	{
 		"canonical": "the deep state",
 		"typos":    ["the deep staet", "the depp state"],
-		"synonyms": ["the shadow", "the cabal"],
+		"synonyms": [],
 	},
 	{
 		"canonical": "Bilderberg",
 		"typos":    ["Bilderburg", "Bilerberg", "Bilderberq"],
-		"synonyms": ["the group", "the meeting"],
+		"synonyms": ["Secret Group"],
 	},
 	{
 		"canonical": "New World Order",
 		"typos":    ["New Wrold Order", "New World Ordr"],
-		"synonyms": ["the agenda", "the plan"],
+		"synonyms": ["Secret Plan"],
 	},
 	{
 		"canonical": "Tupac",
 		"typos":    ["Tupak", "Tupca", "Tupacc"],
-		"synonyms": ["2Pac", "the poet"],
+		"synonyms": ["2Pac", "Secret Rapper"],
 	},
 ]
 
