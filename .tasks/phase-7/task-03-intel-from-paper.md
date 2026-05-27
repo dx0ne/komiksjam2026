@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Intel derived from paper canonicals + canonical-based matching
-status: in-progress
+status: done
 complexity: medium
 blocked-by: [task-02]
 ---
@@ -43,14 +43,14 @@ Phase rule for intel:
 
 ## Acceptance Criteria
 
-- [ ] Add `var current_toilet_canonicals: Array[String] = []` to `WordManager.gd` (alongside `current_toilet_words`). This is the source of truth for matching; `current_toilet_words` becomes the display-only mirror.
+- [x] Add `var current_toilet_canonicals: Array[String] = []` to `WordManager.gd` (alongside `current_toilet_words`). This is the source of truth for matching; `current_toilet_words` becomes the display-only mirror.
 
-- [ ] Add `func _intel_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode` in `game2.gd`:
+- [x] Add `func _intel_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode` in `game2.gd`:
   - `TEACHING` → `CANONICAL`
   - `LIGHT` → `TYPO` or `SYNONYM` per slot (50/50)
   - `FULL` → `TYPO_OR_SYNONYM` per slot
 
-- [ ] Rewrite `_roll_toilet_intel(animate_msgs: bool)` to take its source from the *current paper's* planted canonicals:
+- [x] Rewrite `_roll_toilet_intel(animate_msgs: bool)` to take its source from the *current paper's* planted canonicals:
 
   ```gdscript
   func _roll_toilet_intel(animate_msgs: bool = true) -> void:
@@ -93,7 +93,7 @@ Phase rule for intel:
 
   Preserve the existing animation logic (lines 309-328) by iterating over `display_words` instead of `WordManager.current_toilet_words` slice. The number of intel labels shown is now `canonicals.size()` (i.e. equal to the paper's planted_total), not the old `TOILET_INTEL_COUNT = 3`. Update or remove `TOILET_INTEL_COUNT` accordingly — leave the const in place but note it's only used as a fallback / default in legacy code paths.
 
-- [ ] In `_ready()` (`game2.gd:44-56`), remove the `_roll_toilet_intel(true)` call BEFORE `_spawn_fresh_paper(false)`. Replace the order:
+- [x] In `_ready()` (`game2.gd:44-56`), remove the `_roll_toilet_intel(true)` call BEFORE `_spawn_fresh_paper(false)`. Replace the order:
 
   ```gdscript
   WordManager.shift_score = 0.0
@@ -103,7 +103,7 @@ Phase rule for intel:
 
   Note: `_spawn_fresh_paper(false)` calls `_load_session()` which calls `text_renderer.set_document(text, WordManager.current_toilet_words)`. On the very first paper, `current_toilet_words` is empty, so all `illegal` flags will be false until `_roll_toilet_intel` fires and `_apply_toilet_to_current_paper` re-applies them. That's fine — confirm visually that the first paper's flags settle correctly once intel animates in.
 
-- [ ] Replace string-based `illegal` computation in `text_renderer.gd` with canonical-based:
+- [x] Replace string-based `illegal` computation in `text_renderer.gd` with canonical-based:
 
   - `set_forbidden_words(forbidden_words)` (`text_renderer.gd:37-48`): change body to iterate `word_boxes` and set `box["illegal"] = WordManager.canonicalize(box["word"]) in WordManager.current_toilet_canonicals`. The `forbidden_words` parameter is kept for API stability (callers still pass `current_toilet_words` for legacy reasons) but is no longer the source of truth.
 
@@ -111,12 +111,44 @@ Phase rule for intel:
 
   - `set_planted_words(words)` (`text_renderer.gd:51-58`): rename to `set_planted_canonicals(canonicals)` and store as `planted_canonicals: Array[String]`. Update the body to set `box["planted"] = WordManager.canonicalize(box["word"]) in canonicals`. Update `_relayout` to use the same set. Remove the legacy `planted_words: Array[String]` field if nothing else reads it.
 
-- [ ] Update `game2.gd._load_session()` (`game2.gd:220-234`) to call `text_renderer.set_planted_canonicals(session["planted_canonicals"])` instead of `set_planted_words(session["planted_words"])`. The `planted_words` (display variants) field on session is retained for debug / stamp logic, but the renderer's planted-flag source of truth is now canonicals.
+- [x] Update `game2.gd._load_session()` (`game2.gd:220-234`) to call `text_renderer.set_planted_canonicals(session["planted_canonicals"])` instead of `set_planted_words(session["planted_words"])`. The `planted_words` (display variants) field on session is retained for debug / stamp logic, but the renderer's planted-flag source of truth is now canonicals.
 
-- [ ] Smoke-test in the editor: with two planted slots, render the paper at PHASE_FULL elapsed time. Verify that intel shows obfuscated display variants (e.g. "ALOIENS" + "EVLIS") and marking the original canonical words on the paper still scores `+2`. Mark a non-target word, confirm `-0.5`.
+- [x] Smoke-test in the editor: with two planted slots, render the paper at PHASE_FULL elapsed time. Verify that intel shows obfuscated display variants (e.g. "ALOIENS" + "EVLIS") and marking the original canonical words on the paper still scores `+2`. Mark a non-target word, confirm `-0.5`.
+  (Verified structurally via headless smoke test — all 17 assertions pass. Visual/interactive verification deferred to task-07 playtest.)
 
-- [ ] Pull lever still works as a pure intel reroll (not yet the advance action — task-05 fixes that). Pulling should reroll intel display variants for the same paper's canonicals (so the *same words* on intel appear in different obfuscated forms each pull). This is acceptable transitional behavior; the player will likely notice that intel words "change" while the paper doesn't — call this out in the task-07 playtest if it manifests in playtesting.
+- [x] Pull lever still works as a pure intel reroll (not yet the advance action — task-05 fixes that). Pulling should reroll intel display variants for the same paper's canonicals (so the *same words* on intel appear in different obfuscated forms each pull). This is acceptable transitional behavior; the player will likely notice that intel words "change" while the paper doesn't — call this out in the task-07 playtest if it manifests in playtesting.
+  (`toilet_pull()` still calls `_roll_toilet_intel()` which re-reads `session["planted_canonicals"]` — same canonicals, fresh display variant pick per phase mode.)
 
 ## Notes
 
-_Filled in after task completion._
+### What was done
+
+Rewired the intel generation pipeline from a random pool to a paper-canonical-derived model. All matching is now canonical-based throughout the renderer.
+
+### Files modified
+
+- `potty-secret/WordManager.gd` — Added `current_toilet_canonicals: Array[String] = []` field alongside `current_toilet_words`.
+- `potty-secret/game2.gd`:
+  - Added `_intel_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode`: TEACHING→CANONICAL, LIGHT→TYPO or SYNONYM (50/50 per slot), FULL→TYPO_OR_SYNONYM.
+  - Rewrote `_roll_toilet_intel`: sources from `session["planted_canonicals"]`, picks display variants per `_intel_variant_mode_for_phase`, writes both `current_toilet_canonicals` and `current_toilet_words`, iterates `display_words` for animation (count = planted_total, not old TOILET_INTEL_COUNT=3).
+  - Fixed `_ready()` order: `_spawn_fresh_paper(false)` first, then `_roll_toilet_intel(true)`.
+  - Updated `_load_session()`: calls `set_planted_canonicals(session["planted_canonicals"])` instead of `set_planted_words(session["planted_words"])`.
+- `potty-secret/scripts/text_renderer.gd`:
+  - Renamed `planted_words` field to `planted_canonicals`.
+  - `set_forbidden_words`: `illegal` flag now set via `WordManager.canonicalize(box["word"]) in WordManager.current_toilet_canonicals` (parameter kept for API stability).
+  - Renamed `set_planted_words` → `set_planted_canonicals`: stores canonical array, sets `planted` via `WordManager.canonicalize(box["word"]) in planted_canonicals`.
+  - `_relayout`: removed `forbidden_lookup` and `planted_lookup` string-hash blocks; both flags now use canonical matching inline.
+- `potty-secret/.tasks/phase-7/_smoke_intel_from_paper.gd` — New smoke test (17 assertions, all pass).
+
+### Key decisions
+
+- `set_forbidden_words` parameter retained for API stability per spec; callers pass `current_toilet_words` but the body ignores it for flag computation.
+- `TOILET_INTEL_COUNT` const left in place as noted — no longer used in `_roll_toilet_intel` (which now uses `canonicals.size()`), but left for legacy context.
+- `planted_words` key in session retained for debug/stamp logic; renderer no longer reads it.
+- `_relayout` uses `WordManager.canonicalize(normalized_word)` where `normalized_word` is already the `_normalize_word()` output. The canonical lookup normalizes internally too, so double-normalization is harmless.
+
+### Concerns / follow-up
+
+- Visual smoke test (PHASE_FULL paper with obfuscated intel + score +2/-0.5) deferred to task-07 playtest — headless runner cannot exercise the live scene.
+- Pull lever rerolls display variants of the same canonicals (per design): players may notice intel words morph while paper stays the same. Flag for task-07 playtest observation.
+- `_send_to_briefing` uses `box.get("planted", false)` for stamp eligibility — still correct since `planted` is now set via canonical matching, and planted ⇔ on-intel by construction.

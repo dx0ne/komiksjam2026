@@ -2,7 +2,8 @@ extends Node
 
 var active_queue: Array[String] = []
 
-var current_toilet_words:Array[String] = [];
+var current_toilet_words: Array[String] = []
+var current_toilet_canonicals: Array[String] = []
 
 var good_ending: bool = false
 var shift_score: float = 0.0

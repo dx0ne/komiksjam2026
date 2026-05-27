@@ -13,7 +13,7 @@ const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
 
 var document_text := ""
 var illegal_words: Array[String] = []
-var planted_words: Array[String] = []
+var planted_canonicals: Array[String] = []
 var word_boxes: Array[Dictionary] = []
 
 var _font: Font
@@ -35,12 +35,11 @@ func set_document(text: String, forbidden_words: Array[String]) -> void:
 
 
 func set_forbidden_words(forbidden_words: Array[String]) -> void:
+	# forbidden_words is retained for API stability but is no longer the source
+	# of truth for the illegal flag. Canonical matching via WordManager is used instead.
 	illegal_words = forbidden_words
-	var forbidden_lookup := {}
-	for forbidden_word in illegal_words:
-		forbidden_lookup[_normalize_word(forbidden_word)] = true
 	for box in word_boxes:
-		box["illegal"] = forbidden_lookup.has(box["word"])
+		box["illegal"] = WordManager.canonicalize(box["word"]) in WordManager.current_toilet_canonicals
 		box["redacted"] = false
 		box["coverage"] = 0.0
 		box["tier"] = "none"
@@ -48,13 +47,10 @@ func set_forbidden_words(forbidden_words: Array[String]) -> void:
 	queue_redraw()
 
 
-func set_planted_words(words: Array[String]) -> void:
-	planted_words.assign(words)
-	var planted_lookup := {}
-	for planted_word in planted_words:
-		planted_lookup[_normalize_word(planted_word)] = true
+func set_planted_canonicals(canonicals: Array[String]) -> void:
+	planted_canonicals.assign(canonicals)
 	for box in word_boxes:
-		box["planted"] = planted_lookup.has(box["word"])
+		box["planted"] = WordManager.canonicalize(box["word"]) in planted_canonicals
 	queue_redraw()
 
 
@@ -89,12 +85,6 @@ func _relayout() -> void:
 	var available_width := maxf(64.0, size.x - PAPER_INSET * 2.0)
 	var cursor := Vector2(PAPER_INSET, PAPER_INSET + _font_size)
 	var line_height := _font.get_height(_font_size) + LINE_SPACING
-	var forbidden_lookup := {}
-	for forbidden_word in illegal_words:
-		forbidden_lookup[_normalize_word(forbidden_word)] = true
-	var planted_lookup := {}
-	for planted_word in planted_words:
-		planted_lookup[_normalize_word(planted_word)] = true
 
 	for display_word in document_text.split(" ", false):
 		var word_width := _font.get_string_size(display_word, HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size).x
@@ -102,17 +92,18 @@ func _relayout() -> void:
 			cursor.x = PAPER_INSET
 			cursor.y += line_height
 
-		var canonical_word := _normalize_word(display_word)
+		var normalized_word := _normalize_word(display_word)
+		var word_canonical := WordManager.canonicalize(normalized_word)
 		var rect := Rect2(
 			Vector2(cursor.x, cursor.y - _font_size),
 			Vector2(word_width, _font.get_height(_font_size))
 		)
 		word_boxes.append({
-			"word": canonical_word,
+			"word": normalized_word,
 			"display": display_word,
 			"rect": rect,
-			"illegal": forbidden_lookup.has(canonical_word),
-			"planted": planted_lookup.has(canonical_word),
+			"illegal": word_canonical in WordManager.current_toilet_canonicals,
+			"planted": word_canonical in planted_canonicals,
 			"redacted": false,
 			"coverage": 0.0,
 			"tier": "none",

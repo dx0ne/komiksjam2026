@@ -54,10 +54,8 @@ func _ready() -> void:
 	clock.time_out.connect(_on_time_out)
 
 	WordManager.shift_score = 0.0
-	# Roll intel BEFORE the first paper so paper #1 can draw planted words from it
-	# (K=N in the easy phase → all planted on intel → clean-win teaching round).
-	_roll_toilet_intel(true)
-	_spawn_fresh_paper(false)
+	_spawn_fresh_paper(false)   # builds session, including planted_canonicals
+	_roll_toilet_intel(true)    # now consumes session.planted_canonicals
 
 
 func _process(delta: float) -> void:
@@ -177,6 +175,22 @@ func _paper_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode:
 	return WordManager.VariantMode.CANONICAL
 
 
+## Returns the VariantMode to use for a single intel slot given the current phase.
+## TEACHING → CANONICAL; LIGHT → TYPO or SYNONYM (50/50 per slot); FULL → TYPO_OR_SYNONYM.
+## Call this PER INTEL SLOT so each slot gets its own independent random draw.
+func _intel_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode:
+	match phase:
+		Phase.TEACHING:
+			return WordManager.VariantMode.CANONICAL
+		Phase.LIGHT:
+			if rng.randf() < 0.5:
+				return WordManager.VariantMode.TYPO
+			return WordManager.VariantMode.SYNONYM
+		Phase.FULL:
+			return WordManager.VariantMode.TYPO_OR_SYNONYM
+	return WordManager.VariantMode.CANONICAL
+
+
 ## For each canonical in the array, picks one random display variant according to the
 ## phase's paper-variant rule.  If the variant pool is empty (defensive fallback),
 ## the canonical itself is used.  Returns an array of the same length as canonicals.
@@ -210,7 +224,7 @@ func _load_session() -> void:
 	var marker_layer := _marker_layer()
 	var debug_overlay := _debug_overlay()
 	text_renderer.set_document(session["text"], WordManager.current_toilet_words)
-	text_renderer.set_planted_words(session["planted_words"])
+	text_renderer.set_planted_canonicals(session["planted_canonicals"])
 	marker_layer.clear_strokes()
 	marker_layer.clear_word_marks()
 	marker_layer.set_locked(false)
@@ -286,22 +300,45 @@ func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 	for child in %toilet_msgs_container.get_children():
 		child.queue_free()
 
-	WordManager.current_toilet_words = WordManager.pick_random_words(TOILET_INTEL_COUNT)
+	# Source intel from the current paper's planted canonicals.
+	var canonicals: Array[String] = []
+	if not session.is_empty() and session.has("planted_canonicals"):
+		canonicals = session["planted_canonicals"]
+	if canonicals.is_empty():
+		# No paper yet — clear intel state and return.
+		# After this task, _roll_toilet_intel is always called AFTER _spawn_fresh_paper,
+		# so this guard mainly protects against accidental ordering regressions.
+		WordManager.current_toilet_canonicals = []
+		WordManager.current_toilet_words = []
+		return
+
+	var phase := _current_phase()
+	var display_words: Array[String] = []
+	for c in canonicals:
+		var mode := _intel_variant_mode_for_phase(phase)
+		var pool := WordManager.display_variants(c, mode)
+		if pool.is_empty():
+			pool = [c]
+		display_words.append(pool[rng.randi_range(0, pool.size() - 1)])
+
+	WordManager.current_toilet_canonicals = canonicals.duplicate()
+	WordManager.current_toilet_words = display_words
 
 	if not animate_msgs:
 		if session.has("text"):
 			_apply_toilet_to_current_paper()
 		return
 
+	var intel_count := display_words.size()
 	var y_pad_perct := 0.2
 	var y_padding := viewport_size.y * y_pad_perct
-	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / TOILET_INTEL_COUNT
+	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / maxi(1, intel_count)
 
-	for i in range(WordManager.current_toilet_words.size()):
+	for i in range(intel_count):
 		var toilet_msg = TOILET_SCN.instantiate()
 		%toilet_msgs_container.add_child(toilet_msg)
 		toilet_msg.position.y = -100
-		toilet_msg.set_label(WordManager.current_toilet_words[i])
+		toilet_msg.set_label(display_words[i])
 		toilet_msg.prep_tween()
 
 		var tween := create_tween().set_parallel(true)
