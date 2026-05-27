@@ -50,7 +50,7 @@ func _ready() -> void:
 	viewport_size = get_viewport().get_visible_rect().size
 
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
-	%send_to_briefieng.gui_input.connect(_on_send_to_briefieng_gui_input)
+	# send_to_briefieng is now visual-only; no gui_input handler.
 	clock.time_out.connect(_on_time_out)
 
 	WordManager.shift_score = 0.0
@@ -78,7 +78,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("rand_toilet_msg"):
 		toilet_pull()
 	if event.is_action_pressed("rand_document"):
-		_send_to_briefing()
+		toilet_pull()
 	if event.is_action_pressed("skip_to_ending"):
 		_end_shift()
 
@@ -407,7 +407,16 @@ func toilet_pull() -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(%toilet_handle, "position", original_pos, trans_time) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.tween_callback(_roll_toilet_intel)
+	tween.tween_callback(_advance_to_new_paper)
+
+
+func _advance_to_new_paper() -> void:
+	# Lock current paper score: simply save the current session strokes (already done at stroke time).
+	# No submit penalty: unmarked planted words DO NOT incur a -0.5 deduction.
+	_save_session()
+	_check_and_apply_stamp()
+	_spawn_fresh_paper(true)   # builds new session including planted_canonicals
+	_roll_toilet_intel(true)   # rolls intel from new paper's canonicals
 
 
 func _register_player_activity() -> void:
@@ -529,17 +538,18 @@ func _load_session_strokes() -> void:
 # Briefing / new paper
 # ---------------------------------------------------------------------------
 
+# DEAD CODE (phase-7): briefcase is scenery. Functions retained for diff clarity; safe to delete in a follow-up.
 func _on_send_to_briefieng_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		_send_to_briefing()
 
 
+# DEAD CODE (phase-7): briefcase is scenery. Functions retained for diff clarity; safe to delete in a follow-up.
 func _send_to_briefing(advance_paper: bool = true) -> void:
 	if active_paper == null:
 		return
 
 	_save_session()
-	_apply_submit_penalty()
 
 	# Stamp eligibility: all planted words marked (partial or full) AND zero wrongs.
 	var word_scores: Dictionary = session.get("word_scores", {})
@@ -577,6 +587,28 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 # ---------------------------------------------------------------------------
 # Scoring / post-it
 # ---------------------------------------------------------------------------
+
+func _check_and_apply_stamp() -> void:
+	# Stamp eligibility: all planted words marked (partial or full) AND zero wrongs.
+	var word_scores: Dictionary = session.get("word_scores", {})
+	var text_renderer := _text_renderer()
+	var marked_planted := 0
+	var wrongs := 0
+	if text_renderer != null:
+		for i in range(text_renderer.word_boxes.size()):
+			var box: Dictionary = text_renderer.word_boxes[i]
+			var entry: Dictionary = word_scores.get(i, {})
+			var state: String = entry.get("state", "untouched")
+			if box.get("planted", false) and (state == "partial" or state == "full"):
+				marked_planted += 1
+			if state == "wrong":
+				wrongs += 1
+
+	var earned_stamp: bool = marked_planted == session.get("planted_total", 0) and wrongs == 0
+	if earned_stamp:
+		session["stamped"] = true
+		active_paper.set_stamp_visible(true)
+
 
 func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 	_save_session()
@@ -653,32 +685,6 @@ func _refresh_postit_and_penalty() -> void:
 	active_paper.set_postit(marked_planted, session.get("planted_total", 0))
 	active_paper.set_penalty(wrongs)
 	active_paper.set_shift_score(WordManager.shift_score)
-
-
-# Applies submit-time penalty: for each planted word that is still untouched
-# (missing from word_scores or state == "untouched"), set state = "wrong" and
-# deduct -0.5 from shift_score. Spawns a -0.5 popup inline (option b: simpler
-# than threading a deltas array back through _send_to_briefing).
-# Returns the count of newly-penalized words.
-func _apply_submit_penalty() -> int:
-	var text_renderer := _text_renderer()
-	if text_renderer == null:
-		return 0
-	if not session.has("word_scores"):
-		session["word_scores"] = {}
-	var penalized := 0
-	for i in range(text_renderer.word_boxes.size()):
-		var box: Dictionary = text_renderer.word_boxes[i]
-		if not box.get("planted", false):
-			continue
-		var entry: Dictionary = session["word_scores"].get(i, {})
-		var state: String = entry.get("state", "untouched")
-		if state == "untouched":
-			session["word_scores"][i] = {"state": "wrong", "points": -0.5}
-			WordManager.shift_score -= 0.5
-			penalized += 1
-			_spawn_score_popup(-0.5, box["rect"])
-	return penalized
 
 
 func _word_coverage_tier_from_strokes(box: Dictionary, all_samples: Array[PackedVector2Array]) -> String:
@@ -857,7 +863,9 @@ func _try_cofefe_click(event: InputEventMouseButton) -> bool:
 
 
 func _on_time_out() -> void:
-	_send_to_briefing(false)
+	# No more submit penalty — the active paper's score is whatever was earned at mark-time.
+	_save_session()
+	_check_and_apply_stamp()
 	_end_shift()
 
 
