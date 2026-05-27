@@ -96,31 +96,53 @@ func _relayout() -> void:
 	var cursor := Vector2(PAPER_INSET, PAPER_INSET + _font_size)
 	var line_height := _font.get_height(_font_size) + LINE_SPACING
 
-	for display_word in document_text.split(" ", false):
-		var word_width := _font.get_string_size(display_word, HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size).x
+	var tokens: Array[String] = []
+	for t in document_text.split(" ", false):
+		tokens.append(t)
+
+	# Longest-match N-gram pass so multi-word canonicals (e.g. "the Grays",
+	# "Project Blue Book") become a single markable box. N_MAX = 3 covers
+	# the longest entries in WordManager.master_list (3-word canonicals and
+	# 3-word synonyms like "the goat sucker").
+	var i := 0
+	while i < tokens.size():
+		var matched_n := 1
+		var matched_display: String = tokens[i]
+		var matched_canonical := WordManager.canonicalize(tokens[i])
+		for n in [3, 2]:
+			if i + n > tokens.size():
+				continue
+			var candidate: String = " ".join(tokens.slice(i, i + n))
+			var c := WordManager.canonicalize(candidate)
+			if c != "":
+				matched_n = n
+				matched_display = candidate
+				matched_canonical = c
+				break
+
+		var word_width := _font.get_string_size(matched_display, HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size).x
 		if cursor.x > PAPER_INSET and cursor.x + word_width > PAPER_INSET + available_width:
 			cursor.x = PAPER_INSET
 			cursor.y += line_height
 
-		var normalized_word := _normalize_word(display_word)
-		var word_canonical := WordManager.canonicalize(normalized_word)
 		var rect := Rect2(
 			Vector2(cursor.x, cursor.y - _font_size),
 			Vector2(word_width, _font.get_height(_font_size))
 		)
 		word_boxes.append({
-			"word": normalized_word,
-			"display": display_word,
+			"word": _normalize_word(matched_display),
+			"display": matched_display,
 			"rect": rect,
-			"illegal": word_canonical in WordManager.current_toilet_canonicals,
-			"planted": word_canonical in planted_canonicals,
-			"decoy": word_canonical in decoy_canonicals,
+			"illegal": matched_canonical != "" and matched_canonical in WordManager.current_toilet_canonicals,
+			"planted": matched_canonical != "" and matched_canonical in planted_canonicals,
+			"decoy": matched_canonical != "" and matched_canonical in decoy_canonicals,
 			"redacted": false,
 			"coverage": 0.0,
 			"tier": "none",
 			"review": "",
 		})
 		cursor.x += word_width + WORD_SPACING
+		i += matched_n
 
 	queue_redraw()
 
