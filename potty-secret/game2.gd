@@ -689,7 +689,7 @@ func _refresh_postit_and_penalty() -> void:
 
 func _word_coverage_tier_from_strokes(box: Dictionary, all_samples: Array[PackedVector2Array]) -> String:
 	# Returns "none" | "half" | "full" using existing COVERAGE_* constants.
-	# Shared helper used by _score_stroke_incremental and _apply_submit_penalty (via word_coverage_tier).
+	# Shared helper used by _score_stroke_incremental.
 	var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
 	var cell_total := maxi(1, ceili(grown.size.x / COVERAGE_CELL_WIDTH))
 	var touched := {}
