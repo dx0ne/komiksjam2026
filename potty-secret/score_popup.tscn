@@ -5,7 +5,8 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_popup"]
 font = ExtResource("2_font")
-font_size = 36
+font_size = 96
+outline_size = 6
 
 [node name="ScorePopup" type="Node2D" unique_id=-456783638]
 script = ExtResource("1_score")
