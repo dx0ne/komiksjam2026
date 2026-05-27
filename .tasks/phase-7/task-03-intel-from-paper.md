@@ -1,7 +1,7 @@
 ---
 id: task-03
 title: Intel derived from paper canonicals + canonical-based matching
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-02]
 ---
