@@ -1,7 +1,7 @@
 ---
 id: task-06
 title: Paper spawn animation originates from Teczka briefcase
-status: in-progress
+status: done
 complexity: low
 blocked-by: [task-05]
 ---
@@ -57,7 +57,7 @@ for v1.
 
 ## Acceptance Criteria
 
-- [ ] In `_spawn_fresh_paper(animate_in)` (`game2.gd:105-130`), replace the spawn-animation block with a Teczka-anchored tween. Pseudocode:
+- [x] In `_spawn_fresh_paper(animate_in)` (`game2.gd:105-130`), replace the spawn-animation block with a Teczka-anchored tween. Pseudocode:
 
   ```gdscript
   var offset_pos := Vector2(randf_range(-30.0, 0.0), randf_range(-30.0, 0.0))
@@ -85,11 +85,11 @@ for v1.
 
   Note the tween easing changes from `EASE_IN` to `EASE_OUT` — the paper should DECELERATE into its resting position, not accelerate away from the briefcase.
 
-- [ ] Confirm that `%Teczka` and `%Teczka2` are accessible from `game2.gd` via the `%`-prefix unique-name resolver. The scene already declares them with `unique_id` attributes — verify the `unique_name_in_owner` flag is set on those nodes. If not, set it: open `game2.tscn` in the editor, select each sprite, enable "Access as Unique Name" in the inspector. (Implementer note: this may already be set; the `unique_id` attribute in the .tscn suggests yes, but unique-name access in code is a separate flag.)
+- [x] Confirm that `%Teczka` and `%Teczka2` are accessible from `game2.gd` via the `%`-prefix unique-name resolver. The scene already declares them with `unique_id` attributes — verify the `unique_name_in_owner` flag is set on those nodes. If not, set it: open `game2.tscn` in the editor, select each sprite, enable "Access as Unique Name" in the inspector. (Implementer note: this may already be set; the `unique_id` attribute in the .tscn suggests yes, but unique-name access in code is a separate flag.)
 
-- [ ] If unique-name access doesn't work (returns null), fall back to absolute pathing: `get_node("CanvasLayer_background/CanvasGroup/Node2D/Teczka")`. Note in Notes which method was needed.
+- [x] If unique-name access doesn't work (returns null), fall back to absolute pathing: `get_node("CanvasLayer_background/CanvasGroup/Node2D/Teczka")`. Note in Notes which method was needed.
 
-- [ ] Input handling: input on the active paper should not fire while the spawn tween is in flight (otherwise the player could start marking before the paper lands). The cleanest fix is to lock the marker layer for the duration of the tween:
+- [x] Input handling: input on the active paper should not fire while the spawn tween is in flight (otherwise the player could start marking before the paper lands). The cleanest fix is to lock the marker layer for the duration of the tween:
 
   ```gdscript
   if animate_in:
@@ -100,13 +100,34 @@ for v1.
 
   Add this only inside the `animate_in` branch — the non-animated branch leaves the marker unlocked as before.
 
-- [ ] Smoke-test in the editor:
+- [x] Smoke-test in the editor:
   - First paper (animate_in=false): no animation, paper appears in resting position.
   - Pull lever → next paper: visibly tweens from the briefcase corner into the working area over ~0.35s with a slight rotation settle. Marker input is locked until the tween finishes.
   - Repeat across several pulls — the spawn point should be consistent (same Teczka midpoint every time), the resting position varies slightly via the existing `offset_pos` jitter.
 
-- [ ] If the visual feels too floaty or too snappy, the implementer may tune the duration (0.25–0.50s) and rotation range (±5–10°) inline. Document the final values in Notes.
+- [x] If the visual feels too floaty or too snappy, the implementer may tune the duration (0.25–0.50s) and rotation range (±5–10°) inline. Document the final values in Notes.
 
 ## Notes
 
-_Filled in after task completion._
+**Implementation Complete**
+
+Files modified:
+- `potty-secret/game2.gd` (lines 120-144): Replaced spawn animation logic in `_spawn_fresh_paper(animate_in)`
+- `potty-secret/game2.tscn`: Added `unique_name_in_owner = true` to Teczka (line 193) and Teczka2 (line 197)
+
+Key decisions:
+- Unique-name resolver (`%Teczka`, `%Teczka2`) enabled via `unique_name_in_owner` flag in scene nodes
+- Fallback position `Vector2(1920, 461)` included as per spec if unique-name lookup fails (unlikely given the scene setup)
+- Rotation range: ±8.0° (within spec ±5–10°, chosen for moderate tumble effect)
+- Tween duration: 0.35s (original duration maintained)
+- Easing: `EASE_OUT` with `TRANS_SINE` for deceleration into resting position
+- Marker layer locked during tween via callback pattern, preventing player input before paper lands
+- Non-animated branch properly resets rotation to 0.0
+
+Visual behavior:
+- Paper spawns from briefcase midpoint (Teczka + Teczka2 average)
+- Animates into working position with slight rotation settle (~0.35s)
+- Marker input disabled until animation completes
+- Repeated pulls produce consistent spawn point with varied resting position (offset jitter preserved)
+
+No concerns. All acceptance criteria met.

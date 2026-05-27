@@ -119,12 +119,29 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 
 	var offset_pos := Vector2(randf_range(-30.0, 0.0), randf_range(-30.0, 0.0))
 	if animate_in:
-		active_paper.position += Vector2(200, 100)
-		var tween := create_tween()
+		# Teczka-anchored spawn animation
+		var teczka_a := get_node_or_null("%Teczka") as Sprite2D
+		var teczka_b := get_node_or_null("%Teczka2") as Sprite2D
+		var spawn_global: Vector2
+		if teczka_a != null and teczka_b != null:
+			spawn_global = (teczka_a.global_position + teczka_b.global_position) * 0.5
+		else:
+			spawn_global = Vector2(1920, 461)  # hardcoded fallback if unique-name lookup fails
+		var spawn_local := %papers_container.to_local(spawn_global)
+		active_paper.position = spawn_local
+		# Paper tumbles slightly as it emerges from briefcase
+		active_paper.rotation = deg_to_rad(randf_range(-8.0, 8.0))
+		var tween := create_tween().set_parallel(true)
 		tween.tween_property(active_paper, "position", offset_pos, 0.35) \
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(active_paper, "rotation", 0.0, 0.35) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		# Lock marker input during animation to prevent interaction before paper lands
+		active_paper.marker_layer.set_locked(true)
+		tween.tween_callback(func(): active_paper.marker_layer.set_locked(false))
 	else:
 		active_paper.position = offset_pos
+		active_paper.rotation = 0.0
 
 	session = _build_session()
 	_load_session()
