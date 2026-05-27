@@ -11,7 +11,8 @@ font_color = Color(1, 1, 1, 1)
 [node name="ScorePopup" type="Node2D" unique_id=3838183658]
 script = ExtResource("1_score")
 
-[node name="Label" type="Label" parent="." unique_name_in_owner=true unique_id=3838183659]
+[node name="Label" type="Label" parent="." unique_id=3838183659]
+unique_name_in_owner = true
 offset_left = -32.0
 offset_top = -16.0
 offset_right = 32.0
