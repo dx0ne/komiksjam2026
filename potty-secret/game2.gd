@@ -9,6 +9,10 @@ const COVERAGE_MIN_CELLS   := 2
 const TOILET_INTEL_COUNT   := 3
 const WORDS_IN_DOCUMENT    := 3
 
+enum Phase { TEACHING, LIGHT, FULL }
+const PHASE_TEACHING_END_S := 60.0
+const PHASE_LIGHT_END_S    := 120.0
+
 const TOILET_SCN       := preload("res://toilet_msg.tscn")
 const PAPER_SCN        := preload("res://paper.tscn")
 const ScorePopupScene  := preload("res://score_popup.tscn")
@@ -133,81 +137,59 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 func _build_session() -> Dictionary:
 	var template := WordManager.templates[rng.randi_range(0, WordManager.templates.size() - 1)]
 	var word_count := 3 if template.find("{illegal_c}") != -1 else 2
-	var k := _current_k(word_count)
-	var planted_words := _pick_document_word_pool(word_count, k)
-	var text := _build_document_text(template, planted_words)
+	var planted_canonicals := WordManager.pick_random_canonicals(word_count)
+	var phase := _current_phase()
+	var planted_display := _pick_display_variants_for_planted(planted_canonicals, phase)
+	var text := _build_document_text(template, planted_display)
 	return {
 		"text": text,
-		"planted_words": planted_words,
+		"planted_words": planted_display,           # what the renderer sees / flags
+		"planted_canonicals": planted_canonicals,   # source of truth for matching (task-03 uses)
 		"planted_total": word_count,
 		"word_scores": {} as Dictionary,
 		"strokes": [] as Array[PackedVector2Array],
 		"stamped": false,
+		"phase": int(phase),                        # for debug / playtest tooling
 	}
 
 
-func _single_token_master_words() -> Array[String]:
-	# master_list is now Array[Dictionary]; extract canonicals, keep only single-token ones.
-	var pool: Array[String] = []
-	for entry in WordManager.master_list:
-		var canon: String = entry["canonical"]
-		if canon.find(" ") == -1:
-			pool.append(canon)
-	if pool.is_empty():
-		return WordManager.pick_random_canonicals(WordManager.master_list.size())
-	return pool
-
-
-func _current_k(slot_count: int) -> int:
+## Returns the current game phase based on elapsed shift time.
+func _current_phase() -> Phase:
 	var elapsed := 180.0 - clock.time_left
-	var k: int
-	if elapsed < 60.0:
-		k = slot_count
-	elif elapsed < 120.0:
-		k = 1
-	else:
-		k = 0
-	return clampi(k, 0, slot_count)
+	if elapsed < PHASE_TEACHING_END_S:
+		return Phase.TEACHING
+	if elapsed < PHASE_LIGHT_END_S:
+		return Phase.LIGHT
+	return Phase.FULL
 
 
-func _pick_document_word_pool(count: int, k_from_intel: int) -> Array[String]:
-	var picked: Array[String] = []
+## Returns the VariantMode to use for a single planted paper slot given the current phase.
+## NOTE: FULL phase is 50/50 CANONICAL or TYPO — call this PER PLANTED SLOT, not once per paper,
+## so each slot gets its own independent random draw.
+func _paper_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode:
+	match phase:
+		Phase.TEACHING, Phase.LIGHT:
+			return WordManager.VariantMode.CANONICAL
+		Phase.FULL:
+			if rng.randf() < 0.5:
+				return WordManager.VariantMode.TYPO
+			return WordManager.VariantMode.CANONICAL
+	return WordManager.VariantMode.CANONICAL
 
-	# Take up to k_from_intel distinct words from current toilet intel.
-	var intel := WordManager.current_toilet_words
-	if intel.size() > 0 and k_from_intel > 0:
-		var intel_copy: Array[String] = []
-		for w in intel:
-			intel_copy.append(w)
-		intel_copy.shuffle()
-		var take := mini(k_from_intel, intel_copy.size())
-		for i in range(take):
-			picked.append(intel_copy[i])
 
-	# Top up remaining slots from the master pool, excluding already-picked words.
-	var remaining := count - picked.size()
-	if remaining > 0:
-		var pool: Array[String] = _single_token_master_words()
-		# Remove words already picked to avoid duplicates.
-		var exclude := {}
-		for w in picked:
-			exclude[w] = true
-		var filtered: Array[String] = []
-		for w in pool:
-			if not exclude.has(w):
-				filtered.append(w)
-		filtered.shuffle()
-		# If filtered pool is too small, reshuffle the full pool as fallback.
-		while filtered.size() < remaining:
-			var extra: Array[String] = _single_token_master_words()
-			extra.shuffle()
-			for w in extra:
-				if not exclude.has(w) and not filtered.has(w):
-					filtered.append(w)
-		for i in range(mini(remaining, filtered.size())):
-			picked.append(filtered[i])
-
-	return picked
+## For each canonical in the array, picks one random display variant according to the
+## phase's paper-variant rule.  If the variant pool is empty (defensive fallback),
+## the canonical itself is used.  Returns an array of the same length as canonicals.
+func _pick_display_variants_for_planted(canonicals: Array[String], phase: Phase) -> Array[String]:
+	var result: Array[String] = []
+	for canon in canonicals:
+		var mode := _paper_variant_mode_for_phase(phase)
+		var pool: Array = WordManager.display_variants(canon, mode)
+		if pool.is_empty():
+			result.append(canon)
+		else:
+			result.append(pool[rng.randi_range(0, pool.size() - 1)])
+	return result
 
 
 func _build_document_text(template: String, document_words: Array[String]) -> String:
