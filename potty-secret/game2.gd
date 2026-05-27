@@ -208,8 +208,8 @@ func _pick_document_word_pool(count: int, k_from_intel: int) -> Array[String]:
 
 func _build_document_text(template: String, document_words: Array[String]) -> String:
 	var text := template
-	var name := WordManager.names[rng.randi_range(0, WordManager.names.size() - 1)]
-	text = text.replace("{name}", name)
+	var random_name := WordManager.names[rng.randi_range(0, WordManager.names.size() - 1)]
+	text = text.replace("{name}", random_name)
 	text = text.replace("{illegal_a}", document_words[0])
 	text = text.replace("{illegal_b}", document_words[1])
 	if text.find("{illegal_c}") != -1 and document_words.size() > 2:
