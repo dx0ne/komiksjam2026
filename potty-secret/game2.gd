@@ -127,7 +127,7 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 			spawn_global = (teczka_a.global_position + teczka_b.global_position) * 0.5
 		else:
 			spawn_global = Vector2(1920, 461)  # hardcoded fallback if unique-name lookup fails
-		var spawn_local := %papers_container.to_local(spawn_global)
+		var spawn_local: Vector2 = %papers_container.to_local(spawn_global)
 		active_paper.position = spawn_local
 		# Paper tumbles slightly as it emerges from briefcase
 		active_paper.rotation = deg_to_rad(randf_range(-8.0, 8.0))
