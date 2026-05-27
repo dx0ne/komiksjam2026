@@ -147,11 +147,15 @@ func _build_session() -> Dictionary:
 
 
 func _single_token_master_words() -> Array[String]:
+	# master_list is now Array[Dictionary]; extract canonicals, keep only single-token ones.
 	var pool: Array[String] = []
-	for word in WordManager.master_list:
-		if word.find(" ") == -1:
-			pool.append(word)
-	return pool if not pool.is_empty() else WordManager.master_list.duplicate()
+	for entry in WordManager.master_list:
+		var canon: String = entry["canonical"]
+		if canon.find(" ") == -1:
+			pool.append(canon)
+	if pool.is_empty():
+		return WordManager.pick_random_canonicals(WordManager.master_list.size())
+	return pool
 
 
 func _current_k(slot_count: int) -> int:

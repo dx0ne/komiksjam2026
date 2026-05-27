@@ -7,29 +7,128 @@ var current_toilet_words:Array[String] = [];
 var good_ending: bool = false
 var shift_score: float = 0.0
 
+## Variant modes for display_variants().
+## CANONICAL   → return the canonical string itself.
+## TYPO        → return the typos pool (falls back to [canonical] if empty).
+## SYNONYM     → return the synonyms pool (falls back to [canonical] if empty).
+## TYPO_OR_SYNONYM → return typos + synonyms combined (falls back to [canonical] if both empty).
+enum VariantMode { CANONICAL, TYPO, SYNONYM, TYPO_OR_SYNONYM }
 
-func pick_random_words(count: int) -> Array[String]:
-	var pool: Array[String] = master_list.duplicate()
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+## Returns count distinct canonicals sampled without replacement from master_list.
+## Caller can call display_variants() per canonical to get the actual display form.
+func pick_random_canonicals(count: int) -> Array[String]:
+	var pool: Array[String] = []
+	for entry in master_list:
+		pool.append(entry["canonical"])
 	pool.shuffle()
-	var batch: Array[String] = []
+	var result: Array[String] = []
 	for i in range(mini(count, pool.size())):
-		batch.append(pool[i])
-	return batch
+		result.append(pool[i])
+	return result
+
+
+## Delegates to pick_random_canonicals so existing callers (_roll_toilet_intel
+## via game2.gd) receive canonical strings.
+## NOTE: strings returned are canonicals — no obfuscation yet. Task-03 will
+## replace this call site with a variant-aware path.
+func pick_random_words(count: int) -> Array[String]:
+	return pick_random_canonicals(count)
 
 
 func get_next_batch(count: int = 4) -> Array[String]:
 	if active_queue.size() < count:
 		_refill_queue()
-	
+
 	var batch: Array[String] = []
 	for i in range(count):
 		batch.append(active_queue.pop_front())
-	
+
 	return batch
 
+
+## Vestigial queue used by the old paper.gd flow — may be removed in a later
+## phase once all callers are confirmed dead.
 func _refill_queue():
-	active_queue = master_list.duplicate()
+	active_queue = []
+	for entry in master_list:
+		active_queue.append(entry["canonical"])
 	active_queue.shuffle()
+
+
+## Reverse-lookup: given any display form (canonical, typo, or synonym),
+## return the canonical string.  Input is normalised (lowercased, strip
+## non-alphanumerics) before comparison.  Returns "" if not found.
+##
+## Logic mirrors text_renderer.gd._normalize_word but is inlined here to
+## avoid a cross-class dependency from WordManager into TextRenderer.
+func canonicalize(word: String) -> String:
+	var norm := _normalize(word)
+	for entry in master_list:
+		if _normalize(entry["canonical"]) == norm:
+			return entry["canonical"]
+		for t in entry["typos"]:
+			if _normalize(t) == norm:
+				return entry["canonical"]
+		for s in entry["synonyms"]:
+			if _normalize(s) == norm:
+				return entry["canonical"]
+	return ""
+
+
+## Returns the display-variant pool for a canonical according to mode.
+## canonical must match the "canonical" field exactly (case-sensitive).
+## Returns [] if canonical is not found at all (programmer error).
+func display_variants(canonical: String, mode: VariantMode) -> Array[String]:
+	for entry in master_list:
+		if entry["canonical"] == canonical:
+			var typos: Array[String] = []
+			for t in entry["typos"]:
+				typos.append(t)
+			var synonyms: Array[String] = []
+			for s in entry["synonyms"]:
+				synonyms.append(s)
+			match mode:
+				VariantMode.CANONICAL:
+					return [canonical]
+				VariantMode.TYPO:
+					return typos if not typos.is_empty() else [canonical]
+				VariantMode.SYNONYM:
+					return synonyms if not synonyms.is_empty() else [canonical]
+				VariantMode.TYPO_OR_SYNONYM:
+					var pool: Array[String] = []
+					pool.append_array(typos)
+					pool.append_array(synonyms)
+					return pool if not pool.is_empty() else [canonical]
+	# canonical not found — programmer error
+	return []
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+## Normalise a word for lookup: lowercase, keep only a-z 0-9.
+## Mirrors text_renderer.gd._normalize_word — inlined to avoid cross-dependency.
+func _normalize(value: String) -> String:
+	var lowered := value.to_lower()
+	var output := ""
+	for i in range(lowered.length()):
+		var code := lowered.unicode_at(i)
+		var is_letter := code >= 97 and code <= 122
+		var is_number  := code >= 48 and code <= 57
+		if is_letter or is_number:
+			output += char(code)
+	return output
+
+
+# ---------------------------------------------------------------------------
+# Templates
+# ---------------------------------------------------------------------------
 
 var templates: Array[String] = [
 	"Resident {name} was overheard discussing {illegal_a} at a diner on Route 9. Two unidentified men joined the table before the discussion ended. Witnesses report the same conversation later turned to {illegal_b}.",
@@ -53,15 +152,160 @@ var templates: Array[String] = [
 	"Informant identifies {name} as a vocal believer in {illegal_a}. The same source recalls a private statement of support for {illegal_b}. Subject has been observed distributing reading material on {illegal_c} outside the post office. None of the materials carry an author imprint.",
 ]
 
-var master_list: Array[String] = [
-	"aliens", "Elvis", "bigfoot", "reptilians", "Big Secret", "Area 51",
-	"Roswell", "MKUltra", "Mothman", "chemtrails", "Illuminati",
-	"UFOs", "the Grays", "flying saucers", "abductions",
-	"Nessie", "chupacabra", "the Yeti",
-	"Project Blue Book", "Dulce Base", "the Bermuda Triangle",
-	"the Moon Landing", "Hollow Earth",
-	"JFK", "the deep state", "Bilderberg", "New World Order", "Tupac",
+
+# ---------------------------------------------------------------------------
+# Master list — canonical entries with typo and synonym pools
+#
+# Typos are plausible single-character typewriter slips:
+#   adjacent-key swap, doubled letter, missed letter, transposition.
+# Synonyms are reasonable clerk-written substitutes for the canonical.
+# Multi-word canonicals use single-word synonyms where sensible; typos
+#   do not span the space boundary.
+# ---------------------------------------------------------------------------
+
+var master_list: Array[Dictionary] = [
+	{
+		"canonical": "aliens",
+		"typos":    ["allens", "aloiens", "alienz", "alians"],
+		"synonyms": ["them", "outsiders", "visitors"],
+	},
+	{
+		"canonical": "Elvis",
+		"typos":    ["Evlis", "Elviss", "Elvls"],
+		"synonyms": ["the King", "Presley"],
+	},
+	{
+		"canonical": "bigfoot",
+		"typos":    ["bigfooot", "bifoot", "bigfot"],
+		"synonyms": ["sasquatch", "the creature"],
+	},
+	{
+		"canonical": "reptilians",
+		"typos":    ["reptilans", "reptilions", "reptelians"],
+		"synonyms": ["lizard men", "shapeshifters"],
+	},
+	{
+		"canonical": "Big Secret",
+		"typos":    ["Biq Secret", "Big Secreet"],
+		"synonyms": ["the matter", "the truth"],
+	},
+	{
+		"canonical": "Area 51",
+		"typos":    ["Area 15", "Ares 51", "Aera 51"],
+		"synonyms": ["the base", "Dreamland"],
+	},
+	{
+		"canonical": "Roswell",
+		"typos":    ["Rosswell", "Roswel", "Rosswel"],
+		"synonyms": ["the crash", "the incident"],
+	},
+	{
+		"canonical": "MKUltra",
+		"typos":    ["MKUlrta", "MkUltra", "MKUltraa", "MKUlra"],
+		"synonyms": ["the program", "the experiments"],
+	},
+	{
+		"canonical": "Mothman",
+		"typos":    ["Mothmen", "Mothmann", "Mothnman"],
+		"synonyms": ["the winged one", "the prophet"],
+	},
+	{
+		"canonical": "chemtrails",
+		"typos":    ["chemtrils", "chemtrales", "chemtraills"],
+		"synonyms": ["the spraying", "aerosols"],
+	},
+	{
+		"canonical": "Illuminati",
+		"typos":    ["Iluminati", "Illumnati", "Illuminatti"],
+		"synonyms": ["the order", "the brotherhood"],
+	},
+	{
+		"canonical": "UFOs",
+		"typos":    ["UF0s", "UFOss", "UGOs"],
+		"synonyms": ["the lights", "bogeys"],
+	},
+	{
+		"canonical": "the Grays",
+		"typos":    ["the Greys", "the Graays"],
+		"synonyms": ["little men", "small ones"],
+	},
+	{
+		"canonical": "flying saucers",
+		"typos":    ["flying saucres", "flyng saucers"],
+		"synonyms": ["discs", "the craft"],
+	},
+	{
+		"canonical": "abductions",
+		"typos":    ["abductins", "abdcutions", "abductionns"],
+		"synonyms": ["takings", "encounters"],
+	},
+	{
+		"canonical": "Nessie",
+		"typos":    ["Nesie", "Nessye", "Nesssi"],
+		"synonyms": ["lake monster", "the serpent"],
+	},
+	{
+		"canonical": "chupacabra",
+		"typos":    ["chupacabara", "chupaccabra", "chupacabrs"],
+		"synonyms": ["the goat sucker", "el chupas"],
+	},
+	{
+		"canonical": "the Yeti",
+		"typos":    ["the Yeeti", "the Yetti"],
+		"synonyms": ["abominable", "snowman"],
+	},
+	{
+		"canonical": "Project Blue Book",
+		"typos":    ["Project Bleu Book", "Project Bule Book"],
+		"synonyms": ["the study", "the files"],
+	},
+	{
+		"canonical": "Dulce Base",
+		"typos":    ["Dulce Baes", "Dulce Bese", "Dulce Basse"],
+		"synonyms": ["the underground", "Level 7"],
+	},
+	{
+		"canonical": "the Bermuda Triangle",
+		"typos":    ["the Bermuda Triange", "the Bermuda Triangel"],
+		"synonyms": ["the zone", "the vortex"],
+	},
+	{
+		"canonical": "the Moon Landing",
+		"typos":    ["the Moon Lnading", "the Moon Landign"],
+		"synonyms": ["the hoax", "the broadcast"],
+	},
+	{
+		"canonical": "Hollow Earth",
+		"typos":    ["Holloow Earth", "Hollow Eath", "Holllow Earth"],
+		"synonyms": ["the inner world", "Agharta"],
+	},
+	{
+		"canonical": "JFK",
+		"typos":    ["JFk", "JFK1", "JGK"],
+		"synonyms": ["the president", "Dallas"],
+	},
+	{
+		"canonical": "the deep state",
+		"typos":    ["the deep staet", "the depp state"],
+		"synonyms": ["the shadow", "the cabal"],
+	},
+	{
+		"canonical": "Bilderberg",
+		"typos":    ["Bilderburg", "Bilerberg", "Bilderberq"],
+		"synonyms": ["the group", "the meeting"],
+	},
+	{
+		"canonical": "New World Order",
+		"typos":    ["New Wrold Order", "New World Ordr"],
+		"synonyms": ["the agenda", "the plan"],
+	},
+	{
+		"canonical": "Tupac",
+		"typos":    ["Tupak", "Tupca", "Tupacc"],
+		"synonyms": ["2Pac", "the poet"],
+	},
 ]
+
 
 var names: Array[String] = [
 	"Frank Holloway",
