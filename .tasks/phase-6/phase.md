@@ -1,8 +1,8 @@
 ---
 phase: 6
 title: Score popups + verification
-status: pending
-opened: ~
+status: open
+opened: 2026-05-27
 closed: ~
 ---
 
@@ -27,4 +27,7 @@ Design spec: `potty-secret/docs/superpowers/specs/2026-05-26-difficulty-ramp-and
 
 ## Tasks
 
-_Generated when this phase opens._
+- [ ] task-01-score-popup-scene.md
+- [ ] task-02-spawn-popups-and-stroke-color.md
+- [ ] task-03-refresh-game-loop-doc.md
+- [ ] task-04-playtest-checklist.md
