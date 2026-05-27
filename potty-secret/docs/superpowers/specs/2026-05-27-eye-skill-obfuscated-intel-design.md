@@ -19,7 +19,7 @@ The root cause is treating *probability of overlap* as the difficulty dial. The 
 
 - Every paper is solvable. Intel always names (some obfuscation of) the planted words.
 - Difficulty comes from how hard the obfuscation is to read, and how many lookalike decoys try to fool the eye.
-- The "pull the lever" action is no longer a gamble for better RNG — it is a clean "next paper" advance, at a small clock cost that creates per-paper time pressure.
+- The "pull the lever" action is no longer a gamble for better RNG — it is a clean "next paper" advance, free of clock cost. Pull-spam is self-defeating because every new puzzle is just as solvable (and just as obfuscated) as the one you discarded.
 - The briefcase art stays. It is the visual spawn point for new papers, not an interactive control.
 
 ## Data model
@@ -74,7 +74,7 @@ Paper #1 spawns inside the Teaching window (elapsed = 0s), so it always lands wi
 | Input | Action |
 |---|---|
 | Drag marker on paper | At-mark scoring (rules unchanged — see *Scoring*) |
-| Toilet handle (click) | `_pull()` → lock current paper score, spawn new paper + new intel, -2s on `ShiftClock` |
+| Toilet handle (click) | `_pull()` → lock current paper score, spawn new paper + new intel (no clock cost) |
 | Cofefe (click) | +10s on `ShiftClock` (unchanged) |
 | Briefcase (`Teczka` + `Teczka2`) | Non-interactive scenery. New papers visually originate from between the two sprites on spawn |
 | **1** (debug) | Pull lever |
@@ -126,7 +126,7 @@ This replaces the current instant-replace. The animation should not block input 
 
 ## Open tuning knobs
 
-- **Pull cost (-2s).** Carried over from the earlier discussion when pull-spam was a concern. With briefcase gone, spam is no longer the issue, but -2s still creates per-paper time pressure and makes cofefe meaningful (cofefe = +10s ≈ 5 pulls of headroom). Default to -2s; trivial to retune.
+- **Pull cost (0s).** Pull-spam is no longer a meaningful exploit: every pull just trades one fully-solvable puzzle for another, so spamming has no expected-value benefit and only wastes wall-clock time the player would otherwise spend marking. Default to free; revisit if playtesting shows players reroll past hard puzzles instead of engaging with them.
 - **Phase boundaries (60s / 120s).** Same as today. Revisit after playtesting the new ramp.
 - **Decoy count per phase.** "1–2 obvious" and "2–4 close-call" are starting points. Tune via playtest.
 - **Variant pool sizes.** 3–5 typos and 2–4 synonyms per canonical is enough variety without huge content cost. Tune as content grows.
@@ -139,7 +139,7 @@ This replaces the current instant-replace. The animation should not block input 
 | Document generation | `game2.gd` (template fill) | Pick canonicals, pick display variants by phase, add decoy slots |
 | Intel generation | `WordManager.gd` (`pick_random_words`) | Return intel as canonicals + display variants; replace random-word-from-pool semantics |
 | Word flags | `scripts/text_renderer.gd` | Add `decoy` flag; rewire `illegal` to compute from canonical-in-intel-canonicals |
-| Pull action | `game2.gd` (`toilet_pull`) | Now spawns new paper + new intel, -2s clock, locks current paper score |
+| Pull action | `game2.gd` (`toilet_pull`) | Now spawns new paper + new intel, locks current paper score (no clock cost) |
 | Briefcase | `game2.gd` (`_send_to_briefing`) | Remove from input; sprite stays in scene |
 | Submit penalty | `game2.gd` (`_apply_submit_penalty`) | Remove from active loop |
 | Paper spawn animation | `paper.gd` / `game2.gd` | Tween from `Teczka` position into working position on spawn |
