@@ -21,16 +21,9 @@ func show_delta(text: String, color: Color) -> void:
 	label.text = text
 	label.modulate = color
 
-	# Main tween: drift up and initial fade in happen in parallel
 	var tween = create_tween()
 	tween.set_parallel(true)
-
-	# Fade in: 0.0 -> 1.0 over 0.05s
-	var fade_in_tween = tween.tween_property(self, "modulate:a", 1.0, 0.05)
-
-	# Drift up: move position.y up by 18px over 0.55s
 	tween.tween_property(self, "position:y", position.y - 18.0, 0.55)
-
-	# Chain the fade-out after fade-in completes
-	fade_in_tween.tween_property(self, "modulate:a", 0.0, 0.50)
-	fade_in_tween.tween_callback(queue_free)
+	tween.tween_property(self, "modulate:a", 1.0, 0.05)
+	tween.tween_property(self, "modulate:a", 0.0, 0.50).set_delay(0.05)
+	tween.finished.connect(queue_free)
