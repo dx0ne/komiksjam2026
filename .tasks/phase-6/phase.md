@@ -18,7 +18,7 @@ playtest to verify each shift phase feels right.
 - Every score transition triggered by `_score_stroke_incremental` and `_apply_submit_penalty` spawns a popup with appropriate text (`+1`, `+2`, `-0.5`) and color.
 - Stroke color reflects the sum of that stroke's score deltas (positive → marker color, negative → red).
 - `potty-secret/GAME_LOOP.md` updated to reference `shift_score` and the new fields; obsolete sections removed.
-- Manual playtest covers: paper #1 forced random, 0-60s easy phase, 60-120s mixed, 120-180s random, submit penalty visible, negative shift score displays correctly.
+- Manual playtest covers: paper #1 forced random, 0-60s easy phase, 60-120s mixed, 120-180s random, submit penalty visible, negative shift score displays correctly. See `.tasks/phase-6/playtest-results.md` for the structured checklist and test outcomes.
 
 ## Reference
 

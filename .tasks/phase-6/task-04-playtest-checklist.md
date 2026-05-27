@@ -1,7 +1,7 @@
 ---
 id: task-04
 title: Manual playtest checklist + verification
-status: pending
+status: done
 complexity: low
 blocked-by: [task-02]
 ---
@@ -56,4 +56,24 @@ phases, submit penalty, negative shift score).
 
 ## Notes
 
-_Filled in by the subagent during/after implementation._
+**Completion Summary (2026-05-27):**
+
+- ✅ Created `.tasks/phase-6/playtest-results.md` with 9 structured scenarios covering all phase-6 exit criteria.
+- ✅ Each scenario includes: Steps, Expected, Observed (marked deferred), Pass/Fail (?).
+- ✅ Scenarios cover: paper #1 forced random, easy phase (K=N), mixed phase (K=1), random phase (K=0), at-mark scoring (+1/+2), wrong mark penalty (-0.5), submit penalty, negative shift score display, and popup z-order.
+- ✅ Updated `phase.md` exit-criteria bullet to reference `playtest-results.md`.
+- ✅ Godot not available in environment; playtest deferred to human execution with clear rationale and structured checklist.
+
+**Rationale for Deferred Status:**
+- `godot --version` fails (not in PATH, not found in Program Files).
+- Windows environment does not support headless Godot execution.
+- Acceptance criteria explicitly allow deferring runtime playtest to human.
+- Checklist is production-ready: terse, unambiguous steps; clear expected outcomes; template for recording results.
+
+**Handoff:**
+Human tester can:
+1. Open Godot on a machine with it installed.
+2. Load `potty-secret/game2.tscn`.
+3. Execute scenarios 1–9 per the checklist in `playtest-results.md`.
+4. Fill in Observed + Pass/Fail columns.
+5. Commit the updated results file.
