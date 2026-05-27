@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: Spawn popups from deltas + generalize stroke color
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-01]
 ---
