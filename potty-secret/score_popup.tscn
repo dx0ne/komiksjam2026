@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d3p9cwfhqv4l5"]
 
-[ext_resource type="Script" uid="uid://c9d5u5rctch2i" path="res://score_popup.gd" id="1_score"]
+[ext_resource type="Script" uid="uid://c4y0ldp5vdlqc" path="res://score_popup.gd" id="1_score"]
 [ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="2_font"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_popup"]
