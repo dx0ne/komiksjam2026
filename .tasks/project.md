@@ -1,6 +1,6 @@
 ---
 title: Potty-Secret · Thick-Black-Bars Port
-status: in-progress
+status: done
 current-phase: 7
 repo: private
 github: https://github.com/dx0ne/komiksjam2026
@@ -28,4 +28,4 @@ skill-driven.
 - [x] Phase 4: Foundation & phase-aware document generation — data model migration + K-from-intel doc gen
 - [x] Phase 5: At-mark scoring + submit penalty — replace whole-paper re-evaluation with locked per-mark deltas
 - [x] Phase 6: Score popups + verification — floating +/- numbers, stroke color tuning, doc sync, playtest
-- [ ] Phase 7: Eye-skill via obfuscated intel — canonical data model, phase-ramped typos/synonyms, decoy words, briefcase becomes scenery, pull is the only advance action
+- [x] Phase 7: Eye-skill via obfuscated intel — canonical data model, phase-ramped typos/synonyms, decoy words, briefcase becomes scenery, pull is the only advance action

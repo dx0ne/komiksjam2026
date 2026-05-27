@@ -1,9 +1,9 @@
 ---
 phase: 7
 title: Eye-skill via obfuscated intel
-status: open
+status: closed
 opened: 2026-05-27
-closed:
+closed: 2026-05-27
 ---
 
 ## Goal
@@ -40,10 +40,10 @@ Previous (superseded) difficulty spec: `potty-secret/docs/superpowers/specs/2026
 
 ## Tasks
 
-- [ ] task-01-canonical-data-model.md
-- [ ] task-02-paper-gen-canonical.md
-- [ ] task-03-intel-from-paper.md
-- [ ] task-04-decoy-injection.md
-- [ ] task-05-pull-rewrite-no-briefcase.md
-- [ ] task-06-teczka-spawn-animation.md
-- [ ] task-07-playtest-checklist.md
+- [x] task-01-canonical-data-model.md
+- [x] task-02-paper-gen-canonical.md
+- [x] task-03-intel-from-paper.md
+- [x] task-04-decoy-injection.md
+- [x] task-05-pull-rewrite-no-briefcase.md
+- [x] task-06-teczka-spawn-animation.md
+- [x] task-07-playtest-checklist.md
