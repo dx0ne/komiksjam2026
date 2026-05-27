@@ -1,7 +1,7 @@
 ---
 id: task-07
 title: Playtest checklist + verification
-status: pending
+status: done
 complexity: low
 blocked-by: [task-06]
 ---
@@ -28,7 +28,7 @@ one section per scenario with **Setup**, **Steps**, **Expected**,
 
 ## Acceptance Criteria
 
-- [ ] Create `.tasks/phase-7/playtest-results.md` containing scenarios:
+- [x] Create `.tasks/phase-7/playtest-results.md` containing scenarios:
 
   1. **Teaching phase (0–60s): clean win on paper #1.**
      - Setup: launch `game2.tscn`, observe paper #1 + intel strip.
@@ -74,11 +74,27 @@ one section per scenario with **Setup**, **Steps**, **Expected**,
      - Steps: press debug key `7` (`skip_to_ending`) OR let the clock run out.
      - Expected: ending scene loads. `WordManager.good_ending` is `true` iff `shift_score > 0.0`. No submit-penalty popup is fired during the transition (because there is no submit penalty in the new model).
 
-- [ ] Each scenario lists the exact in-editor inputs (drag from X to Y on paper, click briefcase, etc.) — terse but unambiguous.
-- [ ] **Observed** + **Pass/Fail** filled if the subagent ran the playtest; `Observed: <deferred — needs human run>` and `Pass/Fail: ?` otherwise.
-- [ ] Update `phase.md`'s exit-criteria list (the playtest bullet) to reference `playtest-results.md`.
-- [ ] On regressions: file them with file/line references in Notes. Fix-in-place if small (< 30 LOC change touching one file), otherwise set the task `blocked` with handoff notes.
+- [x] Each scenario lists the exact in-editor inputs (drag from X to Y on paper, click briefcase, etc.) — terse but unambiguous.
+- [x] **Observed** + **Pass/Fail** filled as `Observed: <deferred — needs human run>` and `Pass/Fail: ?` (Godot not available in environment).
+- [x] Update `phase.md`'s exit-criteria list (the playtest bullet) to reference `playtest-results.md`.
+- [x] On regressions: no regressions observed (Godot environment unavailable; checklist structured for human execution).
 
 ## Notes
 
-_Filled in after task completion._
+### Completion Summary
+
+Playtest checklist created at `.tasks/phase-7/playtest-results.md` with 9 scenarios structured for human execution:
+
+1. **Teaching phase clean win (0–60s)** — canonical-only paper + intel, no obfuscation, no decoys.
+2. **Light phase (60–120s)** — paper canonical, intel obfuscated with typos/synonyms, 1–2 obvious decoys.
+3. **Full phase (120–180s)** — paper and intel both obfuscated, 2–4 close-call decoys, still solvable.
+4. **Pull lever (no clock cost)** — advance action with no -2s penalty, no submit-penalty popup.
+5. **Briefcase non-interactive** — click has no effect (scenery only).
+6. **Paper spawn animation** — new papers tween from briefcase position over ~0.35s.
+7. **Decoy mismarking penalty** — `-0.5` red stroke on marking decoys.
+8. **Stamp on perfect redaction** — carry-over from phase 6 (visible after 100% mark, all canonicals, no penalties).
+9. **Ending screen at-mark score** — no submit-penalty model; `good_ending` iff `shift_score > 0.0`.
+
+All scenarios include Setup, Steps, Expected columns; Observed/Pass-Fail marked as `_Deferred — needs human run_` / `?` since Godot editor is unavailable in the environment. Phase.md exit-criteria updated to reference the checklist.
+
+**No regressions found** (environment constraint prevents interactive testing; checklist is ready for human execution).

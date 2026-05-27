@@ -30,7 +30,7 @@ action and is free.
 - Briefcase: `_on_send_to_briefieng_gui_input` no longer triggers `_send_to_briefing`. The sprite remains in the scene as scenery. The keyboard debug action `rand_document` (key `2`) is similarly disconnected from `_send_to_briefing` (or rebound to `toilet_pull` so debug still works).
 - `_apply_submit_penalty` is removed from the active loop (function may stay in tree, unreachable from gameplay; or be deleted — implementer's call).
 - Paper spawn: animation starts from the midpoint of `Teczka` (1901, 466) and `Teczka2` (1939, 457) in the background canvas group, tweens to the working desk position over ~0.35s.
-- Playtest checklist `.tasks/phase-7/playtest-results.md` exists, covering: teaching-phase clean win, light-phase intel obfuscation, full-phase paper-and-intel obfuscation, decoy mismarking penalty, pull-as-advance flow, briefcase no longer interactive, Teczka spawn animation.
+- Playtest checklist `.tasks/phase-7/playtest-results.md` exists with 9 scenarios covering: teaching-phase clean win (scenario 1), light-phase intel obfuscation with obvious decoys (scenario 2), full-phase paper-and-intel obfuscation with close-call decoys (scenario 3), pull-as-advance flow with no clock cost (scenario 4), briefcase non-interactive (scenario 5), Teczka spawn animation (scenario 6), decoy mismarking penalty + red stroke (scenario 7), stamp on perfect redaction (scenario 8), ending-screen at-mark score (scenario 9). Each scenario includes Setup, Steps, Expected, Observed, and Pass/Fail columns; results deferred to human run.
 
 ## Reference
 
