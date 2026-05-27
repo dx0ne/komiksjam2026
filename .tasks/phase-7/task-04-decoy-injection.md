@@ -1,7 +1,7 @@
 ---
 id: task-04
 title: Decoy injection (phase-aware noise sentence appended to document)
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-03]
 ---
