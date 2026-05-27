@@ -17,6 +17,7 @@
 [ext_resource type="Script" uid="uid://cx8v87t8ksqpq" path="res://options__settings.gd" id="15_7sc4i"]
 [ext_resource type="PackedScene" uid="uid://rwgbfuhc2nil" path="res://scenes/right_hand.tscn" id="17_cps6k"]
 [ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="19_boqrt"]
+[ext_resource type="Script" uid="uid://0c4gqtpf2m1h" path="res://scripts/flicker_light.gd" id="19_flicker"]
 [ext_resource type="Texture2D" uid="uid://dpay8s0orfcy5" path="res://art/smoke_03.png" id="20_vfwdf"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8tca4"]
@@ -370,12 +371,12 @@ script = ExtResource("15_7sc4i")
 layout_mode = 2
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
-visible = false
 position = Vector2(1250, 427)
 color = Color(0.6666667, 0.8666667, 0.7372549, 1)
 energy = 0.2
 texture = ExtResource("19_boqrt")
 texture_scale = 3.37
+script = ExtResource("19_flicker")
 
 [node name="CanvasLayer_vfx" type="CanvasLayer" parent="." unique_id=237625313]
 layer = 5
