@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: score_popup scene + script (fade-in / drift-up / fade-out)
-status: pending
+status: in-progress
 complexity: low
 blocked-by: []
 ---
