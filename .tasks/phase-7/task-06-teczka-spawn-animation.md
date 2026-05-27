@@ -1,7 +1,7 @@
 ---
 id: task-06
 title: Paper spawn animation originates from Teczka briefcase
-status: pending
+status: in-progress
 complexity: low
 blocked-by: [task-05]
 ---
