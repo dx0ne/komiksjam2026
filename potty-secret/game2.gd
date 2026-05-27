@@ -9,8 +9,9 @@ const COVERAGE_MIN_CELLS   := 2
 const TOILET_INTEL_COUNT   := 3
 const WORDS_IN_DOCUMENT    := 3
 
-const TOILET_SCN := preload("res://toilet_msg.tscn")
-const PAPER_SCN  := preload("res://paper.tscn")
+const TOILET_SCN       := preload("res://toilet_msg.tscn")
+const PAPER_SCN        := preload("res://paper.tscn")
+const ScorePopupScene  := preload("res://score_popup.tscn")
 
 const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
@@ -411,10 +412,15 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 	var stroke_index := _marker_layer().strokes.size() - 1
 	var score_result := _score_stroke_incremental(stroke_index)
 	_color_stroke_by_deltas(stroke_index, score_result)
+	# Spawn a floating score popup for each word transition this stroke caused.
+	for d in score_result.get("deltas", []):
+		if d.get("delta", 0.0) != 0.0:
+			_spawn_score_popup(d["delta"], d["rect"])
 	_refresh_postit_and_penalty()
 
 
 func _color_stroke_by_deltas(stroke_index: int, score_result: Dictionary) -> void:
+	# Spec §6: sum < 0 → red; sum >= 0 (including ==0) → leave as marker color (already set at draw time).
 	var marker_layer := _marker_layer()
 	if marker_layer == null or marker_layer.strokes.is_empty():
 		return
@@ -422,6 +428,38 @@ func _color_stroke_by_deltas(stroke_index: int, score_result: Dictionary) -> voi
 		if stroke_index < marker_layer.stroke_colors.size():
 			marker_layer.stroke_colors[stroke_index] = Color(0.75, 0.1, 0.1, 0.9)
 	marker_layer.queue_redraw()
+
+
+func _spawn_score_popup(delta: float, rect: Rect2) -> void:
+	if active_paper == null:
+		return
+	# Color and text per spec §6 delta mapping.
+	var text: String
+	var color: Color
+	if delta == 2.0:
+		text = "+2"
+		color = Color(0.2, 0.75, 0.3, 1.0)
+	elif delta == 1.0:
+		text = "+1"
+		color = Color(0.2, 0.75, 0.3, 1.0)
+	elif delta == -0.5:
+		text = "-0.5"
+		color = Color(0.75, 0.1, 0.1, 1.0)
+	else:
+		text = "%+g" % delta
+		color = Color(0.2, 0.75, 0.3, 1.0) if delta > 0.0 else Color(0.75, 0.1, 0.1, 1.0)
+
+	var popup: ScorePopup = ScorePopupScene.instantiate()
+	# Add popup as child of active_paper with z_index above MarkerGroup (which has no explicit
+	# z_index, defaulting to 0). z_index = 1 ensures popups render above red ink strokes.
+	popup.z_index = 1
+	# Position in paper-local space: text_renderer.position + rect center converts
+	# text-renderer-local rect coordinates into paper-local coordinates.
+	var text_renderer := _text_renderer()
+	var center := text_renderer.position + rect.get_center() if text_renderer else rect.get_center()
+	popup.position = center
+	active_paper.add_child(popup)
+	popup.show_delta(text, color)
 
 
 func _refresh_postit_and_penalty() -> void:
@@ -447,7 +485,9 @@ func _refresh_postit_and_penalty() -> void:
 
 # Applies submit-time penalty: for each planted word that is still untouched
 # (missing from word_scores or state == "untouched"), set state = "wrong" and
-# deduct -0.5 from shift_score. Returns the count of newly-penalized words.
+# deduct -0.5 from shift_score. Spawns a -0.5 popup inline (option b: simpler
+# than threading a deltas array back through _send_to_briefing).
+# Returns the count of newly-penalized words.
 func _apply_submit_penalty() -> int:
 	var text_renderer := _text_renderer()
 	if text_renderer == null:
@@ -465,6 +505,7 @@ func _apply_submit_penalty() -> int:
 			session["word_scores"][i] = {"state": "wrong", "points": -0.5}
 			WordManager.shift_score -= 0.5
 			penalized += 1
+			_spawn_score_popup(-0.5, box["rect"])
 	return penalized
 
 
