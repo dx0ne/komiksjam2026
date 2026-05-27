@@ -19,12 +19,13 @@ Reshape the 180-second shift into a throughput game: the player processes as man
 
 ### 1. Phase rules (document generation)
 
-When a new paper spawns, look at the clock and `_paper_index` to decide how many of the template's `N` slots are drawn from current intel (`K`) versus the master pool (`N - K`). Time elapsed = `180.0 - clock.game_timer.time_left`. (Add a `time_left: float` property on `ShiftClock` that returns `game_timer.time_left` to keep call sites clean.)
+When a new paper spawns, look at the clock to decide how many of the template's `N` slots are drawn from current intel (`K`) versus the master pool (`N - K`). Time elapsed = `180.0 - clock.game_timer.time_left`. (Add a `time_left: float` property on `ShiftClock` that returns `game_timer.time_left` to keep call sites clean.)
+
+The first toilet intel roll happens BEFORE the first paper spawns in `_ready`, so paper #1 falls under the normal `elapsed < 60s` rule (K=N → clean-win teaching round).
 
 | Trigger | K | Notes |
 |---|---|---|
-| `_paper_index == 0` | 0 | First paper of shift always fully random — forces the player to reroll once and learn the mechanic. |
-| Otherwise, elapsed < 60s | N | All planted words guaranteed on intel. |
+| elapsed < 60s | N | All planted words guaranteed on intel. Includes paper #1 (teaches the mechanic by being immediately winnable). |
 | 60s ≤ elapsed < 120s | 1 | Exactly one planted word from intel; the rest from master pool. |
 | elapsed ≥ 120s | 0 | All random. |
 

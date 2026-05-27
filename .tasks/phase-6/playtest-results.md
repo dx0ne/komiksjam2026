@@ -6,25 +6,24 @@
 
 ---
 
-## Scenario 1: First Paper Forced Random (K=0)
+## Scenario 1: First Paper Clean Win (K=N, teaching round)
 
 ### Setup
 - Open `game2.tscn` in the Godot editor.
 - Start the game (press Play).
-- The first paper will spawn automatically with K=0 (forced random).
+- Intel rolls in `_ready` BEFORE the first paper spawns, so paper #1 lands with K=N (all planted words drawn from intel).
 
 ### Steps
 1. Observe the first memo on screen.
 2. Look at the toilet strip — it shows 3 forbidden words.
 3. Count the **planted word boxes** (the 2–3 template slots on the memo).
-4. Look for **on-intel highlights** (words in `current_toilet_words`; these are visually marked in the debug overlay or post-it).
-5. Verify that **NOT all** planted words are highlighted as on-intel.
-   - Expected: At least one planted word is NOT on intel (since K=0, it's all random).
-   - (Contrast with scenario 2, where K=N and all should be on intel.)
+4. For each planted word, check whether it appears in the toilet strip.
+5. Verify that **EVERY** planted word is in the toilet strip (i.e. on intel).
+   - Expected: The player can mark all planted words without pulling the toilet handle — a clean win that teaches the mark-and-submit flow.
 
 ### Expected
-- First paper has at least one planted word not in the toilet strip (K=0 forces randomness, not all-on-intel).
-- At least one planted word is NOT visibly marked as "on intel".
+- All planted words on paper #1 appear on the toilet strip.
+- Marking each planted fully yields a `+2` popup; submitting earns the stamp without any reroll.
 
 ### Observed
 _Deferred — needs human run_
@@ -267,7 +266,7 @@ _Deferred — needs human run_
 
 | Scenario | Pass/Fail | Notes |
 |----------|-----------|-------|
-| 1. First paper forced random | ? | Deferred |
+| 1. First paper clean win (K=N) | ? | Deferred |
 | 2. Easy phase (0–60s) | ? | Deferred |
 | 3. Mixed phase (60–120s) | ? | Deferred |
 | 4. Random phase (120–180s) | ? | Deferred |
@@ -292,7 +291,7 @@ A human tester can:
 4. Fill in the **Observed** and **Pass/Fail** columns.
 
 All critical phase-6 exit-criteria are covered:
-- ✓ Paper #1 forced random (K=0)
+- ✓ Paper #1 clean win (K=N — intel rolls before paper spawns)
 - ✓ Difficulty phases: easy (K=N), mixed (K=1), random (K=0)
 - ✓ Popup spawning and colors (+1, +2, -0.5)
 - ✓ Stroke color feedback (green for positive, red for negative)

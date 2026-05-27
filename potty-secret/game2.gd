@@ -50,8 +50,10 @@ func _ready() -> void:
 	clock.time_out.connect(_on_time_out)
 
 	WordManager.shift_score = 0.0
-	_spawn_fresh_paper(false)
+	# Roll intel BEFORE the first paper so paper #1 can draw planted words from it
+	# (K=N in the easy phase → all planted on intel → clean-win teaching round).
 	_roll_toilet_intel(true)
+	_spawn_fresh_paper(false)
 
 
 func _process(delta: float) -> void:
@@ -153,8 +155,6 @@ func _single_token_master_words() -> Array[String]:
 
 
 func _current_k(slot_count: int) -> int:
-	if _paper_index == 0:
-		return 0
 	var elapsed := 180.0 - clock.time_left
 	var k: int
 	if elapsed < 60.0:

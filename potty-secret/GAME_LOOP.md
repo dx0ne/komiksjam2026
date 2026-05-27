@@ -55,12 +55,13 @@ Each paper's rigging level K is determined at spawn time by elapsed clock:
 
 | Elapsed time | K | Effect |
 |---|---|---|
-| 0 – 60s | N | All planted words are on intel (easiest) |
+| 0 – 60s | N | All planted words are on intel (easiest) — includes paper #1 (clean-win teaching round) |
 | 60 – 120s | 1 | Exactly 1 planted word on intel (medium) |
 | 120 – 180s | 0 | No planted words on intel (hardest) |
-| Paper #0 (first) | 0 | Always random, forces reroll to learn intel |
 
 `K` words are drawn from current intel; the remaining `N - K` from master pool. Words are deduplicated. If intel or master pool is too small, top up from the other.
+
+Intel is rolled in `_ready` BEFORE the first paper spawns, so paper #1 gets the full K=N treatment.
 
 ## Marking rules and at-mark scoring
 
