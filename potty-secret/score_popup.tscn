@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://d3p9cwfhqv4l5"]
+
+[ext_resource type="Script" uid="uid://c9d5u5rctch2i" path="res://score_popup.gd" id="1_score"]
+[ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="2_font"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_popup"]
+font = ExtResource("2_font")
+font_size = 32
+font_color = Color(1, 1, 1, 1)
+
+[node name="ScorePopup" type="Node2D" unique_id=3838183658]
+script = ExtResource("1_score")
+
+[node name="Label" type="Label" parent="." unique_name_in_owner=true unique_id=3838183659]
+offset_left = -32.0
+offset_top = -16.0
+offset_right = 32.0
+offset_bottom = 16.0
+text = ""
+label_settings = SubResource("LabelSettings_popup")
+horizontal_alignment = 1
+vertical_alignment = 1

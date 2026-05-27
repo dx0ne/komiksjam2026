@@ -1,7 +1,7 @@
 ---
 id: task-01
 title: score_popup scene + script (fade-in / drift-up / fade-out)
-status: in-progress
+status: done
 complexity: low
 blocked-by: []
 ---
@@ -34,7 +34,7 @@ Files to create:
 
 ## Acceptance Criteria
 
-- [ ] `score_popup.gd`:
+- [x] `score_popup.gd`:
   - `class_name ScorePopup` extending `Node2D`.
   - Public API: `func show_delta(text: String, color: Color) -> void` — sets the label text + color, then starts the animation. The animation:
     1. Start at `modulate.a = 0.0`.
@@ -42,15 +42,26 @@ Files to create:
     3. Tween `position:y` upward by 18 px over the full 0.55s.
     4. On finished, `queue_free()`.
   - Default text is empty / default color is white (so the scene is editable without errors).
-- [ ] `score_popup.tscn`:
+- [x] `score_popup.tscn`:
   - Root `Node2D` named `ScorePopup`, script attached.
   - Single `Label` child (unique-name `%Label` so the script can resolve it via `%Label`).
   - Label font: prefer the project's existing UI font if one is obvious (look at how `paper.tscn`'s `pointsLabel*` is set up) — otherwise default Godot font is fine. Font size around 28–36 px, bold if cheap to do.
   - Label has `horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER` and `vertical_alignment = VERTICAL_ALIGNMENT_CENTER`, and the label is offset so its center sits at the root's `(0, 0)` (i.e. the spawn point in paper coordinates IS the center of the label).
-- [ ] Tween uses `create_tween()` (parallel set where needed) — not `Tween` deprecated APIs. The tween must outlive the script call (assign to a local var with `set_parallel(true)` as needed; Godot 4 tweens run to completion regardless of local reference).
-- [ ] No references to `game2.gd`, `WordManager`, `paper.gd`, or any project-specific singleton — this scene is fully standalone and reusable.
-- [ ] Static check only: the file parses (no GDScript syntax errors when the project loads). Runtime behavior is verified in task-04.
+- [x] Tween uses `create_tween()` (parallel set where needed) — not `Tween` deprecated APIs. The tween must outlive the script call (assign to a local var with `set_parallel(true)` as needed; Godot 4 tweens run to completion regardless of local reference).
+- [x] No references to `game2.gd`, `WordManager`, `paper.gd`, or any project-specific singleton — this scene is fully standalone and reusable.
+- [x] Static check only: the file parses (no GDScript syntax errors when the project loads). Runtime behavior is verified in task-04.
 
 ## Notes
 
-_Filled in by the subagent during/after implementation._
+Implementation complete. Files created:
+- `potty-secret/score_popup.gd` — Standalone ScorePopup class extending Node2D with show_delta() API
+- `potty-secret/score_popup.tscn` — Scene with Node2D root and centered Label child
+
+Key implementation details:
+- Animation timeline: fade in (0.05s) → fade out (0.50s, chained after fade-in), drift up concurrent (0.55s total)
+- Tween uses create_tween() with set_parallel(true) for initial fade-in and drift-up
+- Fade-out chained on fade_in_tween via tween_property() to ensure proper sequencing
+- Label centered at node origin (0,0) via offset_left/top = -32/-16 and offset_right/bottom = 32/16
+- Uses project's Quentin.otf font at 32px for consistency with paper.tscn styling
+- No project-specific dependencies; fully reusable
+- Default state: empty text, white color, alpha=0.0 (ready for show_delta() call)
