@@ -1,7 +1,7 @@
 ---
 title: Potty-Secret · Thick-Black-Bars Port
-status: done
-current-phase: 6
+status: in-progress
+current-phase: 7
 repo: private
 github: https://github.com/dx0ne/komiksjam2026
 created: 2026-05-14
@@ -11,9 +11,14 @@ created: 2026-05-14
 
 Replace potty-secret's click-on-redact-button flow with the thick-marker
 word-redaction mechanic from `thick-black-bars`. Phases 1-3 shipped the core
-mechanic. Phases 4-6 reshape the 180s shift into a throughput game with
+mechanic. Phases 4-6 reshaped the 180s shift into a throughput game with
 difficulty ramping and at-mark scoring (see
 `potty-secret/docs/superpowers/specs/2026-05-26-difficulty-ramp-and-scoring-design.md`).
+Phase 7 replaces the K-rigging difficulty model with canonical-based
+matching and obfuscated intel (see
+`potty-secret/docs/superpowers/specs/2026-05-27-eye-skill-obfuscated-intel-design.md`)
+after playtest showed the late-game pull-spam loop was random rather than
+skill-driven.
 
 ## Phases
 
@@ -23,3 +28,4 @@ difficulty ramping and at-mark scoring (see
 - [x] Phase 4: Foundation & phase-aware document generation — data model migration + K-from-intel doc gen
 - [x] Phase 5: At-mark scoring + submit penalty — replace whole-paper re-evaluation with locked per-mark deltas
 - [x] Phase 6: Score popups + verification — floating +/- numbers, stroke color tuning, doc sync, playtest
+- [ ] Phase 7: Eye-skill via obfuscated intel — canonical data model, phase-ramped typos/synonyms, decoy words, briefcase becomes scenery, pull is the only advance action
