@@ -138,12 +138,28 @@ func _build_session() -> Dictionary:
 	var planted_canonicals := WordManager.pick_random_canonicals(word_count)
 	var phase := _current_phase()
 	var planted_display := _pick_display_variants_for_planted(planted_canonicals, phase)
-	var text := _build_document_text(template, planted_display)
+
+	# Build preview intel display variants so decoy selection can target them.
+	# NOTE: actual intel ROLL still happens via _roll_toilet_intel — this is a
+	# preview pass to give the decoy picker something to match against.
+	var preview_intel_display: Array[String] = []
+	for c in planted_canonicals:
+		var mode := _intel_variant_mode_for_phase(phase)
+		var pool := WordManager.display_variants(c, mode)
+		if pool.is_empty():
+			pool = [c]
+		preview_intel_display.append(pool[rng.randi_range(0, pool.size() - 1)])
+
+	var decoy_canonicals := _pick_decoy_canonicals(planted_canonicals, preview_intel_display, phase)
+	var decoy_text := _build_decoy_text(decoy_canonicals, phase)
+
+	var text := _build_document_text(template, planted_display) + decoy_text
 	return {
 		"text": text,
 		"planted_words": planted_display,           # what the renderer sees / flags
-		"planted_canonicals": planted_canonicals,   # source of truth for matching (task-03 uses)
+		"planted_canonicals": planted_canonicals,   # source of truth for matching
 		"planted_total": word_count,
+		"decoys": decoy_canonicals,                 # canonicals chosen as decoys
 		"word_scores": {} as Dictionary,
 		"strokes": [] as Array[PackedVector2Array],
 		"stamped": false,
@@ -206,6 +222,138 @@ func _pick_display_variants_for_planted(canonicals: Array[String], phase: Phase)
 	return result
 
 
+## Standard Levenshtein edit distance on lowercased inputs.
+## O(n*m) DP table — inputs are short (≤ 20 chars) so this is trivially fast.
+func _edit_distance(a: String, b: String) -> int:
+	var la := a.to_lower()
+	var lb := b.to_lower()
+	var n := la.length()
+	var m := lb.length()
+	if n == 0:
+		return m
+	if m == 0:
+		return n
+	var prev := []
+	prev.resize(m + 1)
+	for j in range(m + 1):
+		prev[j] = j
+	var curr := []
+	curr.resize(m + 1)
+	for i in range(1, n + 1):
+		curr[0] = i
+		for j in range(1, m + 1):
+			var cost := 0 if la.unicode_at(i - 1) == lb.unicode_at(j - 1) else 1
+			curr[j] = mini(mini(curr[j - 1] + 1, prev[j] + 1), prev[j - 1] + cost)
+		for j in range(m + 1):
+			prev[j] = curr[j]
+	return prev[m]
+
+
+## Selects decoy canonicals (NOT in planted set) whose display variants are
+## visually close to one of the intel display strings, scaled by phase.
+##
+## Phase rules:
+##   TEACHING → 0 decoys
+##   LIGHT    → 1–2 decoys, similarity threshold edit-distance ≤ 4
+##   FULL     → 2–4 decoys, similarity threshold edit-distance ≤ 2
+##
+## If too few similar candidates exist, tops up with random non-planted canonicals.
+func _pick_decoy_canonicals(planted: Array[String], intel_display: Array[String], phase: Phase) -> Array[String]:
+	if phase == Phase.TEACHING:
+		return []
+
+	var target_count: int
+	var threshold: int
+	if phase == Phase.LIGHT:
+		target_count = rng.randi_range(1, 2)
+		threshold = 4
+	else:  # FULL
+		target_count = rng.randi_range(2, 4)
+		threshold = 2
+
+	# Build eligible pool: canonicals not in planted, with at least one display
+	# variant within threshold edit distance of any intel display string.
+	var eligible: Array[String] = []
+	var fallback: Array[String] = []
+
+	for entry in WordManager.master_list:
+		var canon: String = entry["canonical"]
+		if canon in planted:
+			continue
+
+		fallback.append(canon)
+
+		# Collect display variants for this candidate under TYPO_OR_SYNONYM mode.
+		var variants: Array = WordManager.display_variants(canon, WordManager.VariantMode.TYPO_OR_SYNONYM)
+		if variants.is_empty():
+			variants = [canon]
+
+		# Check minimum edit distance from any candidate variant to any intel display.
+		var min_dist := 9999
+		for v in variants:
+			for id_word in intel_display:
+				var d := _edit_distance(v, id_word)
+				if d < min_dist:
+					min_dist = d
+
+		if min_dist <= threshold:
+			eligible.append(canon)
+
+	# Shuffle and take target_count from eligible first, then top up from fallback.
+	eligible.shuffle()
+	fallback.shuffle()
+
+	var result: Array[String] = []
+	for c in eligible:
+		if result.size() >= target_count:
+			break
+		result.append(c)
+
+	# Top up with random non-planted canonicals if not enough eligible.
+	for c in fallback:
+		if result.size() >= target_count:
+			break
+		if c not in result:
+			result.append(c)
+
+	return result
+
+
+## Renders decoy canonicals as a clerk-sounding appended sentence.
+## Returns "" if canonicals is empty (TEACHING phase).
+## Returns a string with a leading space so it appends cleanly to template text.
+func _build_decoy_text(decoy_canonicals: Array[String], phase: Phase) -> String:
+	if decoy_canonicals.is_empty():
+		return ""
+
+	var lead_ins: Array[String] = [
+		"Cross-reference also noted: %s.",
+		"Additional surveillance flags: %s.",
+		"Field margin notes: %s.",
+		"See related entries: %s.",
+	]
+	var lead_in: String = lead_ins[rng.randi_range(0, lead_ins.size() - 1)]
+
+	# Pick a display variant for each decoy (paper-side obfuscation rule).
+	var display_words: Array[String] = []
+	for canon in decoy_canonicals:
+		var mode := _paper_variant_mode_for_phase(phase)
+		var pool: Array = WordManager.display_variants(canon, mode)
+		if pool.is_empty():
+			pool = [canon]
+		display_words.append(pool[rng.randi_range(0, pool.size() - 1)])
+
+	# Join with ", " and " and " before last item if 2+.
+	var joined: String
+	if display_words.size() == 1:
+		joined = display_words[0]
+	else:
+		var all_but_last := display_words.slice(0, display_words.size() - 1)
+		joined = ", ".join(all_but_last) + " and " + display_words[display_words.size() - 1]
+
+	return " " + (lead_in % joined)
+
+
 func _build_document_text(template: String, document_words: Array[String]) -> String:
 	var text := template
 	var random_name := WordManager.names[rng.randi_range(0, WordManager.names.size() - 1)]
@@ -225,6 +373,7 @@ func _load_session() -> void:
 	var debug_overlay := _debug_overlay()
 	text_renderer.set_document(session["text"], WordManager.current_toilet_words)
 	text_renderer.set_planted_canonicals(session["planted_canonicals"])
+	text_renderer.set_decoy_canonicals(session.get("decoys", []))
 	marker_layer.clear_strokes()
 	marker_layer.clear_word_marks()
 	marker_layer.set_locked(false)

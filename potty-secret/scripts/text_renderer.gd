@@ -14,6 +14,7 @@ const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
 var document_text := ""
 var illegal_words: Array[String] = []
 var planted_canonicals: Array[String] = []
+var decoy_canonicals: Array[String] = []
 var word_boxes: Array[Dictionary] = []
 
 var _font: Font
@@ -51,6 +52,15 @@ func set_planted_canonicals(canonicals: Array[String]) -> void:
 	planted_canonicals.assign(canonicals)
 	for box in word_boxes:
 		box["planted"] = WordManager.canonicalize(box["word"]) in planted_canonicals
+	queue_redraw()
+
+
+func set_decoy_canonicals(canonicals: Array) -> void:
+	decoy_canonicals.clear()
+	for c in canonicals:
+		decoy_canonicals.append(c)
+	for box in word_boxes:
+		box["decoy"] = WordManager.canonicalize(box["word"]) in decoy_canonicals
 	queue_redraw()
 
 
@@ -104,6 +114,7 @@ func _relayout() -> void:
 			"rect": rect,
 			"illegal": word_canonical in WordManager.current_toilet_canonicals,
 			"planted": word_canonical in planted_canonicals,
+			"decoy": word_canonical in decoy_canonicals,
 			"redacted": false,
 			"coverage": 0.0,
 			"tier": "none",
