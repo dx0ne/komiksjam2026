@@ -194,11 +194,6 @@ unique_name_in_owner = true
 position = Vector2(1901, 466)
 texture = ExtResource("11_iotsf")
 
-[node name="Teczka2" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=295684005]
-unique_name_in_owner = true
-position = Vector2(1939, 457)
-texture = ExtResource("12_lc2xo")
-
 [node name="toilet_handle" type="Node2D" parent="CanvasLayer_background/CanvasGroup/Node2D" unique_id=866905755]
 unique_name_in_owner = true
 
@@ -239,6 +234,11 @@ stretch_mode = 0
 [node name="papers_container" type="Node2D" parent="CanvasLayer_background" unique_id=2081387175]
 unique_name_in_owner = true
 position = Vector2(550, 0)
+
+[node name="Teczka2" type="Sprite2D" parent="CanvasLayer_background" unique_id=295684005]
+unique_name_in_owner = true
+position = Vector2(1939, 457)
+texture = ExtResource("12_lc2xo")
 
 [node name="CanvasLayer_strokes" type="CanvasLayer" parent="." unique_id=1436699562]
 layer = 2
