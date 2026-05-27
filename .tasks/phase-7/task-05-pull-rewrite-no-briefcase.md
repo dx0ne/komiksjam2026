@@ -1,7 +1,7 @@
 ---
 id: task-05
 title: Pull = advance to new paper; briefcase deactivated
-status: pending
+status: in-progress
 complexity: low
 blocked-by: [task-03]
 ---
