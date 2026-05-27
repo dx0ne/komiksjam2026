@@ -25,7 +25,7 @@ const MARKER_CURSOR_HOTSPOT := Vector2(1655.0, 304.0)
 
 @export var hide_os_cursor := true
 
-var mode: DrawMode = DrawMode.LINE
+var mode: DrawMode = DrawMode.BRUSH
 var strokes: Array[PackedVector2Array] = []
 var stroke_colors: Array[Color] = []
 var current_stroke := PackedVector2Array()
