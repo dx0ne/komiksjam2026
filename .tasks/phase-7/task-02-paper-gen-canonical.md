@@ -1,7 +1,7 @@
 ---
 id: task-02
 title: Phase-aware document generation (paper renders display variants)
-status: pending
+status: in-progress
 complexity: medium
 blocked-by: [task-01]
 ---
