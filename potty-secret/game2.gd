@@ -612,6 +612,9 @@ func _send_to_briefing(advance_paper: bool = true) -> void:
 
 func _check_and_apply_stamp() -> void:
 	# Stamp eligibility: all planted words marked (partial or full) AND zero wrongs.
+	# Idempotent — only fires the visual tween on the transition to stamped.
+	if session.get("stamped", false):
+		return
 	var word_scores: Dictionary = session.get("word_scores", {})
 	var text_renderer := _text_renderer()
 	var marked_planted := 0
@@ -643,6 +646,8 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 		if d.get("delta", 0.0) != 0.0:
 			_spawn_score_popup(d["delta"], d["rect"])
 	_refresh_postit_and_penalty()
+	# Award stamp the instant the player completes a perfect page, not on pull.
+	_check_and_apply_stamp()
 
 
 func _color_stroke_by_deltas(stroke_index: int, score_result: Dictionary) -> void:
