@@ -235,7 +235,12 @@ stretch_mode = 0
 unique_name_in_owner = true
 position = Vector2(550, 0)
 
-[node name="Teczka2" type="Sprite2D" parent="CanvasLayer_background" unique_id=295684005]
+[node name="CanvasGroup2" type="CanvasGroup" parent="CanvasLayer_background" unique_id=83341478]
+material = SubResource("ShaderMaterial_8tca4")
+fit_margin = 0.0
+clear_margin = 0.0
+
+[node name="Teczka2" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup2" unique_id=295684005]
 unique_name_in_owner = true
 position = Vector2(1939, 457)
 texture = ExtResource("12_lc2xo")
@@ -372,10 +377,16 @@ script = ExtResource("15_7sc4i")
 [node name="OptionButton" type="OptionButton" parent="Options/HBoxContainer/Options _Settings" unique_id=690648783]
 layout_mode = 2
 
-[node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=265139376]
+
+[node name="CanvasGroup" type="CanvasGroup" parent="CanvasLayer" unique_id=1025188287]
+
+[node name="PointLight2D" type="PointLight2D" parent="CanvasLayer/CanvasGroup" unique_id=756153615]
+z_index = 7
 position = Vector2(1250, 427)
 color = Color(0.6666667, 0.8666667, 0.7372549, 1)
 energy = 0.2
+range_layer_max = 5
 texture = ExtResource("19_boqrt")
 texture_scale = 3.37
 script = ExtResource("19_flicker")
