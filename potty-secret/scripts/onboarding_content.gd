@@ -30,6 +30,15 @@ const BRIEFING_TEXT := (
 	+ "To begin your shift, redact ready, steady, and go."
 )
 
+const SHIFT_START_TARGETS: Array[String] = ["begin"]
+
+const SHIFT_START_TEXT := (
+	"SHIFT REOPENING — FORM 9-DUTY. One hundred eighty seconds await on the clock. "
+	+ "Toilet intel is posted. Redact begin to commence your shift."
+)
+
+const SHIFT_START_STICKY_HINT := "begin?"
+
 
 static func toilet_text() -> String:
 	return TOILET_TEXT
@@ -37,3 +46,7 @@ static func toilet_text() -> String:
 
 static func briefing_text() -> String:
 	return BRIEFING_TEXT
+
+
+static func shift_start_text() -> String:
+	return SHIFT_START_TEXT

@@ -10,7 +10,7 @@ const TOILET_INTEL_COUNT   := 3
 const WORDS_IN_DOCUMENT    := 3
 
 enum Phase { TEACHING, LIGHT, FULL }
-enum OnboardingStep { WELCOME, TOILET_LESSON, START_BRIEFING, DONE }
+enum OnboardingStep { WELCOME, TOILET_LESSON, START_BRIEFING, SHIFT_START, DONE }
 const PHASE_TEACHING_END_S := 60.0
 const PHASE_LIGHT_END_S    := 120.0
 const LEFT_HAND_OFFSCREEN_Y := 400.0
@@ -62,14 +62,15 @@ func _ready() -> void:
 	WordManager.shift_score = 0.0
 
 	if PlayerProgress.has_completed_onboarding():
-		_onboarding_step = OnboardingStep.DONE
-		_start_normal_shift()
+		_begin_shift_start()
 	else:
 		_begin_onboarding()
 
 
 func _process(delta: float) -> void:
-	if _onboarding_step == OnboardingStep.WELCOME or _onboarding_step == OnboardingStep.START_BRIEFING:
+	if _onboarding_step == OnboardingStep.WELCOME \
+			or _onboarding_step == OnboardingStep.START_BRIEFING \
+			or _onboarding_step == OnboardingStep.SHIFT_START:
 		return
 	if _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep != 0:
 		return
@@ -139,6 +140,25 @@ func _begin_onboarding() -> void:
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true, OnboardingContent.WELCOME_STICKY_HINT)
+
+
+func _begin_shift_start() -> void:
+	_onboarding_step = OnboardingStep.SHIFT_START
+	_onboarding_substep = 0
+	WordManager.shift_score = 0.0
+	_set_toilet_handle_visible(true)
+	_set_cofefe_visible(true)
+	_set_rubber_visible(false)
+	_spawn_scripted_paper(
+		_build_tutorial_session(
+			OnboardingContent.shift_start_text(),
+			OnboardingContent.SHIFT_START_TARGETS
+		),
+		false
+	)
+	if active_paper:
+		active_paper.set_onboarding_ui(true, OnboardingContent.SHIFT_START_STICKY_HINT)
+	_show_scripted_intel(OnboardingContent.SHIFT_START_TARGETS)
 
 
 func _start_normal_shift(spawn_paper: bool = true) -> void:
@@ -228,6 +248,8 @@ func _onboarding_check_progress() -> void:
 				_advance_to_start_briefing()
 		OnboardingStep.START_BRIEFING:
 			PlayerProgress.mark_onboarding_complete()
+			_start_normal_shift(true)
+		OnboardingStep.SHIFT_START:
 			_start_normal_shift(true)
 
 
