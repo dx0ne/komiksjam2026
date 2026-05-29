@@ -2,6 +2,7 @@ extends Control
 class_name MarkerLayer
 
 signal stroke_finished(stroke: PackedVector2Array)
+signal stroke_started
 signal cursor_changed
 
 enum DrawMode { LINE, BRUSH }
@@ -180,6 +181,7 @@ func _gui_input(event: InputEvent) -> void:
 
 func _start_stroke(point: Vector2) -> void:
 	drawing = true
+	stroke_started.emit()
 	if mode == DrawMode.LINE:
 		current_stroke = PackedVector2Array([point, point])
 	else:

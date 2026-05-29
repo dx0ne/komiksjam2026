@@ -23,7 +23,13 @@ func _on_ready() -> void:
 	progress_bar.max_value = game_timer.wait_time
 	progress_bar.value = game_timer.wait_time
 	_reka_start_rotation = reka_zegarek.rotation
+
+
+func start_shift() -> void:
+	game_timer.wait_time = 180.0
 	game_timer.start()
+	progress_bar.max_value = game_timer.wait_time
+	progress_bar.value = game_timer.time_left
 
 
 func add_time(seconds: float) -> void:

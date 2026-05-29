@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="PackedScene" uid="uid://bk6otlfx6rr5k" path="res://scenes/desk_props/cofefe.tscn" id="10_boqrt"]
+[ext_resource type="PackedScene" uid="uid://ba8nxwuspjtb5" path="res://scenes/desk_props/rubber.tscn" id="10_rubber"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
@@ -264,6 +265,10 @@ texture = ExtResource("5_hve3p")
 unique_name_in_owner = true
 position = Vector2(696, 130)
 
+[node name="Rubber" parent="CanvasLayer_strokes/CanvasGroup" unique_id=632363925 instance=ExtResource("10_rubber")]
+unique_name_in_owner = true
+position = Vector2(1804, 944)
+
 [node name="CanvasLayer_hand" type="CanvasLayer" parent="." unique_id=1880257764]
 layer = 4
 
@@ -273,6 +278,7 @@ fit_margin = 0.0
 clear_margin = 0.0
 
 [node name="LeftHand" type="Sprite2D" parent="CanvasLayer_hand/CanvasGroup" unique_id=1799404259]
+unique_name_in_owner = true
 position = Vector2(57.99996, 1145)
 rotation = -0.43807763
 scale = Vector2(0.84229827, 0.84229827)
@@ -396,6 +402,7 @@ speed_scale = 0.3
 process_material = SubResource("ParticleProcessMaterial_2wyxb")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
+visible = false
 position = Vector2(1159, 384)
 color = Color(1, 0.7625536, 0.4121964, 1)
 energy = 0.1

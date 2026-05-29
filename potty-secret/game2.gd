@@ -10,8 +10,10 @@ const TOILET_INTEL_COUNT   := 3
 const WORDS_IN_DOCUMENT    := 3
 
 enum Phase { TEACHING, LIGHT, FULL }
+enum OnboardingStep { WELCOME, TOILET_LESSON, START_BRIEFING, DONE }
 const PHASE_TEACHING_END_S := 60.0
 const PHASE_LIGHT_END_S    := 120.0
+const LEFT_HAND_OFFSCREEN_Y := 400.0
 
 const TOILET_SCN       := preload("res://toilet_msg.tscn")
 const PAPER_SCN        := preload("res://paper.tscn")
@@ -31,6 +33,9 @@ var session: Dictionary = {}
 var _idle_time: float = 0.0
 var _attract_tween: Tween = null
 var _paper_index: int = 0
+var _onboarding_step: OnboardingStep = OnboardingStep.DONE
+var _onboarding_substep: int = 0
+var _left_hand_rest_pos: Vector2 = Vector2.ZERO
 
 
 func _text_renderer() -> TextRenderer:
@@ -50,16 +55,24 @@ func _ready() -> void:
 	viewport_size = get_viewport().get_visible_rect().size
 
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
-	# send_to_briefieng is now visual-only; no gui_input handler.
 	clock.time_out.connect(_on_time_out)
 	_connect_cofefe()
+	_connect_rubber()
 
 	WordManager.shift_score = 0.0
-	_spawn_fresh_paper(false)   # builds session, including planted_canonicals
-	_roll_toilet_intel(true)    # now consumes session.planted_canonicals
+
+	if PlayerProgress.has_completed_onboarding():
+		_onboarding_step = OnboardingStep.DONE
+		_start_normal_shift()
+	else:
+		_begin_onboarding()
 
 
 func _process(delta: float) -> void:
+	if _onboarding_step == OnboardingStep.WELCOME or _onboarding_step == OnboardingStep.START_BRIEFING:
+		return
+	if _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep != 0:
+		return
 	if _attract_tween != null:
 		return
 	_idle_time += delta
@@ -69,11 +82,13 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	_register_player_activity()
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F9:
+		PlayerProgress.reset_onboarding()
+		get_tree().reload_current_scene()
+		return
 	if event.is_action_pressed("quit"):
 		get_tree().quit()
-	if event.is_action_pressed("rand_toilet_msg"):
-		toilet_pull()
-	if event.is_action_pressed("rand_document"):
+	if event.is_action_pressed("rand_toilet_msg") or event.is_action_pressed("rand_document"):
 		toilet_pull()
 	if event.is_action_pressed("skip_to_ending"):
 		_end_shift()
@@ -97,19 +112,302 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 # ---------------------------------------------------------------------------
+# Onboarding
+# ---------------------------------------------------------------------------
+
+func _begin_onboarding() -> void:
+	_onboarding_step = OnboardingStep.WELCOME
+	_onboarding_substep = 0
+
+	var left_hand: Sprite2D = %LeftHand
+	_left_hand_rest_pos = left_hand.position
+	left_hand.position.y += LEFT_HAND_OFFSCREEN_Y
+
+	_set_toilet_handle_visible(false)
+	_clear_toilet_intel()
+	_set_rubber_visible(true)
+
+	WordManager.current_toilet_canonicals = []
+	WordManager.current_toilet_words = []
+
+	_spawn_scripted_paper(
+		_build_tutorial_session(
+			OnboardingContent.WELCOME_TEXT,
+			OnboardingContent.WELCOME_TARGETS
+		),
+		false
+	)
+	if active_paper:
+		active_paper.set_onboarding_ui(true, OnboardingContent.WELCOME_STICKY_HINT)
+
+
+func _start_normal_shift(spawn_paper: bool = true) -> void:
+	_onboarding_step = OnboardingStep.DONE
+	_onboarding_substep = 0
+	WordManager.shift_score = 0.0
+	_show_gameplay_ui()
+	clock.start_shift()
+	if spawn_paper:
+		_spawn_fresh_paper(false)
+		_roll_toilet_intel(true)
+
+
+func _show_gameplay_ui() -> void:
+	_set_toilet_handle_visible(true)
+	_set_cofefe_visible(true)
+	_set_rubber_visible(false)
+	if active_paper:
+		active_paper.set_onboarding_ui(false)
+
+
+func _set_toilet_handle_visible(show_handle: bool) -> void:
+	var handle := %toilet_handle
+	handle.visible = show_handle
+	%gimme_toilet_btn.disabled = not show_handle
+
+
+func _set_cofefe_visible(show_mug: bool) -> void:
+	var cofefe: Node2D = %Cofefe
+	cofefe.visible = show_mug
+
+
+func _set_rubber_visible(show_rubber: bool) -> void:
+	var rubber: Node2D = get_node_or_null("%Rubber")
+	if rubber == null:
+		return
+	rubber.visible = show_rubber
+	if show_rubber and rubber.has_method("play_entrance"):
+		rubber.play_entrance()
+	elif not show_rubber and rubber.has_method("reset_fly"):
+		rubber.reset_fly()
+
+
+func _clear_toilet_intel() -> void:
+	for child in %toilet_msgs_container.get_children():
+		child.queue_free()
+	WordManager.current_toilet_canonicals = []
+	WordManager.current_toilet_words = []
+
+
+func _build_tutorial_session(text: String, targets: Array[String], decoys: Array = []) -> Dictionary:
+	return {
+		"text": text,
+		"planted_words": targets.duplicate(),
+		"planted_canonicals": targets.duplicate(),
+		"planted_total": targets.size(),
+		"decoys": decoys,
+		"word_scores": {} as Dictionary,
+		"strokes": [] as Array[PackedVector2Array],
+		"stamped": false,
+		"phase": int(Phase.TEACHING),
+		"tutorial_targets": targets.duplicate(),
+	}
+
+
+func _spawn_scripted_paper(scripted_session: Dictionary, animate_in: bool) -> void:
+	_prepare_paper_spawn(animate_in)
+	session = scripted_session
+	_load_session()
+	if _onboarding_step == OnboardingStep.DONE:
+		_refresh_postit_and_penalty()
+	_paper_index += 1
+
+
+func _onboarding_check_progress() -> void:
+	var targets: Array[String] = session.get("tutorial_targets", [])
+	if targets.is_empty():
+		targets = session.get("planted_canonicals", [])
+	if not _tutorial_all_targets_covered(targets):
+		return
+
+	match _onboarding_step:
+		OnboardingStep.WELCOME:
+			_advance_to_toilet_lesson()
+		OnboardingStep.TOILET_LESSON:
+			if _onboarding_substep >= 1:
+				_advance_to_start_briefing()
+		OnboardingStep.START_BRIEFING:
+			PlayerProgress.mark_onboarding_complete()
+			_start_normal_shift(true)
+
+
+func _advance_to_toilet_lesson() -> void:
+	_onboarding_step = OnboardingStep.TOILET_LESSON
+	_onboarding_substep = 0
+	_set_toilet_handle_visible(true)
+	_idle_time = ATTRACT_IDLE_DELAY
+	_spawn_scripted_paper(
+		_build_tutorial_session(
+			OnboardingContent.toilet_text(),
+			OnboardingContent.TOILET_TARGETS
+		),
+		false
+	)
+	if active_paper:
+		active_paper.set_onboarding_ui(true)
+	_start_handle_attract()
+
+
+func _advance_to_start_briefing() -> void:
+	_onboarding_step = OnboardingStep.START_BRIEFING
+	_onboarding_substep = 0
+	_set_rubber_visible(true)
+
+	var left_hand: Sprite2D = %LeftHand
+	var tween := create_tween()
+	tween.tween_property(left_hand, "position", _left_hand_rest_pos, 0.55) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+	_spawn_scripted_paper(
+		_build_tutorial_session(
+			OnboardingContent.briefing_text(),
+			OnboardingContent.BRIEFING_TARGETS
+		),
+		false
+	)
+	if active_paper:
+		active_paper.set_onboarding_ui(true)
+	_show_scripted_intel(OnboardingContent.BRIEFING_TARGETS)
+
+
+func _tutorial_all_targets_covered(targets: Array[String]) -> bool:
+	var text_renderer := _text_renderer()
+	if text_renderer == null or targets.is_empty():
+		return false
+	var all_samples := _stroke_samples_in_text_space_from_array(session.get("strokes", []))
+
+	var need_count: Dictionary = {}
+	for target in targets:
+		need_count[target] = need_count.get(target, 0) + 1
+
+	var got_count: Dictionary = {}
+	for target in need_count:
+		got_count[target] = 0
+
+	for box in text_renderer.word_boxes:
+		var tier := _word_coverage_tier_from_strokes(box, all_samples)
+		if tier != "half" and tier != "full":
+			continue
+		for target in need_count:
+			if got_count[target] >= need_count[target]:
+				continue
+			if _tutorial_word_matches(box, target):
+				got_count[target] += 1
+				break
+
+	for target in need_count:
+		if got_count[target] < need_count[target]:
+			return false
+	return true
+
+
+func _tutorial_word_matches(box: Dictionary, target: String) -> bool:
+	var box_word: String = box.get("word", "")
+	var target_norm := WordManager._normalize(target)
+	if box_word == target_norm:
+		return true
+	var canon := WordManager.canonicalize(box.get("display", ""))
+	return not canon.is_empty() and canon == target
+
+
+func _show_scripted_intel(display_words: Array[String]) -> void:
+	_clear_toilet_intel()
+	var canonicals: Array[String] = session.get("planted_canonicals", [])
+	WordManager.current_toilet_canonicals = canonicals.duplicate()
+	WordManager.current_toilet_words = display_words.duplicate()
+
+	var intel_count := display_words.size()
+	var y_pad_perct := 0.2
+	var y_padding := viewport_size.y * y_pad_perct
+	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / maxi(1, intel_count)
+
+	for i in range(intel_count):
+		var toilet_msg = TOILET_SCN.instantiate()
+		%toilet_msgs_container.add_child(toilet_msg)
+		toilet_msg.position.y = -100
+		toilet_msg.set_label(display_words[i])
+		toilet_msg.prep_tween()
+
+		var msg_tween := create_tween().set_parallel(true)
+		var target_x := randf_range(-50, 50)
+		var target_y := y_padding + (y_spacer * i)
+		target_y += randf_range(-1 * y_padding * 0.1, y_padding * 0.1)
+		msg_tween.tween_property(toilet_msg, "position:y", target_y, 0.6) \
+			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		msg_tween.tween_property(toilet_msg, "position:x", target_x, 0.6) \
+			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+
+	if session.has("text"):
+		_apply_toilet_to_current_paper()
+
+
+func _onboarding_toilet_pull() -> void:
+	var original_pos := Vector2.ZERO
+	var offset_pos := original_pos + Vector2(0, 100)
+	var trans_time := 0.2
+
+	var tween := create_tween()
+	tween.tween_property(%toilet_handle, "position", offset_pos, trans_time) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(%toilet_handle, "position", original_pos, trans_time) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(_onboarding_after_toilet_pull)
+
+
+func _onboarding_after_toilet_pull() -> void:
+	if _onboarding_step != OnboardingStep.TOILET_LESSON or _onboarding_substep != 0:
+		return
+	_onboarding_substep = 1
+	_stop_handle_attract()
+	_show_scripted_intel(OnboardingContent.TOILET_TARGETS)
+
+
+func _on_rubber_erase() -> void:
+	var marker_layer := _marker_layer()
+	if marker_layer == null:
+		return
+	marker_layer.clear_strokes()
+	session["strokes"] = []
+	session["word_scores"] = {}
+
+
+func _on_marker_drawing_started() -> void:
+	var rubber: Node2D = get_node_or_null("%Rubber")
+	if rubber and rubber.has_method("notify_marker_drawing"):
+		rubber.notify_marker_drawing(true)
+
+
+func _notify_fly_marker_idle() -> void:
+	var rubber: Node2D = get_node_or_null("%Rubber")
+	if rubber and rubber.has_method("notify_marker_drawing"):
+		rubber.notify_marker_drawing(false)
+
+
+func _connect_rubber() -> void:
+	var rubber: Node2D = get_node_or_null("%Rubber")
+	if rubber == null:
+		return
+	if rubber.has_signal("erase_requested"):
+		rubber.erase_requested.connect(_on_rubber_erase)
+
+
+# ---------------------------------------------------------------------------
 # Paper lifecycle
 # ---------------------------------------------------------------------------
 
-func _spawn_fresh_paper(animate_in: bool) -> void:
+func _prepare_paper_spawn(animate_in: bool) -> void:
 	if active_paper:
 		if active_paper.marker_layer.stroke_finished.is_connected(_on_stroke_finished):
 			active_paper.marker_layer.stroke_finished.disconnect(_on_stroke_finished)
+		if active_paper.marker_layer.stroke_started.is_connected(_on_marker_drawing_started):
+			active_paper.marker_layer.stroke_started.disconnect(_on_marker_drawing_started)
 		active_paper.queue_free()
 		active_paper = null
 
 	active_paper = PAPER_SCN.instantiate()
 	%papers_container.add_child(active_paper)
 	active_paper.marker_layer.stroke_finished.connect(_on_stroke_finished)
+	active_paper.marker_layer.stroke_started.connect(_on_marker_drawing_started)
 	active_paper.debug_overlay.text_renderer = active_paper.text_renderer
 	active_paper.debug_overlay.tolerance = REDACTION_TOLERANCE
 
@@ -139,6 +437,9 @@ func _spawn_fresh_paper(animate_in: bool) -> void:
 		active_paper.position = offset_pos
 		active_paper.rotation = 0.0
 
+
+func _spawn_fresh_paper(animate_in: bool) -> void:
+	_prepare_paper_spawn(animate_in)
 	session = _build_session()
 	_load_session()
 	_refresh_postit_and_penalty()
@@ -182,6 +483,8 @@ func _build_session() -> Dictionary:
 
 ## Returns the current game phase based on elapsed shift time.
 func _current_phase() -> Phase:
+	if _onboarding_step != OnboardingStep.DONE:
+		return Phase.TEACHING
 	var elapsed := 180.0 - clock.time_left
 	if elapsed < PHASE_TEACHING_END_S:
 		return Phase.TEACHING
@@ -416,6 +719,16 @@ func _on_gimme_toilet_btn_gui_input(event: InputEvent) -> void:
 
 
 func toilet_pull() -> void:
+	if _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep == 0:
+		_onboarding_toilet_pull()
+		return
+	if _onboarding_step != OnboardingStep.DONE:
+		return
+	if active_paper == null:
+		_spawn_fresh_paper(false)
+		_roll_toilet_intel(true)
+		return
+
 	var original_pos := Vector2.ZERO
 	var offset_pos := original_pos + Vector2(0, 100)
 	var trans_time := 0.2
@@ -429,6 +742,8 @@ func toilet_pull() -> void:
 
 
 func _advance_to_new_paper() -> void:
+	if _onboarding_step != OnboardingStep.DONE:
+		return
 	# Lock current paper score: simply save the current session strokes (already done at stroke time).
 	# No submit penalty: unmarked planted words DO NOT incur a -0.5 deduction.
 	_save_session()
@@ -632,7 +947,11 @@ func _check_and_apply_stamp() -> void:
 
 
 func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
+	_notify_fly_marker_idle()
 	_save_session()
+	if _onboarding_step != OnboardingStep.DONE:
+		_onboarding_check_progress()
+		return
 	# Run incremental scorer first — locks per-word deltas and mutates shift_score.
 	var stroke_index := _marker_layer().strokes.size() - 1
 	var score_result := _score_stroke_incremental(stroke_index)
@@ -691,6 +1010,8 @@ func _spawn_score_popup(delta: float, rect: Rect2) -> void:
 
 func _refresh_postit_and_penalty() -> void:
 	if active_paper == null:
+		return
+	if _onboarding_step != OnboardingStep.DONE:
 		return
 	var text_renderer := _text_renderer()
 	var word_scores: Dictionary = session.get("word_scores", {})
@@ -885,10 +1206,14 @@ func _connect_cofefe() -> void:
 
 
 func _on_cofefe_sip() -> void:
+	if _onboarding_step != OnboardingStep.DONE:
+		return
 	clock.add_time(10.0)
 
 
 func _on_cofefe_drag_started() -> void:
+	if _onboarding_step != OnboardingStep.DONE:
+		return
 	var marker_layer := _marker_layer()
 	if marker_layer:
 		marker_layer.set_locked(true)
@@ -901,6 +1226,8 @@ func _on_cofefe_drag_ended() -> void:
 
 
 func _on_cofefe_placed(global_center: Vector2, ring_radius: float, drop_vector: Vector2, drop_speed: float) -> void:
+	if _onboarding_step != OnboardingStep.DONE:
+		return
 	if active_paper == null:
 		return
 	var marker_layer := _marker_layer()

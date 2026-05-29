@@ -8,9 +8,11 @@ const REDACTION_TOLERANCE := 12.0
 
 @onready var marker_layer: MarkerLayer = %MarkerLayer
 @onready var play_label: Label = %PlayLabel
+@onready var save_label: Label = %SaveLabel
 @onready var redaction_debug: Control = %RedactionDebug
 
 var _play_rect_global := Rect2()
+var _save_rect_global := Rect2()
 var _game_started := false
 
 
@@ -20,10 +22,12 @@ func _ready() -> void:
 	marker_layer.hide_os_cursor = false
 	marker_layer.stroke_finished.connect(_on_marker_stroke_finished)
 	get_viewport().size_changed.connect(_fit_marker_layer)
-	resized.connect(_update_play_rect)
-	play_label.resized.connect(_update_play_rect)
+	resized.connect(_update_label_rects)
+	play_label.resized.connect(_update_label_rects)
+	save_label.resized.connect(_update_label_rects)
+	save_label.visible = PlayerProgress.has_completed_onboarding()
 	_fit_marker_layer()
-	call_deferred("_update_play_rect")
+	call_deferred("_update_label_rects")
 
 
 func _fit_marker_layer() -> void:
@@ -33,11 +37,12 @@ func _fit_marker_layer() -> void:
 	if redaction_debug != null:
 		redaction_debug.position = Vector2.ZERO
 		redaction_debug.size = vp_size
-	_update_play_rect()
+	_update_label_rects()
 
 
-func _update_play_rect() -> void:
+func _update_label_rects() -> void:
 	_play_rect_global = play_label.get_global_rect()
+	_save_rect_global = save_label.get_global_rect()
 	if redaction_debug != null:
 		var inv := redaction_debug.get_global_transform_with_canvas().affine_inverse()
 		redaction_debug.target_rect = inv * _play_rect_global
@@ -45,8 +50,8 @@ func _update_play_rect() -> void:
 		redaction_debug.queue_redraw()
 	if debug_redaction:
 		print(
-			"[main_menu] play global rect=%s  marker_size=%s  marker_global=%s"
-			% [_play_rect_global, marker_layer.size, marker_layer.get_global_rect()]
+			"[main_menu] play global rect=%s  save global rect=%s  marker_size=%s"
+			% [_play_rect_global, _save_rect_global, marker_layer.size]
 		)
 
 
@@ -63,6 +68,14 @@ func _on_marker_stroke_finished(_stroke: PackedVector2Array) -> void:
 		redaction_debug.queue_redraw()
 	if debug_redaction:
 		print("[main_menu] stroke finished — %s" % status)
+
+	if save_label.visible and _tier_passes(_coverage_tier_for_rect(_save_rect_global)):
+		PlayerProgress.reset_onboarding()
+		save_label.visible = false
+		marker_layer.clear_strokes()
+		if debug_redaction:
+			print("[main_menu] GAME SAVED redacted — progress wiped")
+		return
 
 	if not _tier_passes(tier):
 		return
@@ -92,11 +105,15 @@ func _global_strokes() -> Array:
 
 
 func _coverage_tier_for_play() -> String:
-	if _play_rect_global.size == Vector2.ZERO:
+	return _coverage_tier_for_rect(_play_rect_global)
+
+
+func _coverage_tier_for_rect(rect: Rect2) -> String:
+	if rect.size == Vector2.ZERO:
 		return "none"
 	return RedactionCoverageScript.coverage_tier(
 		_global_strokes(),
-		_play_rect_global,
+		rect,
 		REDACTION_TOLERANCE
 	)
 

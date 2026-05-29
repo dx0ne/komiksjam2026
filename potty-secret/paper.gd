@@ -57,5 +57,32 @@ func set_stamp_visible(show_stamp: bool) -> void:
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
+func set_onboarding_ui(active: bool, sticky_hint: String = "") -> void:
+	if not is_node_ready():
+		await ready
+	var posit := get_node_or_null("Posit")
+	if posit == null:
+		return
+	%pointsLabel.visible = not active
+	%pointsLabel_good.visible = not active
+	%pointsLabel_bad.visible = not active
+	if active and not sticky_hint.is_empty():
+		%pointsLabel.visible = true
+		%pointsLabel.text = sticky_hint
+		%pointsLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		%pointsLabel.offset_left = -95.0
+		%pointsLabel.offset_top = -110.21475
+		%pointsLabel.offset_right = 5.0
+		%pointsLabel.offset_bottom = 6.785248
+	elif active:
+		%pointsLabel.visible = false
+	else:
+		%pointsLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		%pointsLabel.offset_left = -68.2852
+		%pointsLabel.offset_top = -110.21475
+		%pointsLabel.offset_right = 37.714798
+		%pointsLabel.offset_bottom = 6.785248
+
+
 func marker_point_to_text_local(point: Vector2) -> Vector2:
 	return point + marker_layer.position - text_renderer.position
