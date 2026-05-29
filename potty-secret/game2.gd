@@ -52,6 +52,7 @@ func _ready() -> void:
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
 	# send_to_briefieng is now visual-only; no gui_input handler.
 	clock.time_out.connect(_on_time_out)
+	_connect_cofefe()
 
 	WordManager.shift_score = 0.0
 	_spawn_fresh_paper(false)   # builds session, including planted_canonicals
@@ -68,11 +69,6 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	_register_player_activity()
-	if event is InputEventMouseButton:
-		var mouse := event as InputEventMouseButton
-		if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
-			if _try_cofefe_click(mouse):
-				return
 	if event.is_action_pressed("quit"):
 		get_tree().quit()
 	if event.is_action_pressed("rand_toilet_msg"):
@@ -878,15 +874,45 @@ func _duplicate_strokes(source: Array) -> Array[PackedVector2Array]:
 # Cofefe / end shift
 # ---------------------------------------------------------------------------
 
-func _try_cofefe_click(event: InputEventMouseButton) -> bool:
+func _connect_cofefe() -> void:
 	var cofefe: Node2D = %Cofefe
-	if not cofefe.has_method("contains_global_point"):
-		return false
-	if not cofefe.contains_global_point(event.global_position):
-		return false
+	if not cofefe.has_signal("sip_requested"):
+		return
+	cofefe.sip_requested.connect(_on_cofefe_sip)
+	cofefe.mug_placed.connect(_on_cofefe_placed)
+	cofefe.drag_started.connect(_on_cofefe_drag_started)
+	cofefe.drag_ended.connect(_on_cofefe_drag_ended)
+
+
+func _on_cofefe_sip() -> void:
 	clock.add_time(10.0)
-	get_viewport().set_input_as_handled()
-	return true
+
+
+func _on_cofefe_drag_started() -> void:
+	var marker_layer := _marker_layer()
+	if marker_layer:
+		marker_layer.set_locked(true)
+
+
+func _on_cofefe_drag_ended() -> void:
+	var marker_layer := _marker_layer()
+	if marker_layer:
+		marker_layer.set_locked(false)
+
+
+func _on_cofefe_placed(global_center: Vector2, ring_radius: float, drop_vector: Vector2, drop_speed: float) -> void:
+	if active_paper == null:
+		return
+	var marker_layer := _marker_layer()
+	if marker_layer == null:
+		return
+	var ml_xf := marker_layer.get_global_transform_with_canvas()
+	var local_center := ml_xf.affine_inverse() * global_center
+	if not marker_layer.get_rect().has_point(local_center):
+		return
+	var local_rim := ml_xf.affine_inverse() * (global_center + Vector2(ring_radius, 0.0))
+	var local_radius: float = local_center.distance_to(local_rim)
+	marker_layer.apply_mug_smear(local_center, local_radius, drop_vector, drop_speed)
 
 
 func _on_time_out() -> void:
