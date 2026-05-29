@@ -1,12 +1,14 @@
 [gd_scene format=3 uid="uid://ba8nxwuspjtb5"]
 
 [ext_resource type="Script" uid="uid://b6ch4aoxh3qet" path="res://scenes/desk_props/rubber.gd" id="1_rubber"]
-[ext_resource type="Texture2D" uid="uid://dmotcc4bmf5v7" path="res://assets/mucha.png" id="2_mucha"]
+[ext_resource type="SpriteFrames" uid="uid://lo4l1h8w31y2" path="res://assets/fly_sprite_frames.tres" id="3_tbcbr"]
 
 [node name="Rubber" type="Node2D" unique_id=1181775601]
 script = ExtResource("1_rubber")
 
-[node name="RubberSprite" type="Sprite2D" parent="." unique_id=1801874105]
-rotation = -10.388675
-scale = Vector2(0.4, 0.4)
-texture = ExtResource("2_mucha")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1319475533]
+position = Vector2(11, -10)
+rotation = 1.6371859
+scale = Vector2(0.31192204, 0.31804055)
+sprite_frames = ExtResource("3_tbcbr")
+animation = &"idle"
