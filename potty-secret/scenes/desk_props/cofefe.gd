@@ -15,6 +15,7 @@ var _drag_start_global := Vector2.ZERO
 var _home_position := Vector2.ZERO
 var _last_drag_velocity := Vector2.ZERO
 var _return_tween: Tween
+var _home_index := -1
 @onready var _inside: Sprite2D = $Inside
 
 
@@ -56,12 +57,12 @@ func _input(event: InputEvent) -> void:
 			_drag_offset = global_position - event.global_position
 			_drag_start_global = event.global_position
 			_last_drag_velocity = Vector2.ZERO
-			z_index = 10
+			_raise_for_drag()
 			drag_started.emit()
 			get_viewport().set_input_as_handled()
 		elif _dragging:
 			_dragging = false
-			z_index = 0
+			_restore_draw_order()
 			var moved: float = event.global_position.distance_to(_drag_start_global)
 			if moved < DRAG_THRESHOLD:
 				sip_requested.emit()
@@ -85,3 +86,22 @@ func _tween_home() -> void:
 	_return_tween = create_tween()
 	_return_tween.tween_property(self, "position", _home_position, HOME_TWEEN_DURATION) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _raise_for_drag() -> void:
+	var parent_node := get_parent()
+	if parent_node == null:
+		return
+	_home_index = get_index()
+	parent_node.move_child(self, parent_node.get_child_count() - 1)
+
+
+func _restore_draw_order() -> void:
+	if _home_index < 0:
+		return
+	var parent_node := get_parent()
+	if parent_node == null:
+		_home_index = -1
+		return
+	parent_node.move_child(self, mini(_home_index, parent_node.get_child_count() - 1))
+	_home_index = -1
