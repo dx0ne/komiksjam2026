@@ -1,0 +1,77 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://lo4l1h8w31y2"]
+
+[ext_resource type="Texture2D" uid="uid://cbbfkg8kqfwsi" path="res://assets/fly_animset.png" id="1_eptvs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eptvs"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(443, 443, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ok8g3"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(886, 443, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kxtke"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(1329, 443, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ppkvx"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(0, 443, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oi26l"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(0, 0, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1tvav"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(443, 0, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lunoh"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(886, 0, 443, 443)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_10h4x"]
+atlas = ExtResource("1_eptvs")
+region = Rect2(1329, 0, 443, 443)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eptvs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ok8g3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kxtke")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ppkvx")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oi26l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1tvav")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lunoh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_10h4x")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 5.0
+}]

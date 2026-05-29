@@ -19,7 +19,7 @@ const CLICK_FLEE_SPREAD := 90.0
 const DRAW_FLEE_OFFSET := Vector2(55.0, -45.0)
 const SPRITE_FORWARD := Vector2(1.0, 0.0)
 
-@onready var _sprite: Sprite2D = $RubberSprite
+@onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var _home_position := Vector2.ZERO
 var _state := State.IDLE
@@ -32,6 +32,7 @@ var _click_flee := false
 
 func _ready() -> void:
 	_home_position = position
+	_set_animation("idle")
 
 
 func _process(delta: float) -> void:
@@ -50,6 +51,7 @@ func play_entrance() -> void:
 	_click_flee = false
 	_can_interact = false
 	_state = State.LANDING
+	_set_animation("fly")
 	position = _home_position + Vector2(randf_range(-8.0, 8.0), -LAND_DROP_Y)
 	rotation = randf_range(-0.4, 0.4)
 	modulate.a = 0.85
@@ -73,6 +75,7 @@ func reset_fly() -> void:
 	position = _home_position
 	rotation = 0.0
 	modulate.a = 1.0
+	_set_animation("idle")
 
 
 func notify_marker_drawing(active: bool) -> void:
@@ -87,10 +90,14 @@ func notify_marker_drawing(active: bool) -> void:
 
 
 func contains_global_point(global_point: Vector2) -> bool:
-	if _sprite == null or _sprite.texture == null:
+	if _sprite == null or _sprite.sprite_frames == null:
 		return false
+	var texture := _sprite.sprite_frames.get_frame_texture(_sprite.animation, _sprite.frame)
+	if texture == null:
+		return false
+	var size := texture.get_size()
 	var local := _sprite.get_global_transform_with_canvas().affine_inverse() * global_point
-	return _sprite.get_rect().grow_individual(
+	return Rect2(-size * 0.5, size).grow_individual(
 		CLICK_PADDING.x,
 		CLICK_PADDING.y,
 		CLICK_PADDING.x,
@@ -117,6 +124,7 @@ func _on_clicked() -> void:
 	_can_interact = false
 	_kill_motion()
 	_state = State.FLYING_AWAY
+	_set_animation("fly")
 	erase_requested.emit()
 	_chaotic_fly_and_return()
 
@@ -124,6 +132,7 @@ func _on_clicked() -> void:
 func _begin_idle() -> void:
 	_state = State.IDLE
 	_can_interact = true
+	_set_animation("idle")
 	_schedule_walk()
 
 
@@ -135,6 +144,7 @@ func _do_walk_step() -> void:
 	if _state != State.IDLE or not _can_interact:
 		return
 	_state = State.WALKING
+	_set_animation("walk")
 	var final_target := _clamp_to_walk_radius(_home_position + _random_walk_offset())
 	var hop_count := randi_range(WALK_HOPS_MIN, WALK_HOPS_MAX)
 	var hops: Array[Vector2] = []
@@ -148,6 +158,7 @@ func _do_walk_step() -> void:
 		_append_hop(_motion_tween, hop)
 	_motion_tween.tween_callback(func() -> void:
 		_state = State.IDLE
+		_set_animation("idle")
 		_schedule_walk()
 	)
 
@@ -156,6 +167,7 @@ func _flee_from_drawing() -> void:
 	_drawing_flee = true
 	_kill_motion()
 	_state = State.FLYING_AWAY
+	_set_animation("fly")
 	_can_interact = false
 	var jitter := Vector2(randf_range(-24.0, 24.0), randf_range(-16.0, 8.0))
 	var away := _home_position + DRAW_FLEE_OFFSET + jitter
@@ -169,6 +181,7 @@ func _return_from_drawing() -> void:
 	_drawing_flee = false
 	_kill_motion()
 	_state = State.RETURNING
+	_set_animation("fly")
 	var target := _clamp_to_walk_radius(_home_position + _random_walk_offset() * 0.35)
 	_motion_tween = create_tween()
 	_append_hop(_motion_tween, target, 0.05)
@@ -225,3 +238,9 @@ func _kill_motion() -> void:
 	if _motion_tween and _motion_tween.is_valid():
 		_motion_tween.kill()
 	_motion_tween = null
+
+
+func _set_animation(animation_name: StringName) -> void:
+	if _sprite == null or _sprite.animation == animation_name:
+		return
+	_sprite.play(animation_name)
