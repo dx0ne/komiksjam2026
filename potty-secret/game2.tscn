@@ -8,6 +8,7 @@
 [ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="5_boqrt"]
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://bs2d6x80qn13o" path="res://art/Popielniczka_cien.png" id="10_5gpan"]
 [ext_resource type="PackedScene" uid="uid://bk6otlfx6rr5k" path="res://scenes/desk_props/cofefe.tscn" id="10_boqrt"]
 [ext_resource type="PackedScene" uid="uid://ba8nxwuspjtb5" path="res://scenes/desk_props/rubber.tscn" id="10_rubber"]
 [ext_resource type="Texture2D" uid="uid://dw6hhi6oi7n30" path="res://art/Kawa_cien.png" id="10_vfwdf"]
@@ -256,6 +257,11 @@ material = SubResource("ShaderMaterial_boqrt")
 [node name="toilet_msgs_container" type="Node2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1395577949]
 unique_name_in_owner = true
 position = Vector2(425, 0)
+
+[node name="PopielniczkaCien" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=2031685290]
+position = Vector2(1547.0001, 17.000002)
+scale = Vector2(0.817, 0.817)
+texture = ExtResource("10_5gpan")
 
 [node name="popielniczka" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=653389244]
 position = Vector2(1550, 17)
