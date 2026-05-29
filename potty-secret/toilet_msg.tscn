@@ -3,14 +3,43 @@
 [ext_resource type="Script" uid="uid://cfljy3tlyfux0" path="res://toilet_msg.gd" id="1_sr2dh"]
 [ext_resource type="Texture2D" uid="uid://cfolem6iqi44f" path="res://art/Karteczka_01.png" id="2_3q7nb"]
 [ext_resource type="Texture2D" uid="uid://1k2wos1rull7" path="res://art/Karteczka_02.png" id="3_4a3vv"]
-[ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="3_sr2dh"]
+[ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="3_font"]
 [ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_yka1r"]
 [ext_resource type="Texture2D" uid="uid://dutj00m734fhw" path="res://art/Karteczka_04.png" id="5_jck6c"]
 [ext_resource type="Texture2D" uid="uid://da4230ektywua" path="res://art/Karteczka_05.png" id="6_4v8kd"]
+[ext_resource type="Script" uid="uid://d1ft1b0ls4f0r" path="res://toilet_intel_label.gd" id="7_intel_label"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_6tctt"]
-font = ExtResource("3_sr2dh")
-font_size = 30
+[sub_resource type="LabelSettings" id="LabelSettings_4a3vv"]
+font = ExtResource("3_font")
+font_size = 22
+font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+outline_size = 2
+outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_yka1r"]
+font = ExtResource("3_font")
+font_size = 24
+font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+outline_size = 2
+outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_jck6c"]
+font = ExtResource("3_font")
+font_size = 20
+font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+outline_size = 2
+outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_4v8kd"]
+font = ExtResource("3_font")
+font_size = 22
+font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+outline_size = 2
+outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_qgqi1"]
+font = ExtResource("3_font")
+font_size = 23
 font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
 outline_size = 2
 outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
@@ -23,56 +52,105 @@ unique_name_in_owner = true
 
 [node name="ToiletPaper1" type="Sprite2D" parent="rot_node" unique_id=84428212]
 position = Vector2(13, 5)
-rotation = -0.35807616
 scale = Vector2(1, 0.942)
 texture = ExtResource("2_3q7nb")
 
+[node name="Label" type="Label" parent="rot_node/ToiletPaper1" unique_id=821471381]
+offset_left = -125.99999
+offset_top = -76.43311
+offset_right = 180.36993
+offset_bottom = -40.433113
+rotation = 0.27109885
+scale = Vector2(0.9504546, 0.9504546)
+text = "THE BERMUDA TRIANGLE"
+label_settings = SubResource("LabelSettings_4a3vv")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+script = ExtResource("7_intel_label")
+
 [node name="ToiletPaper2" type="Sprite2D" parent="rot_node" unique_id=1840567605]
+visible = false
 position = Vector2(-3.9999962, 5.0000005)
 scale = Vector2(1, 0.942)
 texture = ExtResource("3_4a3vv")
 
+[node name="Label" type="Label" parent="rot_node/ToiletPaper2" unique_id=821471382]
+offset_left = -156.00002
+offset_top = -46.70913
+offset_right = 174.99998
+offset_bottom = -2.7091293
+rotation = 0.117425814
+scale = Vector2(0.94, 0.94)
+text = "THE BERMUDA TRIANGLE"
+label_settings = SubResource("LabelSettings_yka1r")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+script = ExtResource("7_intel_label")
+preferred_font_size = 38
+min_font_size = 24
+
 [node name="ToiletPaper3" type="Sprite2D" parent="rot_node" unique_id=1212455253]
+visible = false
 position = Vector2(-28.999996, -11.999999)
-rotation = 0.6710451
 scale = Vector2(1, 0.982)
 texture = ExtResource("4_yka1r")
 
+[node name="Label" type="Label" parent="rot_node/ToiletPaper3" unique_id=821471383]
+offset_left = -123.0
+offset_top = 19.348267
+offset_right = 153.0
+offset_bottom = 53.348267
+rotation = -0.4002878
+scale = Vector2(0.94, 0.94)
+text = "THE BERMUDA TRIANGLE"
+label_settings = SubResource("LabelSettings_jck6c")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+script = ExtResource("7_intel_label")
+preferred_font_size = 30
+min_font_size = 20
+
 [node name="ToiletPaper4" type="Sprite2D" parent="rot_node" unique_id=1727218948]
+visible = false
 position = Vector2(22.000004, -3)
-rotation = -0.31243956
 scale = Vector2(1, 0.942)
 texture = ExtResource("5_jck6c")
 
+[node name="Label" type="Label" parent="rot_node/ToiletPaper4" unique_id=821471384]
+offset_left = -153.00002
+offset_top = -63.69427
+offset_right = 160.75603
+offset_bottom = -27.694271
+rotation = 0.3616617
+scale = Vector2(0.9733686, 0.9733686)
+text = "THE BERMUDA TRIANGLE"
+label_settings = SubResource("LabelSettings_4v8kd")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+script = ExtResource("7_intel_label")
+
 [node name="ToiletPaper5" type="Sprite2D" parent="rot_node" unique_id=2060906287]
+visible = false
 position = Vector2(17.000002, 0.9999999)
 scale = Vector2(1, 0.942)
 texture = ExtResource("6_4v8kd")
 
-[node name="label_rot" type="Node2D" parent="rot_node" unique_id=1642747080]
-unique_name_in_owner = true
-
-[node name="Label" type="Label" parent="rot_node/label_rot" unique_id=821471386]
-unique_name_in_owner = true
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -81.0
-offset_top = -25.5
-offset_right = 81.0
-offset_bottom = 25.5
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 4
-mouse_filter = 0
-text = "reptilians"
-label_settings = SubResource("LabelSettings_6tctt")
+[node name="Label" type="Label" parent="rot_node/ToiletPaper5" unique_id=821471385]
+offset_left = -175.0
+offset_top = -19.10828
+offset_right = 164.99997
+offset_bottom = 24.89172
+text = "THE BERMUDA TRIANGLE"
+label_settings = SubResource("LabelSettings_qgqi1")
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
-metadata/_edit_use_anchors_ = true
+script = ExtResource("7_intel_label")
+preferred_font_size = 36
 
 [connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="ready" from="rot_node" to="." method="_on_rot_node_ready"]
