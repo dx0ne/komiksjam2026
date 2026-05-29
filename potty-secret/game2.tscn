@@ -12,8 +12,10 @@
 [ext_resource type="PackedScene" uid="uid://bk6otlfx6rr5k" path="res://scenes/desk_props/cofefe.tscn" id="10_boqrt"]
 [ext_resource type="PackedScene" uid="uid://ba8nxwuspjtb5" path="res://scenes/desk_props/rubber.tscn" id="10_rubber"]
 [ext_resource type="Texture2D" uid="uid://dw6hhi6oi7n30" path="res://art/Kawa_cien.png" id="10_vfwdf"]
+[ext_resource type="Texture2D" uid="uid://bab2ndfy3o7d1" path="res://art/Papieros_cien.png" id="11_7drl1"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
+[ext_resource type="Texture2D" uid="uid://b5y7nip4r0jyr" path="res://art/Papieros.png" id="11_nuj7l"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://bwwd7daweox3k" path="res://art/Palec.png" id="13_52qbx"]
 [ext_resource type="Texture2D" uid="uid://d21cppih2i60n" path="res://art/black_mark.png" id="15_5gpan"]
@@ -262,6 +264,17 @@ position = Vector2(425, 0)
 position = Vector2(1547.0001, 17.000002)
 scale = Vector2(0.817, 0.817)
 texture = ExtResource("10_5gpan")
+
+[node name="PapierosCien" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=745965789]
+position = Vector2(1256.26, 102.883)
+rotation = 0.49392816
+texture = ExtResource("11_7drl1")
+
+[node name="Papieros" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1876066940]
+position = Vector2(1268.67, 91.238)
+rotation = 0.49392816
+scale = Vector2(0.99999994, 0.99999994)
+texture = ExtResource("11_nuj7l")
 
 [node name="popielniczka" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=653389244]
 position = Vector2(1550, 17)
