@@ -407,7 +407,6 @@ speed_scale = 0.3
 process_material = SubResource("ParticleProcessMaterial_2wyxb")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
-visible = false
 position = Vector2(1159, 384)
 color = Color(1, 0.7625536, 0.4121964, 1)
 energy = 0.1
