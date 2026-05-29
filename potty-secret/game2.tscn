@@ -396,9 +396,9 @@ speed_scale = 0.3
 process_material = SubResource("ParticleProcessMaterial_2wyxb")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
-position = Vector2(1250, 427)
-color = Color(0.6666667, 0.8666667, 0.7372549, 1)
-energy = 0.2
+position = Vector2(1159, 384)
+color = Color(1, 0.7625536, 0.4121964, 1)
+energy = 0.1
 range_layer_max = 5
 texture = ExtResource("19_boqrt")
 texture_scale = 3.37
