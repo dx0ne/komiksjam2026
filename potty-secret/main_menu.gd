@@ -3,7 +3,7 @@ extends Control
 const RedactionCoverageScript := preload("res://scripts/redaction_coverage.gd")
 const REDACTION_TOLERANCE := 12.0
 
-@export var debug_redaction := true
+@export var debug_redaction := false
 @export var accept_half_coverage := true
 
 @onready var marker_layer: MarkerLayer = %MarkerLayer

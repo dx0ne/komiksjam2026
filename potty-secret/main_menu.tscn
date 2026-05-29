@@ -142,6 +142,7 @@ script = ExtResource("9_mlayer")
 
 [node name="RedactionDebug" type="Control" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1988772293]
 unique_name_in_owner = true
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1920.0
