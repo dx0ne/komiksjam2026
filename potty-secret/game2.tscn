@@ -263,6 +263,7 @@ scale = Vector2(0.81707317, 0.81707317)
 texture = ExtResource("5_hve3p")
 
 [node name="KawaCien" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1634143868]
+unique_name_in_owner = true
 position = Vector2(709, 127)
 texture = ExtResource("10_vfwdf")
 
@@ -407,7 +408,7 @@ speed_scale = 0.3
 process_material = SubResource("ParticleProcessMaterial_2wyxb")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
-visible = false
+unique_name_in_owner = true
 position = Vector2(1159, 384)
 color = Color(1, 0.7625536, 0.4121964, 1)
 energy = 0.1

@@ -21,6 +21,7 @@ const ScorePopupScene  := preload("res://score_popup.tscn")
 
 const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
+const KAWA_CIEN_FADE_DURATION := 0.15
 
 @onready var clock: ShiftClock = %clock_scn
 
@@ -32,6 +33,9 @@ var session: Dictionary = {}
 
 var _idle_time: float = 0.0
 var _attract_tween: Tween = null
+var _kawa_cien_tween: Tween = null
+var _cofefe_dragging := false
+var _point_light_lit := true
 var _paper_index: int = 0
 var _onboarding_step: OnboardingStep = OnboardingStep.DONE
 var _onboarding_substep: int = 0
@@ -58,6 +62,7 @@ func _ready() -> void:
 	clock.time_out.connect(_on_time_out)
 	_connect_cofefe()
 	_connect_rubber()
+	_connect_point_light()
 
 	WordManager.shift_score = 0.0
 
@@ -189,6 +194,33 @@ func _set_toilet_handle_visible(show_handle: bool) -> void:
 func _set_cofefe_visible(show_mug: bool) -> void:
 	var cofefe: Node2D = %Cofefe
 	cofefe.visible = show_mug
+	var shadow := get_node_or_null("%KawaCien") as CanvasItem
+	if shadow == null:
+		return
+	if _kawa_cien_tween and _kawa_cien_tween.is_valid():
+		_kawa_cien_tween.kill()
+	shadow.visible = show_mug
+	if show_mug:
+		_refresh_kawa_cien(0.0)
+
+
+func _refresh_kawa_cien(fade_duration: float = KAWA_CIEN_FADE_DURATION) -> void:
+	var show_shadow := _point_light_lit and not _cofefe_dragging
+	_fade_kawa_cien(1.0 if show_shadow else 0.0, fade_duration)
+
+
+func _fade_kawa_cien(to_alpha: float, duration: float = KAWA_CIEN_FADE_DURATION) -> void:
+	var shadow := get_node_or_null("%KawaCien") as CanvasItem
+	if shadow == null or not shadow.visible:
+		return
+	if _kawa_cien_tween and _kawa_cien_tween.is_valid():
+		_kawa_cien_tween.kill()
+	if duration <= 0.0:
+		shadow.modulate.a = to_alpha
+		return
+	_kawa_cien_tween = create_tween()
+	_kawa_cien_tween.tween_property(shadow, "modulate:a", to_alpha, duration) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _set_rubber_visible(show_rubber: bool) -> void:
@@ -1227,6 +1259,24 @@ func _connect_cofefe() -> void:
 	cofefe.drag_ended.connect(_on_cofefe_drag_ended)
 
 
+func _connect_point_light() -> void:
+	var light := get_node_or_null("%PointLight2D")
+	if light == null or not light.has_signal("flicker_off"):
+		return
+	light.flicker_off.connect(_on_point_light_flicker_off)
+	light.flicker_on.connect(_on_point_light_flicker_on)
+
+
+func _on_point_light_flicker_off() -> void:
+	_point_light_lit = false
+	_refresh_kawa_cien(0.0)
+
+
+func _on_point_light_flicker_on() -> void:
+	_point_light_lit = true
+	_refresh_kawa_cien(0.0)
+
+
 func _on_cofefe_sip() -> void:
 	if _onboarding_step != OnboardingStep.DONE:
 		return
@@ -1234,6 +1284,8 @@ func _on_cofefe_sip() -> void:
 
 
 func _on_cofefe_drag_started() -> void:
+	_cofefe_dragging = true
+	_refresh_kawa_cien()
 	if _onboarding_step != OnboardingStep.DONE:
 		return
 	var marker_layer := _marker_layer()
@@ -1242,6 +1294,8 @@ func _on_cofefe_drag_started() -> void:
 
 
 func _on_cofefe_drag_ended() -> void:
+	_cofefe_dragging = false
+	_refresh_kawa_cien()
 	var marker_layer := _marker_layer()
 	if marker_layer:
 		marker_layer.set_locked(false)
