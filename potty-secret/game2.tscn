@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://rwgbfuhc2nil" path="res://scenes/right_hand.tscn" id="17_cps6k"]
 [ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="19_boqrt"]
 [ext_resource type="Script" uid="uid://0c4gqtpf2m1h" path="res://scripts/flicker_light.gd" id="19_flicker"]
-[ext_resource type="PackedScene" path="res://scenes/coffee_sip_flash.tscn" id="20_flash"]
+[ext_resource type="PackedScene" uid="uid://ba3hufvmeo3xf" path="res://scenes/coffee_sip_flash.tscn" id="20_flash"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8tca4"]
 shader = ExtResource("5_boqrt")
@@ -398,6 +398,7 @@ layer = 6
 
 [node name="CoffeeSipFlash" parent="CanvasLayer_sip_flash" unique_id=97043199 instance=ExtResource("20_flash")]
 unique_name_in_owner = true
+color = Color(1, 0.1254902, 1, 1)
 peak_brightness = 0.21
 flash_duration = 0.37
 lighten_mix = 0.22
