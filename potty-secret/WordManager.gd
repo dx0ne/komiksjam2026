@@ -15,16 +15,34 @@ var shift_score: float = 0.0
 ## TYPO_OR_SYNONYM → return typos + synonyms combined (falls back to [canonical] if both empty).
 enum VariantMode { CANONICAL, TYPO, SYNONYM, TYPO_OR_SYNONYM }
 
+## Topic pack ids. Only one pack is active per shift for now; more unlock as levels later.
+const TOPIC_ALIENS := "aliens"
+const TOPIC_CRYPTIDS := "cryptids"
+const TOPIC_CONSPIRACY := "conspiracy"
+const TOPIC_POP_CULTURE := "pop_culture"
+
+## Active word pack for this build. Gameplay draws planted words, decoys, and lookups from here.
+var active_topic_id: String = TOPIC_ALIENS
+
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
-## Returns count distinct canonicals sampled without replacement from master_list.
+## Word entries for the active topic. Other code should treat this as the live pool.
+var master_list: Array[Dictionary]:
+	get:
+		var result: Array[Dictionary] = []
+		for entry in _active_entries():
+			result.append(entry)
+		return result
+
+
+## Returns count distinct canonicals sampled without replacement from the active topic.
 ## Caller can call display_variants() per canonical to get the actual display form.
 func pick_random_canonicals(count: int) -> Array[String]:
 	var pool: Array[String] = []
-	for entry in master_list:
+	for entry in _active_entries():
 		pool.append(entry["canonical"])
 	pool.shuffle()
 	var result: Array[String] = []
@@ -56,7 +74,7 @@ func get_next_batch(count: int = 4) -> Array[String]:
 ## phase once all callers are confirmed dead.
 func _refill_queue():
 	active_queue = []
-	for entry in master_list:
+	for entry in _active_entries():
 		active_queue.append(entry["canonical"])
 	active_queue.shuffle()
 
@@ -69,7 +87,7 @@ func _refill_queue():
 ## avoid a cross-class dependency from WordManager into TextRenderer.
 func canonicalize(word: String) -> String:
 	var norm := _normalize(word)
-	for entry in master_list:
+	for entry in _active_entries():
 		if _normalize(entry["canonical"]) == norm:
 			return entry["canonical"]
 		for t in entry["typos"]:
@@ -85,7 +103,7 @@ func canonicalize(word: String) -> String:
 ## canonical must match the "canonical" field exactly (case-sensitive).
 ## Returns [] if canonical is not found at all (programmer error).
 func display_variants(canonical: String, mode: VariantMode) -> Array[String]:
-	for entry in master_list:
+	for entry in _active_entries():
 		if entry["canonical"] == canonical:
 			var typos: Array[String] = []
 			for t in entry["typos"]:
@@ -118,6 +136,10 @@ func display_variants(canonical: String, mode: VariantMode) -> Array[String]:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+func _active_entries() -> Array:
+	return _topics.get(active_topic_id, [])
+
 
 ## Normalise a word for lookup: lowercase, keep only a-z 0-9.
 ## Mirrors text_renderer.gd._normalize_word — inlined to avoid cross-dependency.
@@ -161,152 +183,172 @@ var templates: Array[String] = [
 
 
 # ---------------------------------------------------------------------------
-# Master list — canonical entries with typo and synonym pools
+# Topic word packs — canonical entries with typo and synonym pools
 #
 # Typos are plausible single-character typewriter slips:
 #   adjacent-key swap, doubled letter, missed letter, transposition.
 # Synonyms are reasonable clerk-written substitutes for the canonical.
 # Multi-word canonicals use single-word synonyms where sensible; typos
 #   do not span the space boundary.
+#
+# Only active_topic_id is used at runtime. Other packs stay ready for future levels.
 # ---------------------------------------------------------------------------
 
-var master_list: Array[Dictionary] = [
-	{
-		"canonical": "aliens",
-		"typos":    ["allens", "aloiens", "alienz", "alians"],
-		"synonyms": ["Them", "space people", "visitors"],
-	},
-	{
-		"canonical": "Elvis",
-		"typos":    ["Evlis", "Elviss", "Elvls"],
-		"synonyms": ["the King", "Presley"],
-	},
-	{
-		"canonical": "bigfoot",
-		"typos":    ["bigfooot", "bifoot", "bigfot"],
-		"synonyms": ["sasquatch", "the hairy creature"],
-	},
-	{
-		"canonical": "reptilians",
-		"typos":    ["reptilans", "reptilions", "reptelians"],
-		"synonyms": ["lizard men", "snake people"],
-	},
-	{
-		"canonical": "Big Secret",
-		"typos":    ["Biq Secret", "Big Secreet"],
-		"synonyms": ["The Secret", "Beautiful Secret"],
-	},
-	{
-		"canonical": "Area 51",
-		"typos":    ["Area 15", "Ares 51", "Aera 51"],
-		"synonyms": ["The Base", "Secret Base"],
-	},
-	{
-		"canonical": "Roswell",
-		"typos":    ["Rosswell", "Roswel", "Rosswel"],
-		"synonyms": ["crash site", "incident 1947"],
-	},
-	{
-		"canonical": "MKUltra",
-		"typos":    ["MKUlrta", "MkUltra", "MKUltraa", "MKUlra"],
-		"synonyms": ["Secret Program", "Secret Experiment"],
-	},
-	{
-		"canonical": "Mothman",
-		"typos":    ["Mothmen", "Mothmann", "Mothnman"],
-		"synonyms": ["Fly Man", "Bug Man"],
-	},
-	{
-		"canonical": "chemtrails",
-		"typos":    ["chemtrils", "chemtrales", "chemtraills"],
-		"synonyms": ["sky lines", "sky chemicals"],
-	},
-	{
-		"canonical": "Illuminati",
-		"typos":    ["Iluminati", "Illumnati", "Illuminatti"],
-		"synonyms": ["the order", "the brotherhood"],
-	},
-	{
-		"canonical": "UFOs",
-		"typos":    ["UF0s", "UFOss", "UGOs"],
-		"synonyms": ["bogeys"],
-	},
-	{
-		"canonical": "the Grays",
-		"typos":    ["the Greys", "the Graays"],
-		"synonyms": ["space men", "space ones"],
-	},
-	{
-		"canonical": "flying saucers",
-		"typos":    ["flying saucres", "flyng saucers"],
-		"synonyms": ["discs", "alien ships"],
-	},
-	{
-		"canonical": "abductions",
-		"typos":    ["abductins", "abdcutions", "abductionns"],
-		"synonyms": ["takings", "encounters"],
-	},
-	{
-		"canonical": "Nessie",
-		"typos":    ["Nesie", "Nessye", "Nesssi"],
-		"synonyms": ["lake monster", "the serpent"],
-	},
-	{
-		"canonical": "chupacabra",
-		"typos":    ["chupacabara", "chupaccabra", "chupacabrs"],
-		"synonyms": ["the goat sucker", "el chupas"],
-	},
-	{
-		"canonical": "the Yeti",
-		"typos":    ["the Yeeti", "the Yetti"],
-		"synonyms": ["snow creature", "snowman"],
-	},
-	{
-		"canonical": "Project Blue Book",
-		"typos":    ["Project Bleu Book", "Project Bule Book"],
-		"synonyms": [],
-	},
-	{
-		"canonical": "the Bermuda Triangle",
-		"typos":    ["the Bermuda Triange", "the Bermuda Triangel"],
-		"synonyms": [],
-	},
-	{
-		"canonical": "the Moon Landing",
-		"typos":    ["the Moon Lnading", "the Moon Landign"],
-		"synonyms": ["the Moon trip", "the Moon visit"],
-	},
-	{
-		"canonical": "Hollow Earth",
-		"typos":    ["Holloow Earth", "Hollow Eath", "Holllow Earth"],
-		"synonyms": ["Agharta"],
-	},
-	{
-		"canonical": "JFK",
-		"typos":    ["JFk", "JFK1", "JGK"],
-		"synonyms": ["killed president", "Dallas thing", "jfk"],
-	},
-	{
-		"canonical": "the deep state",
-		"typos":    ["the deep staet", "the depp state"],
-		"synonyms": [],
-	},
-	{
-		"canonical": "Bilderberg",
-		"typos":    ["Bilderburg", "Bilerberg", "Bilderberq"],
-		"synonyms": ["Secret Group"],
-	},
-	{
-		"canonical": "New World Order",
-		"typos":    ["New Wrold Order", "New World Ordr"],
-		"synonyms": ["Secret Plan"],
-	},
-	{
-		"canonical": "Tupac",
-		"typos":    ["Tupak", "Tupca", "Tupacc"],
-		"synonyms": ["2Pac", "Secret Rapper"],
-	},
-]
+var _topics: Dictionary = {
+	TOPIC_ALIENS: [
+		{
+			"canonical": "aliens",
+			"typos":    ["allens", "aloiens", "alienz", "alians"],
+			"synonyms": ["Them", "space people", "visitors"],
+		},
+		{
+			"canonical": "UFOs",
+			"typos":    ["UF0s", "UFOss", "UGOs"],
+			"synonyms": ["bogeys", "unidentified objects"],
+		},
+		{
+			"canonical": "flying saucers",
+			"typos":    ["flying saucres", "flyng saucers"],
+			"synonyms": ["discs", "alien ships"],
+		},
+		{
+			"canonical": "abductions",
+			"typos":    ["abductins", "abdcutions", "abductionns"],
+			"synonyms": ["takings", "encounters"],
+		},
+		{
+			"canonical": "the Grays",
+			"typos":    ["the Greys", "the Graays"],
+			"synonyms": ["space men", "space ones"],
+		},
+		{
+			"canonical": "reptilians",
+			"typos":    ["reptilans", "reptilions", "reptelians"],
+			"synonyms": ["lizard men", "snake people"],
+		},
+		{
+			"canonical": "Area 51",
+			"typos":    ["Area 15", "Ares 51", "Aera 51"],
+			"synonyms": ["The Base", "Secret Base"],
+		},
+		{
+			"canonical": "Roswell",
+			"typos":    ["Rosswell", "Roswel", "Rosswel"],
+			"synonyms": ["crash site", "incident 1947"],
+		},
+		{
+			"canonical": "Project Blue Book",
+			"typos":    ["Project Bleu Book", "Project Bule Book"],
+			"synonyms": ["Blue Book files", "UFO report"],
+		},
+		{
+			"canonical": "close encounters",
+			"typos":    ["close encouters", "close encountrs"],
+			"synonyms": ["sightings", "contact events"],
+		},
+		{
+			"canonical": "cattle mutilations",
+			"typos":    ["cattle mutilatins", "cattel mutilations"],
+			"synonyms": ["livestock incidents", "field mutilations"],
+		},
+	],
+	TOPIC_CRYPTIDS: [
+		{
+			"canonical": "bigfoot",
+			"typos":    ["bigfooot", "bifoot", "bigfot"],
+			"synonyms": ["sasquatch", "the hairy creature"],
+		},
+		{
+			"canonical": "Mothman",
+			"typos":    ["Mothmen", "Mothmann", "Mothnman"],
+			"synonyms": ["Fly Man", "Bug Man"],
+		},
+		{
+			"canonical": "Nessie",
+			"typos":    ["Nesie", "Nessye", "Nesssi"],
+			"synonyms": ["lake monster", "the serpent"],
+		},
+		{
+			"canonical": "chupacabra",
+			"typos":    ["chupacabara", "chupaccabra", "chupacabrs"],
+			"synonyms": ["the goat sucker", "el chupas"],
+		},
+		{
+			"canonical": "the Yeti",
+			"typos":    ["the Yeeti", "the Yetti"],
+			"synonyms": ["snow creature", "snowman"],
+		},
+	],
+	TOPIC_CONSPIRACY: [
+		{
+			"canonical": "MKUltra",
+			"typos":    ["MKUlrta", "MkUltra", "MKUltraa", "MKUlra"],
+			"synonyms": ["Secret Program", "Secret Experiment"],
+		},
+		{
+			"canonical": "chemtrails",
+			"typos":    ["chemtrils", "chemtrales", "chemtraills"],
+			"synonyms": ["sky lines", "sky chemicals"],
+		},
+		{
+			"canonical": "Illuminati",
+			"typos":    ["Iluminati", "Illumnati", "Illuminatti"],
+			"synonyms": ["the order", "the brotherhood"],
+		},
+		{
+			"canonical": "the deep state",
+			"typos":    ["the deep staet", "the depp state"],
+			"synonyms": [],
+		},
+		{
+			"canonical": "Bilderberg",
+			"typos":    ["Bilderburg", "Bilerberg", "Bilderberq"],
+			"synonyms": ["Secret Group"],
+		},
+		{
+			"canonical": "New World Order",
+			"typos":    ["New Wrold Order", "New World Ordr"],
+			"synonyms": ["Secret Plan"],
+		},
+		{
+			"canonical": "the Bermuda Triangle",
+			"typos":    ["the Bermuda Triange", "the Bermuda Triangel"],
+			"synonyms": [],
+		},
+		{
+			"canonical": "the Moon Landing",
+			"typos":    ["the Moon Lnading", "the Moon Landign"],
+			"synonyms": ["the Moon trip", "the Moon visit"],
+		},
+		{
+			"canonical": "Hollow Earth",
+			"typos":    ["Holloow Earth", "Hollow Eath", "Holllow Earth"],
+			"synonyms": ["Agharta"],
+		},
+		{
+			"canonical": "JFK",
+			"typos":    ["JFk", "JFK1", "JGK"],
+			"synonyms": ["killed president", "Dallas thing", "jfk"],
+		},
+	],
+	TOPIC_POP_CULTURE: [
+		{
+			"canonical": "Elvis",
+			"typos":    ["Evlis", "Elviss", "Elvls"],
+			"synonyms": ["the King", "Presley"],
+		},
+		{
+			"canonical": "Big Secret",
+			"typos":    ["Biq Secret", "Big Secreet"],
+			"synonyms": ["The Secret", "Beautiful Secret"],
+		},
+		{
+			"canonical": "Tupac",
+			"typos":    ["Tupak", "Tupca", "Tupacc"],
+			"synonyms": ["2Pac", "Secret Rapper"],
+		},
+	],
+}
 
 
 var names: Array[String] = [

@@ -261,6 +261,7 @@ unique_name_in_owner = true
 position = Vector2(425, 0)
 
 [node name="PopielniczkaCien" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=2031685290]
+unique_name_in_owner = true
 position = Vector2(1547.0001, 17.000002)
 scale = Vector2(0.817, 0.817)
 texture = ExtResource("10_5gpan")
@@ -293,6 +294,20 @@ position = Vector2(696, 130)
 [node name="Rubber" parent="CanvasLayer_strokes/CanvasGroup" unique_id=632363925 instance=ExtResource("10_rubber")]
 unique_name_in_owner = true
 position = Vector2(1804, 944)
+
+[node name="CanvasLayer_newspaper" type="CanvasLayer" parent="." unique_id=901122334]
+unique_name_in_owner = true
+layer = 3
+
+[node name="newspaper_container" type="Control" parent="CanvasLayer_newspaper" unique_id=901122336]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="CanvasLayer_hand" type="CanvasLayer" parent="." unique_id=1880257764]
 layer = 4

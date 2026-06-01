@@ -112,12 +112,10 @@ func _init() -> void:
 	# -------------------------------------------------------------------------
 	# 10. Intel variant mode logic exists in game2.gd for all 3 phases
 	# -------------------------------------------------------------------------
-	_assert_true("game2.gd _intel_variant_mode_for_phase handles TEACHING->CANONICAL",
-		game2_src.find("TEACHING") != -1)
-	_assert_true("game2.gd _intel_variant_mode_for_phase handles LIGHT->TYPO/SYNONYM",
-		game2_src.find("LIGHT") != -1)
-	_assert_true("game2.gd _intel_variant_mode_for_phase handles FULL->TYPO_OR_SYNONYM",
-		game2_src.find("TYPO_OR_SYNONYM") != -1)
+	_assert_true("game2.gd _intel_variant_mode_for_phase handles TEACHING/LIGHT->CANONICAL",
+		game2_src.find("Phase.TEACHING, Phase.LIGHT") != -1)
+	_assert_true("game2.gd _intel_variant_mode_for_phase handles FULL->CANONICAL/SYNONYM",
+		game2_src.find("VariantMode.SYNONYM") != -1)
 
 	# -------------------------------------------------------------------------
 	# Summary

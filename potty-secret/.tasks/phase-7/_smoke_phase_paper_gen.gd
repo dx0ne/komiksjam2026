@@ -72,9 +72,9 @@ func _init() -> void:
 		_phase_for_elapsed(120.0), PHASE_FULL)
 	_assert_eq("TEACHING -> mode CANONICAL",
 		_mode_for_phase(PHASE_TEACHING, VARIANT_CANONICAL, VARIANT_TYPO), VARIANT_CANONICAL)
-	_assert_eq("LIGHT -> mode CANONICAL",
-		_mode_for_phase(PHASE_LIGHT, VARIANT_CANONICAL, VARIANT_TYPO), VARIANT_CANONICAL)
-	# FULL is 50/50 — just verify result is either CANONICAL or TYPO
+	# LIGHT/FULL are 50/50 — verify result is either CANONICAL or TYPO
+	var light_mode := _mode_for_phase_randomised(PHASE_LIGHT, VARIANT_CANONICAL, VARIANT_TYPO)
+	_assert_in("LIGHT -> mode is CANONICAL or TYPO", light_mode, [VARIANT_CANONICAL, VARIANT_TYPO])
 	var full_mode := _mode_for_phase_randomised(PHASE_FULL, VARIANT_CANONICAL, VARIANT_TYPO)
 	_assert_in("FULL -> mode is CANONICAL or TYPO", full_mode, [VARIANT_CANONICAL, VARIANT_TYPO])
 
@@ -153,17 +153,17 @@ func _phase_for_elapsed(elapsed: float) -> int:
 	return 2  # FULL
 
 
-# Mirror of _paper_variant_mode_for_phase() for TEACHING/LIGHT (deterministic)
+# Mirror of _paper_variant_mode_for_phase() for TEACHING (deterministic)
 func _mode_for_phase(phase: int, canonical_val: int, _typo_val: int) -> int:
 	match phase:
-		0, 1:  # TEACHING, LIGHT
+		0:  # TEACHING
 			return canonical_val
-	return canonical_val  # fallback (FULL is randomised, tested separately)
+	return canonical_val  # fallback (LIGHT/FULL are randomised, tested separately)
 
 
-# Mirror for FULL phase (randomised)
+# Mirror for LIGHT/FULL phase (randomised 50/50 canonical or typo)
 func _mode_for_phase_randomised(phase: int, canonical_val: int, typo_val: int) -> int:
-	if phase == 2:  # FULL
+	if phase == 1 or phase == 2:  # LIGHT, FULL
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
 		return typo_val if rng.randf() < 0.5 else canonical_val

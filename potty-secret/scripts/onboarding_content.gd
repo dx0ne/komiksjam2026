@@ -11,11 +11,11 @@ const WELCOME_TEXT := (
 
 const WELCOME_STICKY_HINT := "accept?"
 
-const TOILET_TARGETS: Array[String] = ["MKUltra", "Area 51"]
+const TOILET_TARGETS: Array[String] = ["UFOs", "Area 51"]
 
 const TOILET_TEXT := (
 	"MEMO 7B/∞ — RE: interdepartmental flux capacitor audit pursuant to "
-	+ "Form 12-Q (rev. never). All personnel shall cross-reference MKUltra "
+	+ "Form 12-Q (rev. never). All personnel shall cross-reference UFOs "
 	+ "with Area 51 before the quarterly silence review. "
 	+ "This message will self-destruct in your plumbing. "
 	+ "If you choose to proceed, pull the handle and redact the words from the toilet paper."

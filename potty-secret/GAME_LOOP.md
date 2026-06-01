@@ -4,7 +4,7 @@ Main scene: `game2.tscn` · Logic: `game2.gd` · Words: `WordManager` (autoload)
 
 ## Fantasy
 
-You are a ministry clerk during a timed shift. Confidential memos land on your desk filled with words from the master list. Toilet intel tells you which terms are **forbidden today**. Black out only those words. Wrong marks hurt you; a clean sheet earns a stamp. Yank the toilet handle to discard the current memo and pull a new one — but every reroll is a new memo with new intel, so there is no "same paper, new intel" option. The longer you work, the more the intel lies: typos and synonyms replace the canonical word, and decoy entries are sprinkled into the memo to bait wrong marks.
+You are a ministry clerk during a timed shift. Confidential memos land on your desk filled with words from the master list. Toilet intel tells you which terms are **forbidden today**. Black out only those words. Wrong marks hurt you; a clean sheet earns a stamp. Yank the toilet handle to discard the current memo and pull a new one — but every reroll is a new memo with new intel, so there is no "same paper, new intel" option. The longer you work, the harder it gets: typos appear on the memo, synonyms replace toilet intel in the final phase, and decoy entries are sprinkled into the memo to bait wrong marks.
 
 ## One shift (high level)
 
@@ -59,8 +59,8 @@ Phase is computed every spawn / intel roll from elapsed shift time:
 | Elapsed time | Phase | Paper renders planted as | Intel renders as | Decoys |
 |---|---|---|---|---|
 | 0 – 60s   | `TEACHING` | canonical | canonical | 0 |
-| 60 – 120s | `LIGHT`    | canonical | per slot 50/50 typo or synonym | 1–2, edit-distance ≤ 4 from any intel string |
-| 120 – 180s | `FULL`     | per slot 50/50 canonical or typo | typo OR synonym (pool combined) | 2–4, edit-distance ≤ 2 from any intel string |
+| 60 – 120s | `LIGHT`    | per slot 50/50 canonical or typo | canonical | 1–2, edit-distance ≤ 4 from any intel string |
+| 120 – 180s | `FULL`     | per slot 50/50 canonical or typo | per slot 50/50 canonical or synonym | 2–4, edit-distance ≤ 2 from any intel string |
 
 Decoy selection prefers non-planted canonicals whose display variants are visually similar (Levenshtein ≤ threshold) to one of the intel strings; if too few similar candidates exist, tops up with random non-planted canonicals. Decoys are rendered into a phase-appropriate trailing sentence ("Cross-reference also noted: …", "Additional surveillance flags: …", etc.).
 
@@ -163,7 +163,7 @@ Global shift state (on `WordManager`):
 - **Risk:** marking the wrong word (-0.5); leaving planted words untouched (just zero, no penalty)
 - **Clarity:** toilet strip = law (but the law lies in later phases); post-it X/Y = progress on this sheet; floating deltas = immediate feedback
 - **Reward:** stamp on perfect page; visible cumulative shift score across the session
-- **Eye-skill ramp:** TEACHING reads literally → LIGHT forces you to match typos and synonyms → FULL adds decoys that *look* like the intel
+- **Eye-skill ramp:** TEACHING reads literally → LIGHT adds memo typos while intel stays canonical → FULL adds synonym intel and tighter decoys
 
 Tuning knobs: `clock.gd` `wait_time`; `COVERAGE_*` / `REDACTION_TOLERANCE` in `game2.gd`; `TOILET_INTEL_COUNT`, `WORDS_IN_DOCUMENT`; phase boundaries `PHASE_TEACHING_END_S` / `PHASE_LIGHT_END_S`; decoy count and edit-distance thresholds in `_pick_decoy_canonicals`; `templates` / `master_list` in `WordManager.gd`.
 

@@ -18,6 +18,7 @@ const LEFT_HAND_OFFSCREEN_Y := 400.0
 const TOILET_SCN       := preload("res://toilet_msg.tscn")
 const PAPER_SCN        := preload("res://paper.tscn")
 const ScorePopupScene  := preload("res://score_popup.tscn")
+const TOPIC_NEWSPAPER_SCN := preload("res://scenes/topic_newspaper.tscn")
 
 const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
@@ -33,7 +34,7 @@ var session: Dictionary = {}
 
 var _idle_time: float = 0.0
 var _attract_tween: Tween = null
-var _kawa_cien_tween: Tween = null
+var _cien_tweens: Dictionary = {}
 var _cofefe_dragging := false
 var _point_light_lit := true
 var _paper_index: int = 0
@@ -88,7 +89,7 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	_register_player_activity()
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F9:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_PAGEDOWN:
 		PlayerProgress.reset_onboarding()
 		get_tree().reload_current_scene()
 		return
@@ -166,6 +167,47 @@ func _begin_shift_start() -> void:
 	_show_scripted_intel(OnboardingContent.SHIFT_START_TARGETS)
 
 
+func _begin_topic_shift() -> void:
+	if PlayerProgress.has_seen_topic_intro(WordManager.active_topic_id):
+		_start_normal_shift(true)
+		return
+	_show_topic_newspaper()
+
+
+func _layout_newspaper_container(container: Control) -> void:
+	var vp_size := get_viewport().get_visible_rect().size
+	container.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	container.position = Vector2.ZERO
+	container.size = vp_size
+
+
+func _show_topic_newspaper() -> void:
+	if active_paper:
+		active_paper.queue_free()
+		active_paper = null
+	_set_toilet_handle_visible(false)
+	_clear_toilet_intel()
+
+	var container: Control = %newspaper_container
+	_layout_newspaper_container(container)
+	for child in container.get_children():
+		child.queue_free()
+
+	var newspaper: TopicNewspaper = TOPIC_NEWSPAPER_SCN.instantiate()
+	newspaper.dismissed.connect(_on_topic_newspaper_dismissed)
+	container.add_child(newspaper)
+	newspaper.setup(WordManager.active_topic_id)
+	%CanvasLayer_newspaper.show()
+
+
+func _on_topic_newspaper_dismissed() -> void:
+	PlayerProgress.mark_topic_intro_seen(WordManager.active_topic_id)
+	%CanvasLayer_newspaper.hide()
+	for child in %newspaper_container.get_children():
+		child.queue_free()
+	_start_normal_shift(true)
+
+
 func _start_normal_shift(spawn_paper: bool = true) -> void:
 	_onboarding_step = OnboardingStep.DONE
 	_onboarding_substep = 0
@@ -197,8 +239,7 @@ func _set_cofefe_visible(show_mug: bool) -> void:
 	var shadow := get_node_or_null("%KawaCien") as CanvasItem
 	if shadow == null:
 		return
-	if _kawa_cien_tween and _kawa_cien_tween.is_valid():
-		_kawa_cien_tween.kill()
+	_kill_cien_tween("KawaCien")
 	shadow.visible = show_mug
 	if show_mug:
 		_refresh_kawa_cien(0.0)
@@ -206,20 +247,33 @@ func _set_cofefe_visible(show_mug: bool) -> void:
 
 func _refresh_kawa_cien(fade_duration: float = KAWA_CIEN_FADE_DURATION) -> void:
 	var show_shadow := _point_light_lit and not _cofefe_dragging
-	_fade_kawa_cien(1.0 if show_shadow else 0.0, fade_duration)
+	_fade_cien("KawaCien", 1.0 if show_shadow else 0.0, fade_duration)
 
 
-func _fade_kawa_cien(to_alpha: float, duration: float = KAWA_CIEN_FADE_DURATION) -> void:
-	var shadow := get_node_or_null("%KawaCien") as CanvasItem
+func _refresh_popielniczka_cien(fade_duration: float = KAWA_CIEN_FADE_DURATION) -> void:
+	_fade_cien("PopielniczkaCien", 1.0 if _point_light_lit else 0.0, fade_duration)
+
+
+func _kill_cien_tween(unique_name: StringName) -> void:
+	if not _cien_tweens.has(unique_name):
+		return
+	var tween: Tween = _cien_tweens[unique_name]
+	if tween and tween.is_valid():
+		tween.kill()
+	_cien_tweens.erase(unique_name)
+
+
+func _fade_cien(unique_name: StringName, to_alpha: float, duration: float = KAWA_CIEN_FADE_DURATION) -> void:
+	var shadow := get_node_or_null("%" + str(unique_name)) as CanvasItem
 	if shadow == null or not shadow.visible:
 		return
-	if _kawa_cien_tween and _kawa_cien_tween.is_valid():
-		_kawa_cien_tween.kill()
+	_kill_cien_tween(unique_name)
 	if duration <= 0.0:
 		shadow.modulate.a = to_alpha
 		return
-	_kawa_cien_tween = create_tween()
-	_kawa_cien_tween.tween_property(shadow, "modulate:a", to_alpha, duration) \
+	var tween := create_tween()
+	_cien_tweens[unique_name] = tween
+	tween.tween_property(shadow, "modulate:a", to_alpha, duration) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
@@ -280,9 +334,9 @@ func _onboarding_check_progress() -> void:
 				_advance_to_start_briefing()
 		OnboardingStep.START_BRIEFING:
 			PlayerProgress.mark_onboarding_complete()
-			_start_normal_shift(true)
+			_begin_topic_shift()
 		OnboardingStep.SHIFT_START:
-			_start_normal_shift(true)
+			_begin_topic_shift()
 
 
 func _advance_to_toilet_lesson() -> void:
@@ -548,37 +602,31 @@ func _current_phase() -> Phase:
 
 
 ## Returns the VariantMode to use for a single planted paper slot given the current phase.
-## NOTE: LIGHT is 50/50 CANONICAL/TYPO; FULL is 80/20 TYPO/CANONICAL — call this
-## PER PLANTED SLOT, not once per paper, so each slot gets its own independent draw.
+## TEACHING → CANONICAL; LIGHT/FULL → 50/50 CANONICAL/TYPO per slot.
+## Call this PER PLANTED SLOT, not once per paper, so each slot gets its own independent draw.
 ## SYNONYM is never returned here: synonyms are intel-only.
 func _paper_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode:
 	match phase:
 		Phase.TEACHING:
 			return WordManager.VariantMode.CANONICAL
-		Phase.LIGHT:
+		Phase.LIGHT, Phase.FULL:
 			if rng.randf() < 0.5:
-				return WordManager.VariantMode.TYPO
-			return WordManager.VariantMode.CANONICAL
-		Phase.FULL:
-			if rng.randf() < 0.8:
 				return WordManager.VariantMode.TYPO
 			return WordManager.VariantMode.CANONICAL
 	return WordManager.VariantMode.CANONICAL
 
 
 ## Returns the VariantMode to use for a single intel slot given the current phase.
-## TEACHING → CANONICAL; LIGHT → TYPO or SYNONYM (50/50 per slot); FULL → TYPO_OR_SYNONYM.
+## TEACHING/LIGHT → CANONICAL; FULL → 50/50 CANONICAL/SYNONYM per slot.
 ## Call this PER INTEL SLOT so each slot gets its own independent random draw.
 func _intel_variant_mode_for_phase(phase: Phase) -> WordManager.VariantMode:
 	match phase:
-		Phase.TEACHING:
+		Phase.TEACHING, Phase.LIGHT:
 			return WordManager.VariantMode.CANONICAL
-		Phase.LIGHT:
-			if rng.randf() < 0.5:
-				return WordManager.VariantMode.TYPO
-			return WordManager.VariantMode.SYNONYM
 		Phase.FULL:
-			return WordManager.VariantMode.TYPO_OR_SYNONYM
+			if rng.randf() < 0.5:
+				return WordManager.VariantMode.SYNONYM
+			return WordManager.VariantMode.CANONICAL
 	return WordManager.VariantMode.CANONICAL
 
 
@@ -1270,11 +1318,13 @@ func _connect_point_light() -> void:
 func _on_point_light_flicker_off() -> void:
 	_point_light_lit = false
 	_refresh_kawa_cien(0.0)
+	_refresh_popielniczka_cien(0.0)
 
 
 func _on_point_light_flicker_on() -> void:
 	_point_light_lit = true
 	_refresh_kawa_cien(0.0)
+	_refresh_popielniczka_cien(0.0)
 
 
 func _on_cofefe_sip() -> void:
