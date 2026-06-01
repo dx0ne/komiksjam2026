@@ -24,6 +24,21 @@ const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
 const KAWA_CIEN_FADE_DURATION := 0.15
 
+const COFFEE_SIPS_PER_SHIFT := 5
+const COFFEE_TIME_BONUS_S := 10.0
+const COFFEE_TIME_POPUP_OFFSET := Vector2(24.0, -72.0)
+const COFFEE_JITTER_MIN_S := 7.0 / 3.0
+const COFFEE_JITTER_MAX_S := 16.0 / 3.0
+## Higher force → shorter wait between twitches (see `_jitter_interval_for_force`).
+const TWITCH_FORCE_INTERVAL_STEP := 0.38
+const HAND_TWITCH_OFFSET := Vector2(22.0, -14.0)
+const HAND_TWITCH_ROT := 0.07
+## Radians from straight up/down; keeps twitches mostly vertical, not left/right.
+const TWITCH_VERTICAL_SPREAD := 0.5
+const TWITCH_FORCE_OFFSET_STEP := 0.14
+const HAND_TWITCH_OUT_S := 0.07
+const HAND_TWITCH_RETURN_S := 0.32
+
 @onready var clock: ShiftClock = %clock_scn
 
 var viewport_size: Vector2
@@ -37,6 +52,10 @@ var _attract_tween: Tween = null
 var _cien_tweens: Dictionary = {}
 var _cofefe_dragging := false
 var _point_light_lit := true
+var _twitch_force := 0
+var _coffee_jitter_timer: Timer
+var _hand_twitch_tween: Tween
+var _hand_jitter_active := false
 var _paper_index: int = 0
 var _onboarding_step: OnboardingStep = OnboardingStep.DONE
 var _onboarding_substep: int = 0
@@ -62,8 +81,10 @@ func _ready() -> void:
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
 	clock.time_out.connect(_on_time_out)
 	_connect_cofefe()
+	_connect_papieros()
 	_connect_rubber()
 	_connect_point_light()
+	_setup_coffee_jitter_timer()
 
 	WordManager.shift_score = 0.0
 
@@ -74,6 +95,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _hand_jitter_active:
+		_sync_marker_jitter_to_hand()
 	if _onboarding_step == OnboardingStep.WELCOME \
 			or _onboarding_step == OnboardingStep.START_BRIEFING \
 			or _onboarding_step == OnboardingStep.SHIFT_START:
@@ -133,6 +156,7 @@ func _begin_onboarding() -> void:
 	_set_toilet_handle_visible(false)
 	_clear_toilet_intel()
 	_set_rubber_visible(true)
+	_set_papieros_visible(false)
 
 	WordManager.current_toilet_canonicals = []
 	WordManager.current_toilet_words = []
@@ -154,6 +178,7 @@ func _begin_shift_start() -> void:
 	WordManager.shift_score = 0.0
 	_set_toilet_handle_visible(true)
 	_set_cofefe_visible(true)
+	_set_papieros_visible(false)
 	_set_rubber_visible(false)
 	_spawn_scripted_paper(
 		_build_tutorial_session(
@@ -212,6 +237,7 @@ func _start_normal_shift(spawn_paper: bool = true) -> void:
 	_onboarding_step = OnboardingStep.DONE
 	_onboarding_substep = 0
 	WordManager.shift_score = 0.0
+	_reset_coffee_cigarette_for_shift()
 	_show_gameplay_ui()
 	clock.start_shift()
 	if spawn_paper:
@@ -222,6 +248,7 @@ func _start_normal_shift(spawn_paper: bool = true) -> void:
 func _show_gameplay_ui() -> void:
 	_set_toilet_handle_visible(true)
 	_set_cofefe_visible(true)
+	_set_papieros_visible(true)
 	_set_rubber_visible(false)
 	if active_paper:
 		active_paper.set_onboarding_ui(false)
@@ -252,6 +279,32 @@ func _refresh_kawa_cien(fade_duration: float = KAWA_CIEN_FADE_DURATION) -> void:
 
 func _refresh_popielniczka_cien(fade_duration: float = KAWA_CIEN_FADE_DURATION) -> void:
 	_fade_cien("PopielniczkaCien", 1.0 if _point_light_lit else 0.0, fade_duration)
+
+
+func _refresh_papieros_cien(fade_duration: float = KAWA_CIEN_FADE_DURATION) -> void:
+	var papieros: Node2D = %Papieros
+	if not papieros.visible:
+		return
+	var shadow := papieros.get_node_or_null("PapierosCien") as CanvasItem
+	if shadow == null:
+		return
+	var key: StringName = &"PapierosCien"
+	var to_alpha := 1.0 if _point_light_lit else 0.0
+	_kill_cien_tween(key)
+	if fade_duration <= 0.0:
+		shadow.modulate.a = to_alpha
+		return
+	var tween := create_tween()
+	_cien_tweens[key] = tween
+	tween.tween_property(shadow, "modulate:a", to_alpha, fade_duration) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _set_papieros_visible(show_cigarette: bool) -> void:
+	var papieros: Node2D = %Papieros
+	papieros.visible = show_cigarette
+	if show_cigarette:
+		_refresh_papieros_cien(0.0)
 
 
 func _kill_cien_tween(unique_name: StringName) -> void:
@@ -1110,6 +1163,14 @@ func _spawn_score_popup(delta: float, rect: Rect2) -> void:
 	popup.show_delta(text, color)
 
 
+func _spawn_clock_time_popup() -> void:
+	var clock_node: Node2D = %clock_scn
+	var popup: ScorePopup = ScorePopupScene.instantiate()
+	clock_node.add_child(popup)
+	popup.position = COFFEE_TIME_POPUP_OFFSET
+	popup.show_delta("+%ds" % int(COFFEE_TIME_BONUS_S), Color(0.2, 0.75, 0.3, 1.0))
+
+
 func _refresh_postit_and_penalty() -> void:
 	if active_paper == null:
 		return
@@ -1319,18 +1380,167 @@ func _on_point_light_flicker_off() -> void:
 	_point_light_lit = false
 	_refresh_kawa_cien(0.0)
 	_refresh_popielniczka_cien(0.0)
+	_refresh_papieros_cien(0.0)
 
 
 func _on_point_light_flicker_on() -> void:
 	_point_light_lit = true
 	_refresh_kawa_cien(0.0)
 	_refresh_popielniczka_cien(0.0)
+	_refresh_papieros_cien(0.0)
+
+
+func _reset_coffee_cigarette_for_shift() -> void:
+	_twitch_force = 0
+	_stop_hand_twitch()
+	if _coffee_jitter_timer:
+		_coffee_jitter_timer.stop()
+	var papieros = %Papieros
+	if papieros.has_method("reset_for_shift"):
+		papieros.reset_for_shift()
+	var cofefe: Node2D = %Cofefe
+	if cofefe.has_method("reset_for_shift"):
+		cofefe.reset_for_shift()
+
+
+func _setup_coffee_jitter_timer() -> void:
+	_coffee_jitter_timer = Timer.new()
+	_coffee_jitter_timer.one_shot = true
+	add_child(_coffee_jitter_timer)
+	_coffee_jitter_timer.timeout.connect(_on_coffee_jitter_timer_timeout)
+
+
+func _jitter_interval_for_force(force: int) -> float:
+	var base := rng.randf_range(COFFEE_JITTER_MIN_S, COFFEE_JITTER_MAX_S)
+	if force <= 0:
+		return base
+	return maxf(0.35, base / (1.0 + float(force - 1) * TWITCH_FORCE_INTERVAL_STEP))
+
+
+func _twitch_scale_for_force() -> float:
+	return 1.0 + float(_twitch_force) * TWITCH_FORCE_OFFSET_STEP
+
+
+func _schedule_coffee_jitter() -> void:
+	if _twitch_force <= 0 or _onboarding_step != OnboardingStep.DONE:
+		return
+	if _coffee_jitter_timer == null:
+		return
+	_coffee_jitter_timer.start(_jitter_interval_for_force(_twitch_force))
+
+
+func _on_coffee_jitter_timer_timeout() -> void:
+	if _twitch_force <= 0 or _onboarding_step != OnboardingStep.DONE:
+		return
+	_twitch_right_hand()
+	_schedule_coffee_jitter()
+
+
+func _twitch_right_hand() -> void:
+	var right_hand: Node2D = %RightHand
+	if right_hand == null:
+		return
+	_stop_hand_twitch()
+	if right_hand.has_method("suspend_follow"):
+		right_hand.suspend_follow()
+	var twitch_scale := _twitch_scale_for_force()
+	var rest_global := right_hand.global_position
+	var rest_rot := right_hand.rotation
+	var vertical_base := -PI * 0.5 if rng.randf() > 0.5 else PI * 0.5
+	var twitch_dir := Vector2.from_angle(
+		vertical_base + rng.randf_range(-TWITCH_VERTICAL_SPREAD, TWITCH_VERTICAL_SPREAD)
+	)
+	var peak_global := rest_global + twitch_dir * HAND_TWITCH_OFFSET.length() * twitch_scale
+	var rot_sign := 1.0 if rng.randf() > 0.5 else -1.0
+	var peak_rot := rest_rot + rot_sign * HAND_TWITCH_ROT * twitch_scale
+	_hand_jitter_active = true
+	_sync_marker_jitter_to_hand()
+	_hand_twitch_tween = create_tween()
+	_hand_twitch_tween.tween_property(right_hand, "global_position", peak_global, HAND_TWITCH_OUT_S) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_hand_twitch_tween.parallel().tween_property(right_hand, "rotation", peak_rot, HAND_TWITCH_OUT_S) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_hand_twitch_tween.tween_property(right_hand, "global_position", rest_global, HAND_TWITCH_RETURN_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_hand_twitch_tween.parallel().tween_property(right_hand, "rotation", rest_rot, HAND_TWITCH_RETURN_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_hand_twitch_tween.finished.connect(_on_hand_twitch_finished, CONNECT_ONE_SHOT)
+
+
+func _sync_marker_jitter_to_hand() -> void:
+	var marker_layer := _marker_layer()
+	var right_hand: Node2D = %RightHand
+	if marker_layer == null or right_hand == null:
+		return
+	var hand_local := marker_layer.get_global_transform_with_canvas().affine_inverse() * right_hand.global_position
+	var offset := hand_local - marker_layer.get_local_mouse_position()
+	marker_layer.set_draw_position_offset(offset)
+
+
+func _clear_marker_jitter() -> void:
+	_hand_jitter_active = false
+	var marker_layer := _marker_layer()
+	if marker_layer:
+		marker_layer.set_draw_position_offset(Vector2.ZERO)
+
+
+func _on_hand_twitch_finished() -> void:
+	_clear_marker_jitter()
+	var right_hand: Node2D = %RightHand
+	if right_hand and right_hand.has_method("resume_follow"):
+		right_hand.resume_follow()
+
+
+func _stop_hand_twitch() -> void:
+	if _hand_twitch_tween and _hand_twitch_tween.is_valid():
+		_hand_twitch_tween.kill()
+	_hand_twitch_tween = null
+	_clear_marker_jitter()
+	var right_hand: Node2D = %RightHand
+	if right_hand and right_hand.has_method("resume_follow"):
+		right_hand.resume_follow()
+
+
+func _connect_papieros() -> void:
+	var papieros: Node2D = %Papieros
+	if papieros.has_method("bind_ashtray"):
+		papieros.bind_ashtray(%popielniczka)
+	if not papieros.has_signal("puff_requested"):
+		return
+	papieros.puff_requested.connect(_on_papieros_puff)
+
+
+func _on_papieros_puff() -> void:
+	if _onboarding_step != OnboardingStep.DONE:
+		return
+	var papieros = %Papieros
+	if not papieros.has_method("can_puff") or not papieros.can_puff():
+		return
+	_twitch_force = maxi(0, _twitch_force - 1)
+	_stop_hand_twitch()
+	if _twitch_force > 0:
+		_schedule_coffee_jitter()
+	elif _coffee_jitter_timer:
+		_coffee_jitter_timer.stop()
 
 
 func _on_cofefe_sip() -> void:
 	if _onboarding_step != OnboardingStep.DONE:
 		return
-	clock.add_time(10.0)
+	var cofefe: Node2D = %Cofefe
+	if cofefe.has_method("consume_sip") and not cofefe.consume_sip():
+		return
+	clock.add_time(COFFEE_TIME_BONUS_S)
+	_spawn_clock_time_popup()
+	_play_coffee_sip_flash()
+	_twitch_force += 1
+	_schedule_coffee_jitter()
+
+
+func _play_coffee_sip_flash() -> void:
+	var flash = get_node_or_null("%CoffeeSipFlash")
+	if flash and flash.has_method("play_flash"):
+		flash.play_flash()
 
 
 func _on_cofefe_drag_started() -> void:

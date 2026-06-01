@@ -10,12 +10,11 @@
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://bs2d6x80qn13o" path="res://art/Popielniczka_cien.png" id="10_5gpan"]
 [ext_resource type="PackedScene" uid="uid://bk6otlfx6rr5k" path="res://scenes/desk_props/cofefe.tscn" id="10_boqrt"]
+[ext_resource type="PackedScene" uid="uid://bqs67fr3k03mw" path="res://scenes/desk_props/papieros.tscn" id="10_papieros"]
 [ext_resource type="PackedScene" uid="uid://ba8nxwuspjtb5" path="res://scenes/desk_props/rubber.tscn" id="10_rubber"]
 [ext_resource type="Texture2D" uid="uid://dw6hhi6oi7n30" path="res://art/Kawa_cien.png" id="10_vfwdf"]
-[ext_resource type="Texture2D" uid="uid://bab2ndfy3o7d1" path="res://art/Papieros_cien.png" id="11_7drl1"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://clock.tscn" id="11_lc2xo"]
-[ext_resource type="Texture2D" uid="uid://b5y7nip4r0jyr" path="res://art/Papieros.png" id="11_nuj7l"]
 [ext_resource type="Texture2D" uid="uid://cp1x1d73s6y2f" path="res://art/Teczka2.png" id="12_lc2xo"]
 [ext_resource type="Texture2D" uid="uid://bwwd7daweox3k" path="res://art/Palec.png" id="13_52qbx"]
 [ext_resource type="Texture2D" uid="uid://d21cppih2i60n" path="res://art/black_mark.png" id="15_5gpan"]
@@ -23,7 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://rwgbfuhc2nil" path="res://scenes/right_hand.tscn" id="17_cps6k"]
 [ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="19_boqrt"]
 [ext_resource type="Script" uid="uid://0c4gqtpf2m1h" path="res://scripts/flicker_light.gd" id="19_flicker"]
-[ext_resource type="Texture2D" uid="uid://dpay8s0orfcy5" path="res://art/smoke_03.png" id="20_vfwdf"]
+[ext_resource type="PackedScene" path="res://scenes/coffee_sip_flash.tscn" id="20_flash"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8tca4"]
 shader = ExtResource("5_boqrt")
@@ -140,38 +139,6 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.45, 0.39, 0.3, 1)
 
-[sub_resource type="Curve" id="Curve_5gpan"]
-_data = [Vector2(0, 0.003748417), 0.0, 0.0, 0, 0, Vector2(0.34192035, 0.6615993), 0.0, 0.0, 0, 0, Vector2(0.9976581, 0.9864639), 0.0, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="CurveTexture" id="CurveTexture_vaj68"]
-curve = SubResource("Curve_5gpan")
-
-[sub_resource type="Gradient" id="Gradient_nuj7l"]
-colors = PackedColorArray(18.892157, 18.892157, 18.892157, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_xa8c5"]
-gradient = SubResource("Gradient_nuj7l")
-
-[sub_resource type="Curve" id="Curve_7drl1"]
-_data = [Vector2(0.0023419205, 0.011870027), 0.0, 3.4024966, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="CurveTexture" id="CurveTexture_i2p71"]
-curve = SubResource("Curve_7drl1")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_2wyxb"]
-particle_flag_disable_z = true
-gravity = Vector3(0, -300, 0)
-scale_curve = SubResource("CurveTexture_i2p71")
-color = Color(0.80784315, 1, 1, 1)
-color_ramp = SubResource("GradientTexture1D_xa8c5")
-anim_speed_curve = SubResource("CurveTexture_vaj68")
-turbulence_enabled = true
-turbulence_noise_strength = 20.0
-turbulence_noise_scale = 9.187
-turbulence_noise_speed_random = 0.17
-
 [node name="RootNode" type="Node2D" unique_id=532590790]
 script = ExtResource("1_game2")
 
@@ -266,18 +233,8 @@ position = Vector2(1547.0001, 17.000002)
 scale = Vector2(0.817, 0.817)
 texture = ExtResource("10_5gpan")
 
-[node name="PapierosCien" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=745965789]
-position = Vector2(1256.26, 102.883)
-rotation = 0.49392816
-texture = ExtResource("11_7drl1")
-
-[node name="Papieros" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1876066940]
-position = Vector2(1268.67, 91.238)
-rotation = 0.49392816
-scale = Vector2(0.99999994, 0.99999994)
-texture = ExtResource("11_nuj7l")
-
 [node name="popielniczka" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=653389244]
+unique_name_in_owner = true
 position = Vector2(1550, 17)
 scale = Vector2(0.81707317, 0.81707317)
 texture = ExtResource("5_hve3p")
@@ -290,6 +247,11 @@ texture = ExtResource("10_vfwdf")
 [node name="Cofefe" parent="CanvasLayer_strokes/CanvasGroup" unique_id=313940496 instance=ExtResource("10_boqrt")]
 unique_name_in_owner = true
 position = Vector2(696, 130)
+
+[node name="Papieros" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1876066940 instance=ExtResource("10_papieros")]
+unique_name_in_owner = true
+position = Vector2(1268.67, 91.238)
+rotation = 0.49392816
 
 [node name="Rubber" parent="CanvasLayer_strokes/CanvasGroup" unique_id=632363925 instance=ExtResource("10_rubber")]
 unique_name_in_owner = true
@@ -431,15 +393,19 @@ material = SubResource("ShaderMaterial_boqrt")
 fit_margin = 0.0
 clear_margin = 0.0
 
-[node name="Smoke" type="Node2D" parent="CanvasLayer_vfx/CanvasGroup" unique_id=451858509]
-position = Vector2(1600, 60)
+[node name="CanvasLayer_sip_flash" type="CanvasLayer" parent="." unique_id=1702448050]
+layer = 6
 
-[node name="GPUParticles2D" type="GPUParticles2D" parent="CanvasLayer_vfx/CanvasGroup/Smoke" unique_id=2011213832]
-amount = 3
-texture = ExtResource("20_vfwdf")
-lifetime = 3.0
-speed_scale = 0.3
-process_material = SubResource("ParticleProcessMaterial_2wyxb")
+[node name="CoffeeSipFlash" parent="CanvasLayer_sip_flash" unique_id=97043199 instance=ExtResource("20_flash")]
+unique_name_in_owner = true
+peak_brightness = 0.21
+flash_duration = 0.37
+lighten_mix = 0.22
+screen_mix = 0.63
+luma_lift = 0.15
+luma_boost = 0.01
+sat_boost = 0.79
+screen_push = 0.23
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=756153615]
 unique_name_in_owner = true

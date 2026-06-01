@@ -8,7 +8,7 @@ func _ready() -> void:
 	label.text = ""
 	label.modulate = Color.WHITE
 
-func show_delta(text: String, color: Color) -> void:
+func show_delta(text: String, color: Color, font_size: int = 0) -> void:
 	"""
 	Display a score delta with animation:
 	- Appears fully opaque
@@ -17,6 +17,10 @@ func show_delta(text: String, color: Color) -> void:
 	"""
 	label.text = text
 	label.modulate = color
+	if font_size > 0 and label.label_settings:
+		var settings := label.label_settings.duplicate()
+		settings.font_size = font_size
+		label.label_settings = settings
 	modulate.a = 1.0
 
 	var tween = create_tween()

@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://bqs67fr3k03mw"]
+
+[ext_resource type="Script" path="res://scenes/desk_props/papieros.gd" id="1_papieros"]
+[ext_resource type="Texture2D" uid="uid://bab2ndfy3o7d1" path="res://art/Papieros_cien.png" id="2_cien"]
+[ext_resource type="Texture2D" uid="uid://b5y7nip4r0jyr" path="res://art/Papieros.png" id="3_body"]
+[ext_resource type="Texture2D" uid="uid://dpay8s0orfcy5" path="res://art/smoke_03.png" id="4_smoke"]
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+colors = PackedColorArray(18.892157, 18.892157, 18.892157, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_smoke"]
+gradient = SubResource("Gradient_smoke")
+
+[sub_resource type="Curve" id="Curve_smoke_scale"]
+_data = [Vector2(0.0023419205, 0.011870027), 0.0, 3.4024966, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke_scale"]
+curve = SubResource("Curve_smoke_scale")
+
+[sub_resource type="Curve" id="Curve_smoke_anim"]
+_data = [Vector2(0, 0.003748417), 0.0, 0.0, 0, 0, Vector2(0.34192035, 0.6615993), 0.0, 0.0, 0, 0, Vector2(0.9976581, 0.9864639), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke_anim"]
+curve = SubResource("Curve_smoke_anim")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_smoke"]
+particle_flag_disable_z = true
+gravity = Vector3(0, -300, 0)
+scale_curve = SubResource("CurveTexture_smoke_scale")
+color = Color(0.80784315, 1, 1, 1)
+color_ramp = SubResource("GradientTexture1D_smoke")
+anim_speed_curve = SubResource("CurveTexture_smoke_anim")
+turbulence_enabled = true
+turbulence_noise_strength = 20.0
+turbulence_noise_scale = 9.187
+turbulence_noise_speed_random = 0.17
+
+[node name="Papieros" type="Node2D"]
+script = ExtResource("1_papieros")
+
+[node name="PapierosCien" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("2_cien")
+
+[node name="Body" type="Sprite2D" parent="."]
+texture = ExtResource("3_body")
+
+[node name="Smoke" type="Node2D" parent="."]
+
+[node name="papieros_smoke" type="GPUParticles2D" parent="Smoke"]
+amount = 3
+texture = ExtResource("4_smoke")
+lifetime = 3.0
+speed_scale = 0.3
+process_material = SubResource("ParticleProcessMaterial_smoke")

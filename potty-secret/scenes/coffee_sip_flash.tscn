@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://ba3hufvmeo3xf"]
+
+[ext_resource type="Shader" path="res://shaders/coffee_sip_flash.gdshader" id="1_shader"]
+[ext_resource type="Script" path="res://scripts/coffee_sip_flash.gd" id="2_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flash"]
+shader = ExtResource("1_shader")
+shader_parameter/brighten = 0.0
+shader_parameter/lighten_mix = 1.0
+shader_parameter/screen_mix = 0.55
+shader_parameter/luma_lift = 0.55
+shader_parameter/luma_boost = 0.05
+shader_parameter/sat_boost = 0.4
+shader_parameter/screen_push = 0.12
+
+[node name="CoffeeSipFlash" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_flash")
+script = ExtResource("2_script")

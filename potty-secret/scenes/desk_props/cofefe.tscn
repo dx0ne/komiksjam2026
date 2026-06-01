@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bk6otlfx6rr5k"]
 
-[ext_resource type="Script" path="res://scenes/desk_props/cofefe.gd" id="1_cofefe"]
-[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="1_3oppv"]
-[ext_resource type="Shader" path="res://shaders/cofefe_gentle.gdshader" id="2_7ft0p"]
+[ext_resource type="Script" uid="uid://dk7euelvnfkjs" path="res://scenes/desk_props/cofefe.gd" id="1_cofefe"]
+[ext_resource type="Shader" uid="uid://cno81l4lsa6qm" path="res://shaders/cofefe_gentle.gdshader" id="2_7ft0p"]
 [ext_resource type="Texture2D" uid="uid://ce1nae31pbljl" path="res://art/Kawa_Serce.png" id="2_8ppki"]
+[ext_resource type="Texture2D" uid="uid://bpyr56sp65uv7" path="res://art/Kawa_pusta.png" id="2_heugr"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_heugr"]
 shader = ExtResource("2_7ft0p")
@@ -19,7 +19,7 @@ shader_parameter/clip_to_shape = true
 script = ExtResource("1_cofefe")
 
 [node name="Mug" type="Sprite2D" parent="." unique_id=1738059579]
-texture = ExtResource("1_3oppv")
+texture = ExtResource("2_heugr")
 
 [node name="Inside" type="Sprite2D" parent="." unique_id=2147196860]
 material = SubResource("ShaderMaterial_heugr")

@@ -7,6 +7,7 @@ extends Node2D
 @export var cursor_offset := Vector2.ZERO
 
 var _previous_mouse_mode := Input.MOUSE_MODE_VISIBLE
+var _follow_suspended := false
 
 
 func _ready() -> void:
@@ -21,6 +22,16 @@ func _exit_tree() -> void:
 
 
 func _process(_delta: float) -> void:
+	if follow_mouse and not _follow_suspended:
+		global_position = get_viewport().get_mouse_position() + cursor_offset
+
+
+func suspend_follow() -> void:
+	_follow_suspended = true
+
+
+func resume_follow() -> void:
+	_follow_suspended = false
 	if follow_mouse:
 		global_position = get_viewport().get_mouse_position() + cursor_offset
 

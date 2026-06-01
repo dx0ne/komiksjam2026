@@ -55,6 +55,8 @@ var _marker_texture: Texture2D
 var _marker_cursor_settings
 var _cursor_position := Vector2.ZERO
 var _cursor_inside := false
+## Added to mouse positions while coffee jitter moves the marker hand (local space).
+var draw_position_offset := Vector2.ZERO
 var _owns_hidden_cursor := false
 var _previous_mouse_mode := Input.MOUSE_MODE_VISIBLE
 
@@ -75,8 +77,16 @@ func clear_strokes() -> void:
 	current_stroke.clear()
 	word_marks.clear()
 	drawing = false
+	draw_position_offset = Vector2.ZERO
 	_stop_blink()
 	locked = false
+	queue_redraw()
+
+
+func set_draw_position_offset(offset: Vector2) -> void:
+	draw_position_offset = offset
+	if drawing:
+		_append_stroke_point(_stroke_point(get_local_mouse_position()))
 	queue_redraw()
 
 
@@ -169,15 +179,27 @@ func _gui_input(event: InputEvent) -> void:
 		_cursor_position = event.position
 		cursor_changed.emit()
 		if event.pressed:
-			_start_stroke(event.position)
+			_start_stroke(_stroke_point(event.position))
 		else:
-			_finish_stroke(event.position)
+			_finish_stroke(_stroke_point(event.position))
 	elif event is InputEventMouseMotion:
 		if drawing:
+			var point := _stroke_point(event.position)
 			if mode == DrawMode.LINE:
-				_update_line_endpoint(event.position)
+				_update_line_endpoint(point)
 			else:
-				_add_point(event.position)
+				_add_point(point)
+
+func _stroke_point(mouse_local: Vector2) -> Vector2:
+	return mouse_local + draw_position_offset
+
+
+func _append_stroke_point(point: Vector2) -> void:
+	if mode == DrawMode.LINE:
+		_update_line_endpoint(point)
+	else:
+		_add_point(point)
+
 
 func _start_stroke(point: Vector2) -> void:
 	drawing = true
