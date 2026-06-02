@@ -241,12 +241,14 @@ texture = ExtResource("5_hve3p")
 
 [node name="KawaCien" type="Sprite2D" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1634143868]
 unique_name_in_owner = true
-position = Vector2(709, 127)
+position = Vector2(735.405, 134.595)
+rotation = 0.9424778
 texture = ExtResource("10_vfwdf")
 
 [node name="Cofefe" parent="CanvasLayer_strokes/CanvasGroup" unique_id=313940496 instance=ExtResource("10_boqrt")]
 unique_name_in_owner = true
-position = Vector2(696, 130)
+position = Vector2(720.53, 130)
+rotation = 1.0314896
 
 [node name="Papieros" parent="CanvasLayer_strokes/CanvasGroup" unique_id=1876066940 instance=ExtResource("10_papieros")]
 unique_name_in_owner = true
