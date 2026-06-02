@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://buy18lfy33481" path="res://main_menu.gd" id="1_jix8l"]
 [ext_resource type="Texture2D" uid="uid://1k2wos1rull7" path="res://art/Karteczka_02.png" id="3_glbon"]
+[ext_resource type="Texture2D" uid="uid://b761ff82fa8l6" path="res://art/Tlo2.png" id="4_0k4wn"]
 [ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="4_glbon"]
 [ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_nlkkf"]
 [ext_resource type="Texture2D" uid="uid://c4wp5y7m54gfr" path="res://art/Light.png" id="6_dy7ct"]
@@ -81,6 +82,10 @@ material = SubResource("ShaderMaterial_bg")
 fit_margin = 0.0
 clear_margin = 0.0
 
+[node name="Tlo2" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup" unique_id=1109036774]
+position = Vector2(957, 523)
+texture = ExtResource("4_0k4wn")
+
 [node name="Background" type="Sprite2D" parent="CanvasLayer_background/CanvasGroup" unique_id=124528707]
 position = Vector2(953, 525)
 texture = ExtResource("6_nlkkf")
@@ -95,14 +100,6 @@ offset_bottom = 946.0
 size_flags_horizontal = 4
 texture_normal = ExtResource("3_glbon")
 texture_pressed = ExtResource("4_nlkkf")
-
-[node name="PointLight2D" type="PointLight2D" parent="CanvasLayer_background/CanvasGroup" unique_id=1619130767]
-position = Vector2(1060.9999, 487)
-scale = Vector2(0.76543957, 0.80716807)
-color = Color(0.6666667, 0.8666667, 0.7372549, 1)
-energy = 0.2
-texture = ExtResource("6_dy7ct")
-texture_scale = 3.37
 
 [node name="CanvasLayer_label" type="CanvasLayer" parent="." unique_id=2022288524]
 
@@ -183,6 +180,14 @@ clear_margin = 0.0
 [node name="RightHand" parent="CanvasLayer_hand/CanvasGroup" unique_id=1371813690 instance=ExtResource("8_rhand")]
 unique_name_in_owner = true
 position = Vector2(-23, 9)
+
+[node name="PointLight2D" type="PointLight2D" parent="CanvasLayer_hand/CanvasGroup" unique_id=1619130767]
+position = Vector2(1060.9999, 487)
+scale = Vector2(0.76543957, 0.80716807)
+color = Color(1, 0.75035965, 0.5777553, 1)
+energy = 0.2
+texture = ExtResource("6_dy7ct")
+texture_scale = 3.37
 
 [connection signal="pressed" from="CanvasLayer_background/CanvasGroup/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
