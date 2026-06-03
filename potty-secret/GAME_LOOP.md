@@ -33,7 +33,10 @@ LOOP until clock ends:
 
 CLOCK ENDS
   ├─ Lock current paper (no penalty, just check stamp eligibility)
-  └─ ending.tscn (good if shift_score > 0.0)
+  ├─ Lamp holds dark (override); last memo tweens off desk
+  ├─ Closure report lands; lamp returns
+  ├─ Mark accept on report → ending.tscn (good if shift_score > 0.0)
+  └─ outro videos → main menu
 ```
 
 The briefcase sprite (`send_to_briefieng`) is **scenery only** in phase-7. The `_send_to_briefing` function is retained as dead code in `game2.gd` for diff clarity and can be deleted in a follow-up.
@@ -113,6 +116,8 @@ The submit-time `-0.5` for unmarked planted words was removed in task-05. Leavin
 | **1** (debug) | `rand_toilet_msg` → `toilet_pull()` (advance paper) |
 | **2** (debug) | `rand_document` → `toilet_pull()` (advance paper; same effect as 1 since task-05) |
 | **7** (debug) | Skip to ending |
+| **Page Up** (debug) | Jump clock to ~10 s left (just before lamp flicker) |
+| **Page Down** (debug) | Reset onboarding and reload scene |
 
 The briefcase sprite is *not* clickable in gameplay; its `gui_input` connection was removed in `_ready`.
 
@@ -132,6 +137,9 @@ The briefcase sprite is *not* clickable in gameplay; its `gui_input` connection 
 | Toilet word display | `toilet_msg.tscn` |
 | Timer | `clock.gd` (`ShiftClock`) |
 | Pull handle = advance paper | `game2.gd` → `toilet_pull()` → `_advance_to_new_paper` (tween → `_save_session` → `_check_and_apply_stamp` → `_spawn_fresh_paper(true)` → `_roll_toilet_intel`) |
+| Shift closure report | `game2.gd` → `_on_time_out` → `_begin_shift_closure()` → mark **accept** → `_end_shift()` |
+| Closure copy / stats | `scripts/shift_report_content.gd` |
+| Lamp override at closure | `scripts/flicker_light.gd` → `force_lamp` / `release_lamp_override` |
 | At-mark scoring | `game2.gd` → `_on_stroke_finished` → `_score_stroke_incremental` + popups |
 | Stamp check | `game2.gd` → `_check_and_apply_stamp` (extracted from `_send_to_briefing` in task-05) |
 

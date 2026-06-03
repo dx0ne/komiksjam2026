@@ -6,6 +6,8 @@ extends Node2D
 @onready var debug_overlay: DebugOverlay = %DebugOverlay
 @onready var _stamp: Sprite2D = %Stamp
 
+var _stamp_tween: Tween = null
+
 
 func _ready() -> void:
 	set_postit(0, 0)
@@ -40,21 +42,36 @@ func set_penalty(amount: int) -> void:
 		%pointsLabel_bad.text = ""
 
 
+func _kill_stamp_tween() -> void:
+	if _stamp_tween != null and _stamp_tween.is_valid():
+		_stamp_tween.kill()
+	_stamp_tween = null
+
+
+func stabilize_stamp_for_exit() -> void:
+	if not is_instance_valid(_stamp) or not _stamp.visible:
+		return
+	_kill_stamp_tween()
+	_stamp.modulate = Color.WHITE
+	_stamp.scale = Vector2(0.55, 0.55)
+
+
 func set_stamp_visible(show_stamp: bool) -> void:
 	if not is_instance_valid(_stamp):
 		return
+	_kill_stamp_tween()
 	_stamp.visible = show_stamp
 	if not show_stamp:
 		_stamp.modulate = Color.WHITE
 		_stamp.scale = Vector2(0.55, 0.55)
 		return
-	_stamp.modulate.a = 0.0
+	_stamp.modulate = Color.WHITE
 	_stamp.scale = Vector2(0.66, 0.66)
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(_stamp, "modulate:a", 1.0, 0.08)
-	tween.tween_property(_stamp, "scale", Vector2(0.55, 0.55), 0.15) \
+	_stamp_tween = create_tween()
+	_stamp_tween.set_parallel(true)
+	_stamp_tween.tween_property(_stamp, "scale", Vector2(0.55, 0.55), 0.15) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_stamp_tween.finished.connect(func() -> void: _stamp_tween = null)
 
 
 func set_onboarding_ui(active: bool, sticky_hint: String = "") -> void:

@@ -23,6 +23,7 @@ Maintenance rules for this file: [`AGENTS.md`](../AGENTS.md) § Feature index.
 | [Marker review blink](#marker-review-blink) | `scripts/marker_layer.gd` | Review stroke colors applied | Tick/cross overlay pulse |
 | [Missed-word text blink](#missed-word-text-blink) | `scripts/text_renderer.gd` | End-of-paper review | Highlight alpha on missed planted words |
 | [Player progress](#player-progress) | `scripts/player_progress.gd` (autoload) | Onboarding / topic intro complete | `user://progress.cfg` |
+| [Shift closure report](#shift-closure-report) | `game2.gd`, `shift_report_content.gd` | Clock `time_out` | Lamp override, paper exit tween, report paper, ending scene |
 
 ---
 
@@ -219,6 +220,37 @@ Persisted at `user://progress.cfg`:
 | `topics_intro_seen` | Dict of `topic_id → bool` for newspaper intro |
 
 API: `has_completed_onboarding()`, `mark_onboarding_complete()`, `has_seen_topic_intro()`, `mark_topic_intro_seen()`, `reset_onboarding()`.
+
+---
+
+## Shift closure report
+
+**Owners:** `game2.gd`, `scripts/shift_report_content.gd`, `scripts/flicker_light.gd`
+
+After the shift clock hits zero, gameplay stays on the desk for a short closure beat before `ending.tscn`.
+
+### Sequence
+
+| Step | Behavior |
+|------|----------|
+| Clock `time_out` | Save session, stamp check, `_begin_shift_closure()` |
+| Dark hold | `flicker_light.force_lamp(false)` — prevents auto relight when timer stops |
+| Paper exit | Active memo tweens off (`_tween_paper_out`); handle / mug / cigarette hidden |
+| Report in | Lamp `force_lamp(true)`; scripted paper from briefcase with stats + **accept** target |
+| Proceed | Player redacts **accept** (same coverage rules as onboarding) → `_end_shift()` → outro videos |
+
+### Report copy
+
+Built by `ShiftReportContent.report_text(score, memos_processed, stamps)` — shift score, memo count (`_paper_index`), stamp count (`_shift_stamps`), compliance disposition.
+
+### Lamp override API (`flicker_light.gd`)
+
+| Method | Effect |
+|--------|--------|
+| `force_lamp(on: bool)` | Pin lamp on/off; ignores clock-driven modes |
+| `release_lamp_override()` | Restore auto flicker (called on next shift start) |
+
+**Consumers:** Desk shadows via existing `flicker_on` / `flicker_off` signals.
 
 ---
 

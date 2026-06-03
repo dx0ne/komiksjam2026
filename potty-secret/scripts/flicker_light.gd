@@ -16,8 +16,10 @@ const FINAL_DARK_START_S := 3.0
 @export var flicker_off_time_max: float = 0.15
 
 enum Mode { STEADY, TENSION, DARK }
+enum Override { AUTO, FORCE_OFF, FORCE_ON }
 
 var _base_energy: float
+var _override := Override.AUTO
 var _timer: Timer
 var _rng := RandomNumberGenerator.new()
 var _clock: ShiftClock
@@ -43,7 +45,23 @@ func _process(_delta: float) -> void:
 	_update_mode()
 
 
+func force_lamp(on: bool) -> void:
+	_override = Override.FORCE_ON if on else Override.FORCE_OFF
+	_stop_burst()
+	if on:
+		_set_steady_on()
+	else:
+		_set_steady_off()
+
+
+func release_lamp_override() -> void:
+	_override = Override.AUTO
+	_update_mode()
+
+
 func _update_mode() -> void:
+	if _override != Override.AUTO:
+		return
 	var time_left := _get_time_left()
 	if time_left <= FINAL_DARK_START_S:
 		_set_mode(Mode.DARK)

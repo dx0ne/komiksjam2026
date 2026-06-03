@@ -29,6 +29,9 @@ const COFFEE_TIME_BONUS_S := 10.0
 const COFFEE_TIME_POPUP_OFFSET := Vector2(24.0, -72.0)
 const COFFEE_JITTER_MIN_S := 7.0 / 3.0
 const COFFEE_JITTER_MAX_S := 16.0 / 3.0
+const SHIFT_CLOSURE_DARK_BEAT_S := 0.55
+## Just above flicker_light.gd TENSION_START_S — lamp steady, flicker on next tick down.
+const DEBUG_JUMP_TIME_LEFT_S := 10.01
 ## Higher force → shorter wait between twitches (see `_jitter_interval_for_force`).
 const TWITCH_FORCE_INTERVAL_STEP := 0.38
 const HAND_TWITCH_OFFSET := Vector2(22.0, -14.0)
@@ -57,6 +60,9 @@ var _coffee_jitter_timer: Timer
 var _hand_twitch_tween: Tween
 var _hand_jitter_active := false
 var _paper_index: int = 0
+var _shift_stamps: int = 0
+var _shift_ending := false
+var _outgoing_paper: GamePaper = null
 var _onboarding_step: OnboardingStep = OnboardingStep.DONE
 var _onboarding_substep: int = 0
 var _left_hand_rest_pos: Vector2 = Vector2.ZERO
@@ -101,6 +107,8 @@ func _process(delta: float) -> void:
 			or _onboarding_step == OnboardingStep.START_BRIEFING \
 			or _onboarding_step == OnboardingStep.SHIFT_START:
 		return
+	if _shift_ending:
+		return
 	if _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep != 0:
 		return
 	if _attract_tween != null:
@@ -115,6 +123,10 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_PAGEDOWN:
 		PlayerProgress.reset_onboarding()
 		get_tree().reload_current_scene()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_PAGEUP:
+		if _onboarding_step == OnboardingStep.DONE and not _shift_ending:
+			clock.set_time_left(DEBUG_JUMP_TIME_LEFT_S)
 		return
 	if event.is_action_pressed("quit"):
 		get_tree().quit()
@@ -207,6 +219,7 @@ func _layout_newspaper_container(container: Control) -> void:
 
 
 func _show_topic_newspaper() -> void:
+	_clear_outgoing_paper()
 	if active_paper:
 		active_paper.queue_free()
 		active_paper = null
@@ -236,8 +249,12 @@ func _on_topic_newspaper_dismissed() -> void:
 func _start_normal_shift(spawn_paper: bool = true) -> void:
 	_onboarding_step = OnboardingStep.DONE
 	_onboarding_substep = 0
+	_shift_ending = false
+	_shift_stamps = 0
+	_paper_index = 0
 	WordManager.shift_score = 0.0
 	_reset_coffee_cigarette_for_shift()
+	_release_point_light_override()
 	_show_gameplay_ui()
 	clock.start_shift()
 	if spawn_paper:
@@ -535,17 +552,61 @@ func _connect_rubber() -> void:
 # Paper lifecycle
 # ---------------------------------------------------------------------------
 
+const PAPER_EXIT_DURATION_S := 0.35
+const PAPER_EXIT_ROT_RANGE_DEG := 14.0
+
+
+func _disconnect_paper_signals(paper: GamePaper) -> void:
+	if paper.marker_layer.stroke_finished.is_connected(_on_stroke_finished):
+		paper.marker_layer.stroke_finished.disconnect(_on_stroke_finished)
+	if paper.marker_layer.stroke_started.is_connected(_on_marker_drawing_started):
+		paper.marker_layer.stroke_started.disconnect(_on_marker_drawing_started)
+
+
+func _clear_outgoing_paper() -> void:
+	if _outgoing_paper != null and is_instance_valid(_outgoing_paper):
+		_outgoing_paper.queue_free()
+	_outgoing_paper = null
+
+
+func _tween_paper_out(paper: GamePaper) -> void:
+	_clear_outgoing_paper()
+	_outgoing_paper = paper
+	paper.marker_layer.set_locked(true)
+	paper.stabilize_stamp_for_exit()
+	paper.z_index = -1
+	%papers_container.move_child(paper, 0)
+
+	var exit_pos := paper.position + Vector2(
+		rng.randf_range(-120.0, -40.0),
+		rng.randf_range(-280.0, -160.0)
+	)
+	var exit_rot := paper.rotation + deg_to_rad(
+		rng.randf_range(-PAPER_EXIT_ROT_RANGE_DEG, PAPER_EXIT_ROT_RANGE_DEG)
+	)
+
+	var tween := paper.create_tween().set_parallel(true)
+	tween.tween_property(paper, "position", exit_pos, PAPER_EXIT_DURATION_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_property(paper, "rotation", exit_rot, PAPER_EXIT_DURATION_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(func() -> void:
+		if _outgoing_paper == paper and is_instance_valid(paper):
+			paper.queue_free()
+			_outgoing_paper = null
+	)
+
+
 func _prepare_paper_spawn(animate_in: bool) -> void:
 	if active_paper:
-		if active_paper.marker_layer.stroke_finished.is_connected(_on_stroke_finished):
-			active_paper.marker_layer.stroke_finished.disconnect(_on_stroke_finished)
-		if active_paper.marker_layer.stroke_started.is_connected(_on_marker_drawing_started):
-			active_paper.marker_layer.stroke_started.disconnect(_on_marker_drawing_started)
-		active_paper.queue_free()
+		_disconnect_paper_signals(active_paper)
+		_tween_paper_out(active_paper)
 		active_paper = null
 
 	active_paper = PAPER_SCN.instantiate()
+	active_paper.z_index = 0
 	%papers_container.add_child(active_paper)
+	active_paper.move_to_front()
 	active_paper.marker_layer.stroke_finished.connect(_on_stroke_finished)
 	active_paper.marker_layer.stroke_started.connect(_on_marker_drawing_started)
 	active_paper.debug_overlay.text_renderer = active_paper.text_renderer
@@ -855,6 +916,8 @@ func _on_gimme_toilet_btn_gui_input(event: InputEvent) -> void:
 
 
 func toilet_pull() -> void:
+	if _shift_ending:
+		return
 	if _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep == 0:
 		_onboarding_toilet_pull()
 		return
@@ -1081,11 +1144,15 @@ func _check_and_apply_stamp() -> void:
 	if earned_stamp:
 		session["stamped"] = true
 		active_paper.set_stamp_visible(true)
+		_shift_stamps += 1
 
 
 func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 	_notify_fly_marker_idle()
 	_save_session()
+	if _shift_ending:
+		_shift_report_check_progress()
+		return
 	if _onboarding_step != OnboardingStep.DONE:
 		_onboarding_check_progress()
 		return
@@ -1372,6 +1439,61 @@ func _on_point_light_flicker_on() -> void:
 	_refresh_papieros_cien(0.0)
 
 
+func _release_point_light_override() -> void:
+	var light := get_node_or_null("%PointLight2D")
+	if light and light.has_method("release_lamp_override"):
+		light.release_lamp_override()
+
+
+func _force_point_light(on: bool) -> void:
+	var light := get_node_or_null("%PointLight2D")
+	if light and light.has_method("force_lamp"):
+		light.force_lamp(on)
+
+
+func _build_shift_report_session() -> Dictionary:
+	var text := ShiftReportContent.report_text(
+		WordManager.shift_score,
+		_paper_index,
+		_shift_stamps
+	)
+	return _build_tutorial_session(text, ShiftReportContent.REPORT_TARGETS)
+
+
+func _shift_report_check_progress() -> void:
+	if not _tutorial_all_targets_covered(ShiftReportContent.REPORT_TARGETS):
+		return
+	_end_shift()
+
+
+func _begin_shift_closure() -> void:
+	if _shift_ending:
+		return
+	_shift_ending = true
+	_stop_handle_attract()
+	_set_toilet_handle_visible(false)
+	_set_cofefe_visible(false)
+	_set_papieros_visible(false)
+	_force_point_light(false)
+
+	await get_tree().create_timer(SHIFT_CLOSURE_DARK_BEAT_S).timeout
+
+	if active_paper:
+		var paper_to_exit := active_paper
+		active_paper = null
+		_disconnect_paper_signals(paper_to_exit)
+		_tween_paper_out(paper_to_exit)
+		await get_tree().create_timer(PAPER_EXIT_DURATION_S + 0.15).timeout
+
+	_clear_toilet_intel()
+	_force_point_light(true)
+
+	var report_session := _build_shift_report_session()
+	_spawn_scripted_paper(report_session, true)
+	if active_paper:
+		active_paper.set_onboarding_ui(true, ShiftReportContent.STICKY_HINT)
+
+
 func _reset_coffee_cigarette_for_shift() -> void:
 	_twitch_force = 0
 	_stop_hand_twitch()
@@ -1493,6 +1615,8 @@ func _connect_papieros() -> void:
 
 
 func _on_papieros_puff() -> void:
+	if _shift_ending:
+		return
 	if _onboarding_step != OnboardingStep.DONE:
 		return
 	# puff_requested fires after _puff_count increments; do not re-check can_puff() here.
@@ -1505,6 +1629,8 @@ func _on_papieros_puff() -> void:
 
 
 func _on_cofefe_sip() -> void:
+	if _shift_ending:
+		return
 	if _onboarding_step != OnboardingStep.DONE:
 		return
 	var cofefe: Node2D = %Cofefe
@@ -1524,6 +1650,8 @@ func _play_coffee_sip_flash() -> void:
 
 
 func _on_cofefe_drag_started() -> void:
+	if _shift_ending:
+		return
 	_cofefe_dragging = true
 	_refresh_kawa_cien()
 	if _onboarding_step != OnboardingStep.DONE:
@@ -1562,7 +1690,7 @@ func _on_time_out() -> void:
 	# No more submit penalty — the active paper's score is whatever was earned at mark-time.
 	_save_session()
 	_check_and_apply_stamp()
-	_end_shift()
+	_begin_shift_closure()
 
 
 func _end_shift() -> void:

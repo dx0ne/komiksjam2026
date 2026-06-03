@@ -73,6 +73,13 @@ scale = Vector2(0.9291003, 0.9291002)
 texture = ExtResource("2_page")
 centered = false
 
+[node name="Stamp" type="Sprite2D" parent="BackgroundGroup" unique_id=-447676245]
+unique_name_in_owner = true
+visible = false
+position = Vector2(570, 750)
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("9_stamp")
+
 [node name="TextRenderer" type="Control" parent="." unique_id=1606997783]
 unique_name_in_owner = true
 layout_mode = 3
@@ -145,11 +152,3 @@ offset_bottom = 6.785248
 text = "0/0"
 label_settings = SubResource("LabelSettings_count")
 horizontal_alignment = 2
-
-[node name="Stamp" type="Sprite2D" parent="." unique_id=-447676245]
-unique_name_in_owner = true
-visible = false
-z_index = 10
-position = Vector2(570, 750)
-scale = Vector2(0.55, 0.55)
-texture = ExtResource("9_stamp")

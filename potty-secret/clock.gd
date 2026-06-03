@@ -40,6 +40,20 @@ func add_time(seconds: float) -> void:
 	progress_bar.value = game_timer.time_left
 
 
+func set_time_left(seconds: float) -> void:
+	if game_timer.is_stopped():
+		return
+	var new_left := clampf(seconds, 0.0, game_timer.wait_time)
+	if new_left <= 0.0:
+		game_timer.stop()
+		progress_bar.value = 0.0
+		time_out.emit()
+		return
+	game_timer.start(new_left)
+	progress_bar.max_value = game_timer.wait_time
+	progress_bar.value = game_timer.time_left
+
+
 func _process(_delta):
 	if not game_timer.is_stopped():
 		progress_bar.value = game_timer.time_left
