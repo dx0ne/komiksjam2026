@@ -24,7 +24,7 @@ const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
 const KAWA_CIEN_FADE_DURATION := 0.15
 
-const COFFEE_SIPS_PER_SHIFT := 5
+const COFFEE_SIPS_PER_SHIFT := 1
 const COFFEE_TIME_BONUS_S := 10.0
 const COFFEE_TIME_POPUP_OFFSET := Vector2(24.0, -72.0)
 const COFFEE_JITTER_MIN_S := 7.0 / 3.0
@@ -1513,9 +1513,7 @@ func _connect_papieros() -> void:
 func _on_papieros_puff() -> void:
 	if _onboarding_step != OnboardingStep.DONE:
 		return
-	var papieros = %Papieros
-	if not papieros.has_method("can_puff") or not papieros.can_puff():
-		return
+	# puff_requested fires after _puff_count increments; do not re-check can_puff() here.
 	_twitch_force = maxi(0, _twitch_force - 1)
 	_stop_hand_twitch()
 	if _twitch_force > 0:

@@ -10,7 +10,7 @@ signal mug_placed(global_center: Vector2, ring_radius: float, drop_vector: Vecto
 signal drag_started
 signal drag_ended
 
-const MAX_SIPS := 5
+const MAX_SIPS := 1
 const CLICK_PADDING := Vector2(12, 12)
 const DRAG_THRESHOLD := 10.0
 const HOME_TWEEN_DURATION := 0.28

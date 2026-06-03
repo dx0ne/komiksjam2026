@@ -198,28 +198,23 @@ var _topics: Dictionary = {
 	TOPIC_ALIENS: [
 		{
 			"canonical": "aliens",
-			"typos":    ["allens", "aloiens", "alienz", "alians"],
+			"typos":    ["ailens", "aloiens", "alienz", "alieens"],
 			"synonyms": ["Them", "space people", "visitors"],
 		},
 		{
 			"canonical": "UFOs",
-			"typos":    ["UF0s", "UFOss", "UGOs"],
+			"typos":    ["UF0s", "UFOss", "ufos"],
 			"synonyms": ["bogeys", "unidentified objects"],
 		},
 		{
 			"canonical": "flying saucers",
 			"typos":    ["flying saucres", "flyng saucers"],
-			"synonyms": ["discs", "alien ships"],
+			"synonyms": ["flying discs", "alien ships"],
 		},
 		{
 			"canonical": "abductions",
 			"typos":    ["abductins", "abdcutions", "abductionns"],
-			"synonyms": ["takings", "encounters"],
-		},
-		{
-			"canonical": "the Grays",
-			"typos":    ["the Greys", "the Graays"],
-			"synonyms": ["space men", "space ones"],
+			"synonyms": ["takings", "kidnappings"],
 		},
 		{
 			"canonical": "reptilians",
@@ -228,28 +223,23 @@ var _topics: Dictionary = {
 		},
 		{
 			"canonical": "Area 51",
-			"typos":    ["Area 15", "Ares 51", "Aera 51"],
-			"synonyms": ["The Base", "Secret Base"],
+			"typos":    ["Area 15", "areas 51", "Aera 51"],
+			"synonyms": ["Secret Base", "Zone 51"],
 		},
 		{
 			"canonical": "Roswell",
-			"typos":    ["Rosswell", "Roswel", "Rosswel"],
+			"typos":    ["roswell", "Rosswell", "Roswel", "Rosswel"],
 			"synonyms": ["crash site", "incident 1947"],
-		},
-		{
-			"canonical": "Project Blue Book",
-			"typos":    ["Project Bleu Book", "Project Bule Book"],
-			"synonyms": ["Blue Book files", "UFO report"],
 		},
 		{
 			"canonical": "close encounters",
 			"typos":    ["close encouters", "close encountrs"],
-			"synonyms": ["sightings", "contact events"],
+			"synonyms": ["contact events"],
 		},
 		{
 			"canonical": "cattle mutilations",
 			"typos":    ["cattle mutilatins", "cattel mutilations"],
-			"synonyms": ["livestock incidents", "field mutilations"],
+			"synonyms": ["livestock incidents", "cow mutilations"],
 		},
 	],
 	TOPIC_CRYPTIDS: [

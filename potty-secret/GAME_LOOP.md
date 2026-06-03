@@ -106,8 +106,8 @@ The submit-time `-0.5` for unmarked planted words was removed in task-05. Leavin
 |-------|--------|
 | Drag marker on paper | Redact words; per-stroke at-mark scoring runs on release |
 | Toilet handle (click) | `toilet_pull()` → save & lock current paper, check stamp, spawn new paper, re-roll intel |
-| Cofefe (click) | Up to 5 sips: +10 s and +1 twitch force each; label shows sips left; coffee surface shifts perspective |
-| Papieros (click) | Each click while lit −1 twitch force until stub; first click lights the fuse |
+| Cofefe (click) | 1 sip per shift: +10 s and +1 twitch force; label shows `0/1`; mug empties |
+| Papieros (click) | 1 puff per shift (−1 twitch force); ~6 s fuse then stub; no repeat clicks while burning |
 | **D** | Toggle debug overlay (word boxes / samples) |
 | **M** | Toggle marker draw mode (line ↔ brush) |
 | **1** (debug) | `rand_toilet_msg` → `toilet_pull()` (advance paper) |

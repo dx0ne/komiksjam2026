@@ -16,8 +16,8 @@ Maintenance rules for this file: [`AGENTS.md`](../AGENTS.md) § Feature index.
 | [Topic intro newspaper](#topic-intro-newspaper) | `topic_newspaper.gd`, `topic_content.gd` | First shift per topic | Blocks normal shift until dismissed |
 | [Point light flicker](#point-light-flicker) | `scripts/flicker_light.gd` | Clock time remaining | Light energy, `flicker_off` / `flicker_on` signals |
 | [Desk shadows](#desk-shadows) | `game2.gd` | Light flicker, cofefe drag | `KawaCien`, `PopielniczkaCien` alpha |
-| [Cofefe mug](#cofefe-mug) | `scenes/desk_props/cofefe.gd` | Click / drag | 5 sips/shift (`SipsLabel`); +10s & +1 twitch force; `Inside` pos/scale steps (perspective); smear, marker lock |
-| [Papieros cigarette](#papieros-cigarette) | `scenes/desk_props/papieros.gd` | Click while unlit/burning | Each click −1 twitch force; first click lights fuse; stub = no clicks |
+| [Cofefe mug](#cofefe-mug) | `scenes/desk_props/cofefe.gd` | Click / drag | 1 sip/shift; +10s & +1 twitch force; `Inside` empties on use; smear, marker lock |
+| [Papieros cigarette](#papieros-cigarette) | `scenes/desk_props/papieros.gd` | One click while unlit | −1 twitch force once; ~6 s fuse then stub |
 | [Toilet handle attract](#toilet-handle-attract) | `game2.gd` | Idle 4s after handle visible | Handle sway + flash |
 | [Rubber fly marker](#rubber-fly-marker) | `game2.gd` + `%Rubber` scene | Onboarding steps, stroke idle | Marker prop animation |
 | [Marker review blink](#marker-review-blink) | `scripts/marker_layer.gd` | Review stroke colors applied | Tick/cross overlay pulse |
@@ -143,7 +143,7 @@ Shadow sprites are separate `Sprite2D` nodes under `CanvasLayer_strokes/CanvasGr
 
 | Input | Signal | Effect in `game2.gd` |
 |-------|--------|----------------------|
-| Short click (< 10 px move) | `sip_requested` | `consume_sip()` (max 5); `n/5` popup over mug; `+10s` popup over `%clock_scn`; `%CoffeeSipFlash` screen brighten ~1s; `game2._twitch_force += 1`; `Inside` lerps toward empty-mug pose |
+| Short click (< 10 px move) | `sip_requested` | `consume_sip()` (max 1); `0/1` popup over mug; `+10s` popup over `%clock_scn`; `%CoffeeSipFlash` screen brighten ~1s; `game2._twitch_force += 1`; `Inside` empties |
 | Drag | `drag_started` / `drag_ended` | Hides coffee shadow; locks marker during drag (gameplay only) |
 | Drag release (moved) | `mug_placed(center, radius, drop_vector, speed)` | If over paper → `marker_layer.apply_mug_smear()` |
 
@@ -157,15 +157,15 @@ Mug raises z-order while dragging and tweens home on release.
 
 | State | Click | Visual |
 |-------|-------|--------|
-| Unlit | First click → `_light()` + `puff_requested` (−1 force) | On desk; then tweens to ashtray |
-| Burning | Each click → `puff_requested` (−1 force) | Region shrinks ~34 s (fuse); smoke at tip |
+| Unlit | First (only) click → place + `puff_requested` (−1 force) | On desk; then tweens to ashtray |
+| Burning | No further clicks (`MAX_PUFFS` 1) | Region shrinks ~6 s (fuse); smoke at tip |
 | Stub | Ignored | Stays on ashtray; no more calm clicks |
 
 Lit placement: `%popielniczka.position + ASHTRAY_OFFSET_FROM_POP` (from `Papieros_used`), with pivot fix for left-anchored body; each puff after the first nudges ±`ROTATION_PER_PUFF` (~0.11 rad), alternating left/right from base `3.8013272`.
 
-**Twitch force (`game2._twitch_force`):** Coffee +1 per sip. Each cigarette click −1 (min 0). Jitters while force &gt; 0; rate/strength scale with force.
+**Twitch force (`game2._twitch_force`):** Coffee +1 on the single sip. Cigarette −1 once on first puff (min 0). Jitters while force &gt; 0; rate/strength scale with force.
 
-**Fuse:** ~34 s burn window for repeated puffs; stub ends use. Coffee force keeps stacking after stub.
+**Fuse:** ~6 s burn after the one puff; stub ends use. Coffee force unchanged after stub.
 
 **Marker coupling:** During a twitch, `game2._sync_marker_jitter_to_hand()` sets `draw_position_offset` on the active paper’s `MarkerLayer` so ink follows the displaced hand, including points injected each frame while `drawing`.
 

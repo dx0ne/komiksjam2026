@@ -6,7 +6,8 @@ signal burned_out
 enum State { UNLIT, BURNING, STUB }
 
 const CLICK_PADDING := Vector2(10, 10)
-const BURN_DURATION := 34.0
+const MAX_PUFFS := 1
+const BURN_DURATION := 6.0
 const PLACE_ON_ASHTRAY_DURATION := 0.38
 ## Left portion of texture width kept when fully burned (filter / stub).
 const STUB_WIDTH_RATIO := 0.26
@@ -65,7 +66,7 @@ func reset_for_shift() -> void:
 
 
 func can_puff() -> bool:
-	return _state == State.UNLIT or _state == State.BURNING
+	return (_state == State.UNLIT or _state == State.BURNING) and _puff_count < MAX_PUFFS
 
 
 func contains_global_point(global_point: Vector2) -> bool:
