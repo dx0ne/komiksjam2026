@@ -834,10 +834,12 @@ func _build_document_text(template: String, document_words: Array[String]) -> St
 	var text := template
 	var random_name := WordManager.names[rng.randi_range(0, WordManager.names.size() - 1)]
 	text = text.replace("{name}", random_name)
-	text = text.replace("{illegal_a}", document_words[0])
-	text = text.replace("{illegal_b}", document_words[1])
-	if text.find("{illegal_c}") != -1 and document_words.size() > 2:
-		text = text.replace("{illegal_c}", document_words[2])
+	var slot_words := document_words.duplicate()
+	slot_words.shuffle()
+	text = text.replace("{illegal_a}", slot_words[0])
+	text = text.replace("{illegal_b}", slot_words[1])
+	if text.find("{illegal_c}") != -1 and slot_words.size() > 2:
+		text = text.replace("{illegal_c}", slot_words[2])
 	return text
 
 
