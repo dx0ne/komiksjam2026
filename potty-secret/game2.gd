@@ -476,28 +476,7 @@ func _show_scripted_intel(display_words: Array[String]) -> void:
 	var canonicals: Array[String] = session.get("planted_canonicals", [])
 	WordManager.current_toilet_canonicals = canonicals.duplicate()
 	WordManager.current_toilet_words = display_words.duplicate()
-
-	var intel_count := display_words.size()
-	var y_pad_perct := 0.2
-	var y_padding := viewport_size.y * y_pad_perct
-	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / maxi(1, intel_count)
-
-	for i in range(intel_count):
-		var toilet_msg = TOILET_SCN.instantiate()
-		%toilet_msgs_container.add_child(toilet_msg)
-		toilet_msg.position.y = -100
-		toilet_msg.set_label(display_words[i])
-		toilet_msg.prep_tween()
-
-		var msg_tween := create_tween().set_parallel(true)
-		var target_x := randf_range(-50, 50)
-		var target_y := y_padding + (y_spacer * i)
-		target_y += randf_range(-1 * y_padding * 0.1, y_padding * 0.1)
-		msg_tween.tween_property(toilet_msg, "position:y", target_y, 0.6) \
-			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-		msg_tween.tween_property(toilet_msg, "position:x", target_x, 0.6) \
-			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-
+	_spawn_toilet_intel_messages(display_words)
 	if session.has("text"):
 		_apply_toilet_to_current_paper()
 
@@ -944,10 +923,30 @@ func _stop_handle_attract() -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
-func _roll_toilet_intel(animate_msgs: bool = true) -> void:
-	for child in %toilet_msgs_container.get_children():
-		child.queue_free()
+func _spawn_toilet_intel_messages(display_words: Array[String]) -> void:
+	var intel_count := display_words.size()
+	var y_pad_perct := 0.2
+	var y_padding := viewport_size.y * y_pad_perct
+	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / maxi(1, intel_count)
 
+	for i in range(intel_count):
+		var toilet_msg = TOILET_SCN.instantiate()
+		%toilet_msgs_container.add_child(toilet_msg)
+		toilet_msg.position.y = -100
+		toilet_msg.set_label(display_words[i])
+		toilet_msg.prep_tween()
+
+		var msg_tween := create_tween().set_parallel(true)
+		var target_x := randf_range(-50, 50)
+		var target_y := y_padding + (y_spacer * i)
+		target_y += randf_range(-1 * y_padding * 0.1, y_padding * 0.1)
+		msg_tween.tween_property(toilet_msg, "position:y", target_y, 0.6) \
+			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		msg_tween.tween_property(toilet_msg, "position:x", target_x, 0.6) \
+			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+
+
+func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 	# Source intel from the current paper's planted canonicals.
 	var canonicals: Array[String] = []
 	if not session.is_empty() and session.has("planted_canonicals"):
@@ -977,26 +976,7 @@ func _roll_toilet_intel(animate_msgs: bool = true) -> void:
 			_apply_toilet_to_current_paper()
 		return
 
-	var intel_count := display_words.size()
-	var y_pad_perct := 0.2
-	var y_padding := viewport_size.y * y_pad_perct
-	var y_spacer := (viewport_size.y * (1.0 - y_pad_perct) * 0.8) / maxi(1, intel_count)
-
-	for i in range(intel_count):
-		var toilet_msg = TOILET_SCN.instantiate()
-		%toilet_msgs_container.add_child(toilet_msg)
-		toilet_msg.position.y = -100
-		toilet_msg.set_label(display_words[i])
-		toilet_msg.prep_tween()
-
-		var tween := create_tween().set_parallel(true)
-		var target_x := randf_range(-50, 50)
-		var target_y := y_padding + (y_spacer * i)
-		target_y += randf_range(-1 * y_padding * 0.1, y_padding * 0.1)
-		tween.tween_property(toilet_msg, "position:y", target_y, 0.6) \
-			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-		tween.tween_property(toilet_msg, "position:x", target_x, 0.6) \
-			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	_spawn_toilet_intel_messages(display_words)
 
 	if session.has("text"):
 		_apply_toilet_to_current_paper()

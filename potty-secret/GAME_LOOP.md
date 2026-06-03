@@ -98,7 +98,7 @@ The submit-time `-0.5` for unmarked planted words was removed in task-05. Leavin
 | Post-it penalty badge | Count of words in state `wrong` on this paper |
 | Floating label (+1, +2, −0.5) | Per-word delta at mark time, drifts up and fades |
 | Stamp on paper | Awarded when X == Y and penalty == 0 (checked on toilet pull / time-out) |
-| Toilet messages | Current intel list (phase-obfuscated display variants of paper's planted canonicals) |
+| Toilet messages | Each pull adds new strips (old nodes stay); same scatter layout per batch. Only the **latest** roll drives marking (`WordManager.current_toilet_words`). |
 
 ## Player actions
 
