@@ -153,3 +153,15 @@ offset_bottom = 54.70471
 text = "0/0"
 label_settings = SubResource("LabelSettings_count")
 horizontal_alignment = 2
+
+[node name="PostItHint" type="Label" parent="Posit" unique_id=1982736401]
+unique_name_in_owner = true
+visible = false
+offset_left = -72.0
+offset_top = -62.29529
+offset_right = 72.0
+offset_bottom = 54.70471
+label_settings = SubResource("LabelSettings_count")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

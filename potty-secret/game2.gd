@@ -18,7 +18,6 @@ const LEFT_HAND_OFFSCREEN_Y := 400.0
 const TOILET_SCN       := preload("res://toilet_msg.tscn")
 const PAPER_SCN        := preload("res://paper.tscn")
 const ScorePopupScene  := preload("res://score_popup.tscn")
-const TOPIC_NEWSPAPER_SCN := preload("res://scenes/topic_newspaper.tscn")
 
 const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
@@ -65,6 +64,7 @@ var _shift_ending := false
 var _outgoing_paper: GamePaper = null
 var _onboarding_step: OnboardingStep = OnboardingStep.DONE
 var _onboarding_substep: int = 0
+var _topic_intro_active: bool = false
 var _left_hand_rest_pos: Vector2 = Vector2.ZERO
 
 
@@ -178,7 +178,8 @@ func _begin_onboarding() -> void:
 			OnboardingContent.WELCOME_TEXT,
 			OnboardingContent.WELCOME_TARGETS
 		),
-		false
+		false,
+		DocumentScenes.onboarding("welcome")
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true, OnboardingContent.WELCOME_STICKY_HINT)
@@ -197,7 +198,8 @@ func _begin_shift_start() -> void:
 			OnboardingContent.shift_start_text(),
 			OnboardingContent.SHIFT_START_TARGETS
 		),
-		false
+		false,
+		DocumentScenes.onboarding("shift_start")
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true, OnboardingContent.SHIFT_START_STICKY_HINT)
@@ -208,45 +210,59 @@ func _begin_topic_shift() -> void:
 	if PlayerProgress.has_seen_topic_intro(WordManager.active_topic_id):
 		_start_normal_shift(true)
 		return
-	_show_topic_newspaper()
+	_start_topic_intro_document()
 
 
-func _layout_newspaper_container(container: Control) -> void:
-	var vp_size := get_viewport().get_visible_rect().size
-	container.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	container.position = Vector2.ZERO
-	container.size = vp_size
-
-
-func _show_topic_newspaper() -> void:
+func _start_topic_intro_document() -> void:
+	_topic_intro_active = true
+	_onboarding_step = OnboardingStep.DONE
 	_clear_outgoing_paper()
-	if active_paper:
-		active_paper.queue_free()
-		active_paper = null
 	_set_toilet_handle_visible(false)
 	_clear_toilet_intel()
+	_set_rubber_visible(false)
 
-	var container: Control = %newspaper_container
-	_layout_newspaper_container(container)
-	for child in container.get_children():
-		child.queue_free()
+	var topic_id := WordManager.active_topic_id
+	var data := TopicContent.get_topic(topic_id)
+	var targets := TopicContent.targets_from_data(data)
+	var intro_session := _build_tutorial_session(
+		TopicContent.build_document_text(data),
+		targets
+	)
+	intro_session["show_letterhead"] = false
+	_spawn_scripted_paper(intro_session, false, DocumentScenes.topic(topic_id))
+	if active_paper:
+		var hint: String = data.get("post_it_hint", data.get("post_it", ""))
+		active_paper.set_onboarding_ui(true, hint)
 
-	var newspaper: TopicNewspaper = TOPIC_NEWSPAPER_SCN.instantiate()
-	newspaper.dismissed.connect(_on_topic_newspaper_dismissed)
-	container.add_child(newspaper)
-	newspaper.setup(WordManager.active_topic_id)
-	%CanvasLayer_newspaper.show()
+
+func _tutorial_targets_from_session() -> Array[String]:
+	var raw: Array = session.get("tutorial_targets", [])
+	if raw.is_empty():
+		raw = session.get("planted_canonicals", [])
+	var out: Array[String] = []
+	for t in raw:
+		out.append(str(t))
+	return out
 
 
-func _on_topic_newspaper_dismissed() -> void:
+func _tutorial_planted_canonicals(targets: Array[String]) -> Array[String]:
+	var out: Array[String] = []
+	for t in targets:
+		var canon := WordManager.canonicalize(t)
+		out.append(canon if not canon.is_empty() else WordManager._normalize(t))
+	return out
+
+
+func _topic_intro_check_progress() -> void:
+	if not _topic_intro_targets_marked(_tutorial_targets_from_session()):
+		return
+	_topic_intro_active = false
 	PlayerProgress.mark_topic_intro_seen(WordManager.active_topic_id)
-	%CanvasLayer_newspaper.hide()
-	for child in %newspaper_container.get_children():
-		child.queue_free()
 	_start_normal_shift(true)
 
 
 func _start_normal_shift(spawn_paper: bool = true) -> void:
+	_topic_intro_active = false
 	_onboarding_step = OnboardingStep.DONE
 	_onboarding_substep = 0
 	_shift_ending = false
@@ -366,10 +382,11 @@ func _clear_toilet_intel() -> void:
 
 
 func _build_tutorial_session(text: String, targets: Array[String], decoys: Array = []) -> Dictionary:
+	var planted_canonicals := _tutorial_planted_canonicals(targets)
 	return {
 		"text": text,
 		"planted_words": targets.duplicate(),
-		"planted_canonicals": targets.duplicate(),
+		"planted_canonicals": planted_canonicals,
 		"planted_total": targets.size(),
 		"decoys": decoys,
 		"word_scores": {} as Dictionary,
@@ -377,11 +394,16 @@ func _build_tutorial_session(text: String, targets: Array[String], decoys: Array
 		"stamped": false,
 		"phase": int(Phase.TEACHING),
 		"tutorial_targets": targets.duplicate(),
+		"show_letterhead": true,
 	}
 
 
-func _spawn_scripted_paper(scripted_session: Dictionary, animate_in: bool) -> void:
-	_prepare_paper_spawn(animate_in)
+func _spawn_scripted_paper(
+	scripted_session: Dictionary,
+	animate_in: bool,
+	paper_scene: PackedScene = PAPER_SCN
+) -> void:
+	_prepare_paper_spawn(animate_in, paper_scene)
 	session = scripted_session
 	_load_session()
 	if _onboarding_step == OnboardingStep.DONE:
@@ -390,10 +412,7 @@ func _spawn_scripted_paper(scripted_session: Dictionary, animate_in: bool) -> vo
 
 
 func _onboarding_check_progress() -> void:
-	var targets: Array[String] = session.get("tutorial_targets", [])
-	if targets.is_empty():
-		targets = session.get("planted_canonicals", [])
-	if not _tutorial_all_targets_covered(targets):
+	if not _tutorial_all_targets_covered(_tutorial_targets_from_session()):
 		return
 
 	match _onboarding_step:
@@ -419,10 +438,11 @@ func _advance_to_toilet_lesson() -> void:
 			OnboardingContent.toilet_text(),
 			OnboardingContent.TOILET_TARGETS
 		),
-		false
+		false,
+		DocumentScenes.onboarding("toilet")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true)
+		active_paper.set_onboarding_ui(true, OnboardingContent.TOILET_STICKY_HINT)
 	_start_handle_attract()
 
 
@@ -441,51 +461,113 @@ func _advance_to_start_briefing() -> void:
 			OnboardingContent.briefing_text(),
 			OnboardingContent.BRIEFING_TARGETS
 		),
-		false
+		false,
+		DocumentScenes.onboarding("briefing")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true)
+		active_paper.set_onboarding_ui(true, OnboardingContent.BRIEFING_STICKY_HINT)
 	_show_scripted_intel(OnboardingContent.BRIEFING_TARGETS)
+
+
+func _tutorial_stroke_samples_in_text_space() -> Array[PackedVector2Array]:
+	var marker_layer := _marker_layer()
+	if marker_layer == null:
+		return []
+	return _stroke_samples_in_text_space_from_array(marker_layer.strokes)
+
+
+func _topic_intro_targets_marked(targets: Array[String]) -> bool:
+	var text_renderer := _text_renderer()
+	if text_renderer == null or targets.is_empty():
+		return false
+	var all_samples := _tutorial_stroke_samples_in_text_space()
+	if all_samples.is_empty():
+		return false
+
+	var need_count: Dictionary = {}
+	for target in targets:
+		var key := _tutorial_target_key(target)
+		need_count[key] = need_count.get(key, 0) + 1
+
+	var got_count: Dictionary = {}
+	for key in need_count:
+		got_count[key] = 0
+
+	for box in text_renderer.word_boxes:
+		if not _tutorial_box_has_stroke_overlap(box, all_samples):
+			continue
+		for key in need_count:
+			if got_count[key] >= need_count[key]:
+				continue
+			if _tutorial_word_matches(box, key):
+				got_count[key] += 1
+				break
+
+	for key in need_count:
+		if got_count[key] < need_count[key]:
+			return false
+	return true
+
+
+func _tutorial_box_has_stroke_overlap(box: Dictionary, all_samples: Array[PackedVector2Array]) -> bool:
+	var grown: Rect2 = box["rect"].grow(REDACTION_TOLERANCE)
+	for samples in all_samples:
+		for point in samples:
+			if grown.has_point(point):
+				return true
+	return false
 
 
 func _tutorial_all_targets_covered(targets: Array[String]) -> bool:
 	var text_renderer := _text_renderer()
 	if text_renderer == null or targets.is_empty():
 		return false
-	var all_samples := _stroke_samples_in_text_space_from_array(session.get("strokes", []))
+	var all_samples := _tutorial_stroke_samples_in_text_space()
+	if all_samples.is_empty():
+		return false
 
 	var need_count: Dictionary = {}
 	for target in targets:
-		need_count[target] = need_count.get(target, 0) + 1
+		var key := _tutorial_target_key(target)
+		need_count[key] = need_count.get(key, 0) + 1
 
 	var got_count: Dictionary = {}
-	for target in need_count:
-		got_count[target] = 0
+	for key in need_count:
+		got_count[key] = 0
 
 	for box in text_renderer.word_boxes:
 		var tier := _word_coverage_tier_from_strokes(box, all_samples)
 		if tier != "half" and tier != "full":
 			continue
-		for target in need_count:
-			if got_count[target] >= need_count[target]:
+		for key in need_count:
+			if got_count[key] >= need_count[key]:
 				continue
-			if _tutorial_word_matches(box, target):
-				got_count[target] += 1
+			if _tutorial_word_matches(box, key):
+				got_count[key] += 1
 				break
 
-	for target in need_count:
-		if got_count[target] < need_count[target]:
+	for key in need_count:
+		if got_count[key] < need_count[key]:
 			return false
 	return true
 
 
-func _tutorial_word_matches(box: Dictionary, target: String) -> bool:
+func _tutorial_target_key(target: String) -> String:
+	var canon := WordManager.canonicalize(target)
+	if not canon.is_empty():
+		return canon
+	return WordManager._normalize(target)
+
+
+func _tutorial_word_matches(box: Dictionary, target_key: String) -> bool:
 	var box_word: String = box.get("word", "")
-	var target_norm := WordManager._normalize(target)
-	if box_word == target_norm:
+	if box_word == target_key:
 		return true
 	var canon := WordManager.canonicalize(box.get("display", ""))
-	return not canon.is_empty() and canon == target
+	if not canon.is_empty():
+		return canon == target_key or WordManager._normalize(canon) == target_key
+	var display_norm := WordManager._normalize(str(box.get("display", "")))
+	return display_norm == target_key
 
 
 func _show_scripted_intel(display_words: Array[String]) -> void:
@@ -597,13 +679,13 @@ func _tween_paper_out(paper: GamePaper) -> void:
 	)
 
 
-func _prepare_paper_spawn(animate_in: bool) -> void:
+func _prepare_paper_spawn(animate_in: bool, paper_scene: PackedScene = PAPER_SCN) -> void:
 	if active_paper:
 		_disconnect_paper_signals(active_paper)
 		_tween_paper_out(active_paper)
 		active_paper = null
 
-	active_paper = PAPER_SCN.instantiate()
+	active_paper = paper_scene.instantiate() as GamePaper
 	active_paper.z_index = 0
 	%papers_container.add_child(active_paper)
 	active_paper.move_to_front()
@@ -892,6 +974,13 @@ func _load_session() -> void:
 	text_renderer.set_document(session["text"], WordManager.current_toilet_words)
 	text_renderer.set_planted_canonicals(session["planted_canonicals"])
 	text_renderer.set_decoy_canonicals(session.get("decoys", []))
+	var tutorial_targets: Array = session.get("tutorial_targets", [])
+	if session.get("hide_target_words", false):
+		text_renderer.set_transparent_words(tutorial_targets)
+	else:
+		text_renderer.set_transparent_words([])
+	text_renderer.show_letterhead = session.get("show_letterhead", true)
+	active_paper.show_letterhead = text_renderer.show_letterhead
 	marker_layer.clear_strokes()
 	marker_layer.clear_word_marks()
 	marker_layer.set_locked(false)
@@ -1152,6 +1241,9 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 	_save_session()
 	if _shift_ending:
 		_shift_report_check_progress()
+		return
+	if _topic_intro_active:
+		_topic_intro_check_progress()
 		return
 	if _onboarding_step != OnboardingStep.DONE:
 		_onboarding_check_progress()
@@ -1489,7 +1581,7 @@ func _begin_shift_closure() -> void:
 	_force_point_light(true)
 
 	var report_session := _build_shift_report_session()
-	_spawn_scripted_paper(report_session, true)
+	_spawn_scripted_paper(report_session, true, DocumentScenes.onboarding("shift_report"))
 	if active_paper:
 		active_paper.set_onboarding_ui(true, ShiftReportContent.STICKY_HINT)
 

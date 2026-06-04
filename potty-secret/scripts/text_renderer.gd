@@ -16,6 +16,8 @@ var illegal_words: Array[String] = []
 var planted_canonicals: Array[String] = []
 var decoy_canonicals: Array[String] = []
 var word_boxes: Array[Dictionary] = []
+var show_letterhead := true
+var _transparent_words: Array[String] = []
 
 var _font: Font
 var _font_size := 22
@@ -51,7 +53,10 @@ func set_forbidden_words(forbidden_words: Array[String]) -> void:
 func set_planted_canonicals(canonicals: Array[String]) -> void:
 	planted_canonicals.assign(canonicals)
 	for box in word_boxes:
-		box["planted"] = WordManager.canonicalize(box["word"]) in planted_canonicals
+		box["planted"] = _token_is_planted(
+			WordManager.canonicalize(str(box.get("display", ""))),
+			str(box.get("display", ""))
+		)
 	queue_redraw()
 
 
@@ -61,6 +66,14 @@ func set_decoy_canonicals(canonicals: Array) -> void:
 		decoy_canonicals.append(c)
 	for box in word_boxes:
 		box["decoy"] = WordManager.canonicalize(box["word"]) in decoy_canonicals
+	queue_redraw()
+
+
+## Tutorial / topic-intro targets: drawn invisible until the player redacts them.
+func set_transparent_words(words: Array) -> void:
+	_transparent_words.clear()
+	for w in words:
+		_transparent_words.append(_normalize_word(str(w)))
 	queue_redraw()
 
 
@@ -96,9 +109,7 @@ func _relayout() -> void:
 	var cursor := Vector2(PAPER_INSET, PAPER_INSET + _font_size)
 	var line_height := _font.get_height(_font_size) + LINE_SPACING
 
-	var tokens: Array[String] = []
-	for t in document_text.split(" ", false):
-		tokens.append(t)
+	var tokens := _tokenize_document(document_text)
 
 	# Longest-match N-gram pass so multi-word canonicals (e.g. "the Grays",
 	# "Project Blue Book") become a single markable box. N_MAX = 3 covers
@@ -134,7 +145,7 @@ func _relayout() -> void:
 			"display": matched_display,
 			"rect": rect,
 			"illegal": matched_canonical != "" and matched_canonical in WordManager.current_toilet_canonicals,
-			"planted": matched_canonical != "" and matched_canonical in planted_canonicals,
+			"planted": _token_is_planted(matched_canonical, matched_display),
 			"decoy": matched_canonical != "" and matched_canonical in decoy_canonicals,
 			"redacted": false,
 			"coverage": 0.0,
@@ -157,9 +168,19 @@ func _draw() -> void:
 			var rect: Rect2 = box["rect"]
 			draw_rect(rect.grow(3.0), Color(MISSED_COLOR.r, MISSED_COLOR.g, MISSED_COLOR.b, highlight_alpha))
 		var baseline := Vector2(box["rect"].position.x, box["rect"].position.y + _font_size)
-		draw_string(_font, baseline, box["display"], HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size, _text_color)
+		var ink := _text_color
+		if _is_transparent_target(box):
+			ink.a = 0.0
+		draw_string(_font, baseline, box["display"], HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size, ink)
+
+func _is_transparent_target(box: Dictionary) -> bool:
+	if _transparent_words.is_empty():
+		return false
+	return box.get("word", "") in _transparent_words
 
 func _draw_letterhead() -> void:
+	if not show_letterhead:
+		return
 	var header_rect := Rect2(Vector2(PAPER_INSET, 18.0), Vector2(size.x - PAPER_INSET * 2.0, 4.0))
 	draw_rect(header_rect, Color(0.18, 0.15, 0.11, 0.35))
 	draw_string(_font, Vector2(PAPER_INSET, 36.0), "MINISTRY REVIEW COPY", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
@@ -167,6 +188,35 @@ func _draw_letterhead() -> void:
 
 func normalize_word(value: String) -> String:
 	return _normalize_word(value)
+
+
+func _tokenize_document(text: String) -> Array[String]:
+	var tokens: Array[String] = []
+	var current := ""
+	for i in range(text.length()):
+		var code := text.unicode_at(i)
+		var is_space := code == 32 or code == 10 or code == 13 or code == 9
+		if is_space:
+			if not current.is_empty():
+				tokens.append(current)
+				current = ""
+		else:
+			current += char(code)
+	if not current.is_empty():
+		tokens.append(current)
+	return tokens
+
+
+func _token_is_planted(matched_canonical: String, matched_display: String) -> bool:
+	if planted_canonicals.is_empty():
+		return false
+	var norm := _normalize_word(matched_display)
+	for planted in planted_canonicals:
+		if WordManager._normalize(planted) == norm:
+			return true
+		if not matched_canonical.is_empty() and matched_canonical == planted:
+			return true
+	return false
 
 
 func _normalize_word(value: String) -> String:

@@ -26,6 +26,8 @@ const TOPICS: Dictionary = {
 			+ "of anonymity, said the President had 'changed his mind about transparency.'"
 		),
 		"post_it": POST_IT_DEFAULT,
+		"post_it_hint": "aliens (headline)",
+		"targets": ["aliens"],
 	},
 	TOPIC_CRYPTIDS: {
 		"paper_name": "THE CAPITAL SCOOP",
@@ -37,6 +39,8 @@ const TOPICS: Dictionary = {
 			+ "logged by federal survey teams. The promised release never materialized."
 		),
 		"post_it": POST_IT_DEFAULT,
+		"post_it_hint": "mark CRYPTIDS",
+		"targets": ["CRYPTIDS"],
 	},
 	TOPIC_CONSPIRACY: {
 		"paper_name": "THE CAPITAL SCOOP",
@@ -48,6 +52,8 @@ const TOPICS: Dictionary = {
 			+ "By dusk, editors were calling it the leak that leaked back."
 		),
 		"post_it": POST_IT_DEFAULT,
+		"post_it_hint": "mark DEEP",
+		"targets": ["DEEP"],
 	},
 	TOPIC_POP_CULTURE: {
 		"paper_name": "THE CAPITAL SCOOP",
@@ -59,8 +65,37 @@ const TOPICS: Dictionary = {
 			+ "whispered about for years. The briefing room doors stayed locked."
 		),
 		"post_it": POST_IT_DEFAULT,
+		"post_it_hint": "mark KING",
+		"targets": ["KING"],
 	},
 }
+
+
+static func targets_from_data(data: Dictionary) -> Array[String]:
+	var out: Array[String] = []
+	var raw: Array = data.get("targets", [])
+	for t in raw:
+		out.append(str(t))
+	return out
+
+
+static func build_document_text(data: Dictionary) -> String:
+	if data.has("document_text"):
+		return str(data["document_text"])
+	var parts: PackedStringArray = []
+	var paper_name: String = data.get("paper_name", "")
+	if not paper_name.is_empty():
+		parts.append(paper_name)
+	var headline: String = data.get("headline", "")
+	if not headline.is_empty():
+		parts.append(headline)
+	var deck: String = data.get("deck", "")
+	if not deck.is_empty():
+		parts.append(deck)
+	var body: String = data.get("body", "")
+	if not body.is_empty():
+		parts.append(body)
+	return "\n\n".join(parts)
 
 
 static func get_topic(topic_id: String) -> Dictionary:

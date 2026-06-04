@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://news_topic_cryptids"]
+
+[ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://paper.tscn" id="1_base"]
+
+[node name="Paper" instance=ExtResource("1_base")]
+show_letterhead = false
+
+[node name="TextRenderer" parent="." index="1"]
+offset_left = 56.0
+offset_top = 120.0
+offset_right = 880.0
+offset_bottom = 980.0
+
+[node name="Posit" parent="." index="4"]
+position = Vector2(920, 220)
+rotation = -0.06

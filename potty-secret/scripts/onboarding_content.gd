@@ -9,7 +9,7 @@ const WELCOME_TEXT := (
 	+ "Should you choose to accept this assignment, redact accept."
 )
 
-const WELCOME_STICKY_HINT := "accept?"
+const WELCOME_STICKY_HINT := "2x accept"
 
 const TOILET_TARGETS: Array[String] = ["UFOs", "Area 51"]
 
@@ -38,6 +38,10 @@ const SHIFT_START_TEXT := (
 )
 
 const SHIFT_START_STICKY_HINT := "begin?"
+
+const TOILET_STICKY_HINT := "UFOs · Area 51"
+
+const BRIEFING_STICKY_HINT := "ready · steady · go"
 
 
 static func toilet_text() -> String:

@@ -12,8 +12,9 @@ Maintenance rules for this file: [`AGENTS.md`](../AGENTS.md) § Feature index.
 |---------|-------|----------|---------|
 | [Shift clock](#shift-clock) | `clock.gd` | `start_shift()`, timer tick | Progress bar, clock hand, light flicker mode |
 | [Difficulty phases](#difficulty-phases) | `game2.gd` | Elapsed shift time | Paper variants, toilet intel, decoys |
-| [Onboarding](#onboarding) | `game2.gd`, `onboarding_content.gd` | First launch | UI visibility, scripted papers, progress save |
-| [Topic intro newspaper](#topic-intro-newspaper) | `topic_newspaper.gd`, `topic_content.gd` | First shift per topic | Blocks normal shift until dismissed |
+| [Onboarding](#onboarding) | `game2.gd`, `onboarding_content.gd`, `document_scenes.gd` | First launch | UI visibility, scripted papers, progress save |
+| [Topic intro newspaper](#topic-intro-newspaper) | `document_scenes.gd`, `topic_content.gd`, `paper.gd` | First shift per topic | Mark targets on desk paper; blocks shift until redacted |
+| [Custom document scenes](#custom-document-scenes) | `scenes/documents/`, `scenes/newspapers/` | Scripted spawn | Background, text area, post-it layout per scene |
 | [Point light flicker](#point-light-flicker) | `scripts/flicker_light.gd` | Clock time remaining | Light energy, `flicker_off` / `flicker_on` signals |
 | [Desk shadows](#desk-shadows) | `game2.gd` | Light flicker, cofefe drag | `KawaCien`, `PopielniczkaCien` alpha |
 | [Cofefe mug](#cofefe-mug) | `scenes/desk_props/cofefe.gd` | Click / drag | 1 sip/shift; +10s & +1 twitch force; `Inside` empties on use; smear, marker lock |
@@ -77,7 +78,7 @@ SHIFT_START → topic intro / normal shift
 | `SHIFT_START` | visible | visible | hidden | Shift-start targets marked |
 | `DONE` | normal gameplay | normal | hidden | — |
 
-Scripted copy and target word lists live in `OnboardingContent`. Progress checked on stroke finish via `_onboarding_check_progress()`.
+Scripted copy and target word lists live in `OnboardingContent`. Each step spawns a scene from `DocumentScenes.onboarding()` (under `scenes/documents/`). Progress checked on stroke finish via `_onboarding_check_progress()`. Target words stay **visible** on onboarding and topic-intro papers (optional `hide_target_words` on session if a scene needs invisible targets).
 
 **Debug:** Page Down resets onboarding and reloads the scene (`PlayerProgress.reset_onboarding()`).
 
@@ -85,13 +86,30 @@ Scripted copy and target word lists live in `OnboardingContent`. Progress checke
 
 ## Topic intro newspaper
 
-**Owners:** `scripts/topic_newspaper.gd`, `scripts/topic_content.gd`, `game2.gd`
+**Owners:** `scripts/topic_content.gd`, `scripts/document_scenes.gd`, `game2.gd`, `paper.gd`
 
-Before the first normal shift for each `WordManager.active_topic_id`, a full-screen newspaper overlay explains the topic. Shown from `_begin_topic_shift()` when `PlayerProgress.has_seen_topic_intro()` is false.
+Before the first normal shift for each `WordManager.active_topic_id`, a **desk paper** scene (`DocumentScenes.topic()`) shows topic copy. Shown from `_begin_topic_shift()` when `PlayerProgress.has_seen_topic_intro()` is false.
 
-- Content keyed by topic id in `TopicContent.get_topic()`
-- Dismiss: click or any key → `dismissed` signal → `mark_topic_intro_seen()` → `_start_normal_shift()`
-- `process_mode = ALWAYS` so input works while gameplay tree may be paused
+- Copy and `targets` / `post_it_hint` in `TopicContent.TOPICS`; body built via `TopicContent.build_document_text()`
+- Advance: redact all `targets` (transparent until marked) → `mark_topic_intro_seen()` → `_start_normal_shift()`
+- Legacy overlay `scenes/topic_newspaper.tscn` is unused; customize `scenes/newspapers/topic_*.tscn` instead
+
+---
+
+## Custom document scenes
+
+**Owners:** `paper.tscn` (base), `scenes/documents/*.tscn`, `scenes/newspapers/*.tscn`, `scripts/document_scenes.gd`
+
+Inherit from `paper.tscn` to author per-step layout in the editor:
+
+| Node | Customize |
+|------|-----------|
+| `BackgroundGroup/BackgroundPaper` | Swap texture (background art) |
+| `TextRenderer` | Position/size of markable text area |
+| `Posit` | Post-it sprite position/rotation |
+| `%PostItHint` | Label rect and typography on post-it (hint text set from code) |
+
+Register new scenes in `DocumentScenes.ONBOARDING` or `DocumentScenes.TOPIC`. Gameplay spawn: `_spawn_scripted_paper(session, animate, scene)`.
 
 ---
 

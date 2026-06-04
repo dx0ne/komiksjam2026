@@ -66,6 +66,7 @@ Skip the index for local, single-file behavior with no external coupling.
 | Shift orchestration | `game2.gd` |
 | Words / topics / scoring data | `WordManager.gd` |
 | Memo layout & word boxes | `scripts/text_renderer.gd` |
+| Custom intro / topic paper scenes | `scripts/document_scenes.gd`, `scenes/documents/`, `scenes/newspapers/` |
 | Marker input & strokes | `scripts/marker_layer.gd` |
 | Shift timer | `clock.gd` |
 | Desk lamp flicker | `scripts/flicker_light.gd` |
