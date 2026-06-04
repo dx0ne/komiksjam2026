@@ -125,6 +125,7 @@ texture = ExtResource("7_posit")
 
 [node name="pointsLabel_good" type="Label" parent="Posit" unique_id=919131354]
 unique_name_in_owner = true
+visible = false
 offset_left = -87.45303
 offset_top = 19.167816
 offset_right = 9.546967
@@ -145,10 +146,10 @@ horizontal_alignment = 2
 
 [node name="pointsLabel" type="Label" parent="Posit" unique_id=1683914707]
 unique_name_in_owner = true
-offset_left = -74.27507
-offset_top = -110.21475
-offset_right = 50.72493
-offset_bottom = 6.785248
+offset_left = -59.899303
+offset_top = -62.29529
+offset_right = 65.10069
+offset_bottom = 54.70471
 text = "0/0"
 label_settings = SubResource("LabelSettings_count")
 horizontal_alignment = 2

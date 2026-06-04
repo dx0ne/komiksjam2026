@@ -22,15 +22,11 @@ func set_postit(marked: int, total: int) -> void:
 	%pointsLabel.text = "+%d/%d" % [marked, total]
 
 
-func set_shift_score(score: float) -> void:
+func set_shift_score(_score: float) -> void:
 	if not is_node_ready():
 		return
-	if score > 0:
-		%pointsLabel_good.text = "+%.1f" % score
-	elif score < 0:
-		%pointsLabel_good.text = "%.1f" % score
-	else:
-		%pointsLabel_good.text = ""
+	%pointsLabel_good.visible = false
+	%pointsLabel_good.text = ""
 
 
 func set_penalty(amount: int) -> void:
@@ -81,7 +77,7 @@ func set_onboarding_ui(active: bool, sticky_hint: String = "") -> void:
 	if posit == null:
 		return
 	%pointsLabel.visible = not active
-	%pointsLabel_good.visible = not active
+	%pointsLabel_good.visible = false
 	%pointsLabel_bad.visible = not active
 	if active and not sticky_hint.is_empty():
 		%pointsLabel.visible = true
