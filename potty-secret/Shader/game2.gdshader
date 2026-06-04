@@ -11,6 +11,8 @@ uniform int texture_mode : hint_range(0, 1) = 0;
 2 = Alpha cut: Cuts textures as a mask. Use within CanvasGroup node.
 */
 uniform int alpha_mode : hint_range(0, 2) = 0;
+/**When true, final alpha is multiplied by the source TEXTURE alpha (CanvasGroup ink mask).*/
+uniform bool group_alpha_mask = false;
 group_uniforms;
 
 uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, repeat_disable, filter_nearest;
@@ -373,4 +375,7 @@ void fragment() {
     }
 
     COLOR = color;
+    if (group_alpha_mask) {
+        COLOR.a *= texture(TEXTURE, UV).a;
+    }
 }

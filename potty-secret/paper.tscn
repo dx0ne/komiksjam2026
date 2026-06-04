@@ -24,6 +24,23 @@ shader_parameter/contrast = 1.1930000566675
 shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
+shader_parameter/group_alpha_mask = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_marker"]
+shader = ExtResource("3_shader")
+shader_parameter/texture_mode = 1
+shader_parameter/alpha_mode = 0
+shader_parameter/quantize_size = 3
+shader_parameter/snap_to_world = true
+shader_parameter/limit_subpixels = true
+shader_parameter/dither_enabled = true
+shader_parameter/dither_pattern = 2
+shader_parameter/levels = 9
+shader_parameter/contrast = 1.1930000566675
+shader_parameter/brightness = 0.01900004840249991
+shader_parameter/average = 0.0
+shader_parameter/palette_mode = 0
+shader_parameter/group_alpha_mask = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pxe6b"]
 shader = ExtResource("3_shader")
@@ -103,7 +120,7 @@ mouse_filter = 2
 script = ExtResource("6_debug")
 
 [node name="MarkerGroup" type="CanvasGroup" parent="." unique_id=1410280547]
-material = SubResource("ShaderMaterial_dither")
+material = SubResource("ShaderMaterial_marker")
 
 [node name="MarkerLayer" type="Control" parent="MarkerGroup" unique_id=2020767677]
 unique_name_in_owner = true

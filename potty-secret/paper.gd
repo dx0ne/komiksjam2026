@@ -5,6 +5,7 @@ extends Node2D
 @export var show_letterhead := true
 
 @onready var text_renderer: TextRenderer = %TextRenderer
+@onready var marker_group: CanvasGroup = $MarkerGroup
 @onready var marker_layer: MarkerLayer = %MarkerLayer
 @onready var debug_overlay: DebugOverlay = %DebugOverlay
 @onready var _stamp: Sprite2D = %Stamp
@@ -21,17 +22,28 @@ func _ready() -> void:
 	if has_node("%PostItHint"):
 		%PostItHint.visible = false
 		%PostItHint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_renderer.resized.connect(_align_marker_layer_to_text)
+	_align_marker_layer_to_text()
+
+
+## Push outgoing memo behind the next sheet (see game2._tween_paper_out).
+func prepare_for_exit() -> void:
+	z_index = -100
 	var posit := get_node_or_null("Posit")
 	if posit != null:
-		posit.z_index = 10
+		posit.z_index = 0
 	if is_instance_valid(marker_layer):
-		marker_layer.z_index = 20
-		_align_marker_layer_to_text()
+		marker_layer.z_index = 0
+	if is_instance_valid(marker_group):
+		marker_group.z_index = 0
 
 
 func _align_marker_layer_to_text() -> void:
+	if not is_instance_valid(text_renderer) or not is_instance_valid(marker_layer):
+		return
+	marker_group.position = text_renderer.position
 	marker_layer.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	marker_layer.position = text_renderer.position
+	marker_layer.position = Vector2.ZERO
 	marker_layer.size = text_renderer.size
 
 

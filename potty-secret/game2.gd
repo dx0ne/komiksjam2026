@@ -656,7 +656,7 @@ func _tween_paper_out(paper: GamePaper) -> void:
 	_outgoing_paper = paper
 	paper.marker_layer.set_locked(true)
 	paper.stabilize_stamp_for_exit()
-	paper.z_index = -1
+	paper.prepare_for_exit()
 	%papers_container.move_child(paper, 0)
 
 	var exit_pos := paper.position + Vector2(
