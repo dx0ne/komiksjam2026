@@ -11,7 +11,7 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_4a3vv"]
 font = ExtResource("3_font")
-font_size = 22
+font_size = 24
 font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
 outline_size = 2
 outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
@@ -32,7 +32,7 @@ outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_4v8kd"]
 font = ExtResource("3_font")
-font_size = 22
+font_size = 26
 font_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
 outline_size = 2
 outline_color = Color(0.36862746, 0.20784314, 0.30588236, 1)
@@ -51,27 +51,28 @@ script = ExtResource("1_sr2dh")
 unique_name_in_owner = true
 
 [node name="ToiletPaper1" type="Sprite2D" parent="rot_node" unique_id=84428212]
-position = Vector2(13, 5)
+position = Vector2(-3.9999979, 5)
 scale = Vector2(1, 0.942)
 texture = ExtResource("2_3q7nb")
 
 [node name="Label" type="Label" parent="rot_node/ToiletPaper1" unique_id=821471381]
-offset_left = -125.99999
-offset_top = -76.43311
-offset_right = 180.36993
-offset_bottom = -40.433113
-rotation = 0.27109885
-scale = Vector2(0.9504546, 0.9504546)
+offset_left = -139.865
+offset_top = -61.508
+offset_right = 191.135
+offset_bottom = -25.508
+rotation = 0.19373155
+scale = Vector2(0.94, 0.94)
 text = "THE BERMUDA TRIANGLE"
 label_settings = SubResource("LabelSettings_4a3vv")
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
 script = ExtResource("7_intel_label")
+min_font_size = 24
 
 [node name="ToiletPaper2" type="Sprite2D" parent="rot_node" unique_id=1840567605]
 visible = false
-position = Vector2(-3.9999962, 5.0000005)
+position = Vector2(-8.999996, 5.0000005)
 scale = Vector2(1, 0.942)
 texture = ExtResource("3_4a3vv")
 
@@ -98,10 +99,10 @@ scale = Vector2(1, 0.982)
 texture = ExtResource("4_yka1r")
 
 [node name="Label" type="Label" parent="rot_node/ToiletPaper3" unique_id=821471383]
-offset_left = -123.0
-offset_top = 19.348267
-offset_right = 153.0
-offset_bottom = 53.348267
+offset_left = -135.78
+offset_top = 29.128
+offset_right = 140.22
+offset_bottom = 63.128
 rotation = -0.4002878
 scale = Vector2(0.94, 0.94)
 text = "THE BERMUDA TRIANGLE"
@@ -114,28 +115,28 @@ preferred_font_size = 30
 min_font_size = 20
 
 [node name="ToiletPaper4" type="Sprite2D" parent="rot_node" unique_id=1727218948]
-visible = false
-position = Vector2(22.000004, -3)
+position = Vector2(-2.9999933, -3)
 scale = Vector2(1, 0.942)
 texture = ExtResource("5_jck6c")
 
 [node name="Label" type="Label" parent="rot_node/ToiletPaper4" unique_id=821471384]
-offset_left = -153.00002
-offset_top = -63.69427
-offset_right = 160.75603
-offset_bottom = -27.694271
-rotation = 0.3616617
-scale = Vector2(0.9733686, 0.9733686)
+offset_left = -190.08
+offset_top = -33.314
+offset_right = 123.67604
+offset_bottom = 2.6860008
+rotation = 0.20769419
+scale = Vector2(0.94, 0.94)
 text = "THE BERMUDA TRIANGLE"
 label_settings = SubResource("LabelSettings_4v8kd")
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
 script = ExtResource("7_intel_label")
+min_font_size = 26
 
 [node name="ToiletPaper5" type="Sprite2D" parent="rot_node" unique_id=2060906287]
 visible = false
-position = Vector2(17.000002, 0.9999999)
+position = Vector2(14, 0.9999999)
 scale = Vector2(1, 0.942)
 texture = ExtResource("6_4v8kd")
 
