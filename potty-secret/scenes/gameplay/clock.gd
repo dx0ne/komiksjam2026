@@ -8,6 +8,7 @@ extends Node2D
 
 var _reka_start_rotation: float
 
+const SHIFT_DURATION_S := 180.0
 const DECOR_SPEEDUP_TIME_LEFT_S := 45.0  ## Last 25% of a 180 s shift.
 const DECOR_SPEEDUP_SCALE := 2.0
 
@@ -24,18 +25,18 @@ func _on_timer_timeout() -> void:
 
 
 func _on_ready() -> void:
-	game_timer.wait_time = 180.0
-	progress_bar.max_value = game_timer.wait_time
-	progress_bar.value = game_timer.wait_time
+	game_timer.wait_time = SHIFT_DURATION_S
+	progress_bar.max_value = SHIFT_DURATION_S
+	progress_bar.value = SHIFT_DURATION_S
 	_reka_start_rotation = reka_zegarek.rotation
 	_palec_animation = get_parent().get_node_or_null("Palec2") as AnimationPlayer
 	_stop_legs_animation()
 
 
 func start_shift() -> void:
-	game_timer.wait_time = 180.0
+	game_timer.wait_time = SHIFT_DURATION_S
 	game_timer.start()
-	progress_bar.max_value = game_timer.wait_time
+	progress_bar.max_value = SHIFT_DURATION_S
 	progress_bar.value = game_timer.time_left
 	reka_zegarek.rotation = _reka_start_rotation
 	_start_legs_animation()
@@ -43,7 +44,7 @@ func start_shift() -> void:
 
 func stop_shift() -> void:
 	game_timer.stop()
-	progress_bar.value = game_timer.wait_time
+	progress_bar.value = SHIFT_DURATION_S
 	reka_zegarek.rotation = _reka_start_rotation
 	_stop_legs_animation()
 
@@ -52,7 +53,7 @@ func add_time(seconds: float) -> void:
 	if game_timer.is_stopped():
 		return
 	game_timer.start(game_timer.time_left + seconds)
-	progress_bar.max_value = game_timer.wait_time
+	progress_bar.max_value = SHIFT_DURATION_S
 	progress_bar.value = game_timer.time_left
 
 
@@ -66,14 +67,18 @@ func set_time_left(seconds: float) -> void:
 		time_out.emit()
 		return
 	game_timer.start(new_left)
-	progress_bar.max_value = game_timer.wait_time
+	progress_bar.max_value = SHIFT_DURATION_S
 	progress_bar.value = game_timer.time_left
 
 
-func get_shift_progress() -> float:
+func get_shift_elapsed_s() -> float:
 	if game_timer.is_stopped():
 		return 0.0
-	return 1.0 - (game_timer.time_left / game_timer.wait_time)
+	return maxf(0.0, SHIFT_DURATION_S - game_timer.time_left)
+
+
+func get_shift_progress() -> float:
+	return clampf(get_shift_elapsed_s() / SHIFT_DURATION_S, 0.0, 1.0)
 
 
 func get_decor_speed_scale() -> float:
