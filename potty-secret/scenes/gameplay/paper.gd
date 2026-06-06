@@ -20,10 +20,19 @@ func _ready() -> void:
 	set_penalty(0)
 	set_stamp_visible(false)
 	if has_node("%PostItHint"):
-		%PostItHint.visible = false
 		%PostItHint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_renderer.resized.connect(_align_marker_layer_to_text)
 	_align_marker_layer_to_text()
+	call_deferred("_apply_scene_postit_hint")
+
+
+func _apply_scene_postit_hint() -> void:
+	if not has_node("%PostItHint"):
+		return
+	if %PostItHint.text.strip_edges().is_empty():
+		%PostItHint.visible = false
+		return
+	set_onboarding_ui(true)
 
 
 ## Push outgoing memo behind the next sheet (see game2._tween_paper_out).
@@ -113,9 +122,10 @@ func set_onboarding_ui(active: bool, sticky_hint: String = "") -> void:
 	var post_it_hint: Label = get_node_or_null("%PostItHint") as Label
 	if post_it_hint != null:
 		%pointsLabel.visible = not active
-		post_it_hint.visible = active and not sticky_hint.is_empty()
 		if active and not sticky_hint.is_empty():
 			post_it_hint.text = sticky_hint
+		var hint_text := post_it_hint.text.strip_edges()
+		post_it_hint.visible = active and not hint_text.is_empty()
 		return
 
 	%pointsLabel.visible = not active

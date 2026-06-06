@@ -1,0 +1,11 @@
+[gd_resource type="LabelSettings" format=3 uid="uid://17d77t1bh0to"]
+
+[ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="1_font"]
+
+[resource]
+line_spacing = -21.865
+font = ExtResource("1_font")
+font_size = 78
+font_color = Color(0.33333334, 0.13333334, 0.2627451, 1)
+outline_size = 3
+outline_color = Color(0.33333334, 0.13333334, 0.2627451, 1)

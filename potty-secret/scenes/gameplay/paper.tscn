@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://bkotcg8ogccy" path="res://art/posit.png" id="7_posit"]
 [ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="8_font"]
 [ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="9_stamp"]
+[ext_resource type="LabelSettings" uid="uid://c8kpostithint01" path="res://assets/postit_hint_label_settings.tres" id="10_postit_hint"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
 shader = ExtResource("3_shader")
@@ -178,7 +179,7 @@ offset_left = -72.0
 offset_top = -62.29529
 offset_right = 72.0
 offset_bottom = 54.70471
-label_settings = SubResource("LabelSettings_count")
+label_settings = ExtResource("10_postit_hint")
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2

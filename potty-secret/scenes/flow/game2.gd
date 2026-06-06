@@ -185,7 +185,7 @@ func _begin_onboarding() -> void:
 		DocumentScenes.onboarding("welcome")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true, OnboardingContent.WELCOME_STICKY_HINT)
+		active_paper.set_onboarding_ui(true)
 
 
 func _begin_shift_start() -> void:
@@ -205,7 +205,7 @@ func _begin_shift_start() -> void:
 		DocumentScenes.onboarding("shift_start")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true, OnboardingContent.SHIFT_START_STICKY_HINT)
+		active_paper.set_onboarding_ui(true)
 	_show_scripted_intel(OnboardingContent.SHIFT_START_TARGETS)
 
 
@@ -234,8 +234,7 @@ func _start_topic_intro_document() -> void:
 	intro_session["show_letterhead"] = false
 	_spawn_scripted_paper(intro_session, false, DocumentScenes.topic(topic_id))
 	if active_paper:
-		var hint: String = data.get("post_it_hint", data.get("post_it", ""))
-		active_paper.set_onboarding_ui(true, hint)
+		active_paper.set_onboarding_ui(true)
 
 
 func _tutorial_targets_from_session() -> Array[String]:
@@ -446,7 +445,7 @@ func _advance_to_toilet_lesson() -> void:
 		DocumentScenes.onboarding("toilet")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true, OnboardingContent.TOILET_STICKY_HINT)
+		active_paper.set_onboarding_ui(true)
 	_start_handle_attract()
 
 
@@ -469,7 +468,7 @@ func _advance_to_start_briefing() -> void:
 		DocumentScenes.onboarding("briefing")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true, OnboardingContent.BRIEFING_STICKY_HINT)
+		active_paper.set_onboarding_ui(true)
 	_show_scripted_intel(OnboardingContent.BRIEFING_TARGETS)
 
 
@@ -1597,7 +1596,7 @@ func _begin_shift_closure() -> void:
 	var report_session := _build_shift_report_session()
 	_spawn_scripted_paper(report_session, true, DocumentScenes.onboarding("shift_report"))
 	if active_paper:
-		active_paper.set_onboarding_ui(true, ShiftReportContent.STICKY_HINT)
+		active_paper.set_onboarding_ui(true)
 
 
 func _reset_coffee_cigarette_for_shift() -> void:

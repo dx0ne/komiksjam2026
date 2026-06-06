@@ -14,3 +14,20 @@ offset_bottom = 980.0
 [node name="Posit" parent="." index="4"]
 position = Vector2(920, 220)
 rotation = -0.06
+
+[node name="pointsLabel_good" parent="Posit" index="0" unique_id=919131354]
+visible = false
+
+[node name="pointsLabel_bad" parent="Posit" index="1"]
+visible = false
+
+[node name="pointsLabel" parent="Posit" index="2"]
+visible = false
+
+[node name="PostItHint" parent="Posit" index="3" unique_id=1982736401]
+visible = true
+offset_left = -120.33264
+offset_top = -86.66904
+offset_right = 120.267395
+offset_bottom = 89.5578
+text = "mark CRYPTIDS"

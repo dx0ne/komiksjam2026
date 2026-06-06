@@ -2,7 +2,8 @@ class_name DocumentScenes
 
 ## Maps onboarding steps and topic ids to custom PackedScenes (inherit from paper.tscn).
 ## Duplicate a scene under scenes/papers/ to customize
-## backgrounds, TextRenderer bounds, and PostIt / PostItHint layout in the editor.
+## backgrounds, TextRenderer bounds, PostIt layout, and hint text in the editor.
+## Shared post-it typography: assets/postit_hint_label_settings.tres
 
 const DEFAULT_PAPER := preload("res://scenes/gameplay/paper.tscn")
 

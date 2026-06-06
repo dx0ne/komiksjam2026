@@ -1,7 +1,6 @@
 class_name ShiftReportContent
 
 const REPORT_TARGETS: Array[String] = ["accept", "accept"]
-const STICKY_HINT := "2x accept"
 
 
 static func report_text(score: float, memos_processed: int, stamps: int) -> String:

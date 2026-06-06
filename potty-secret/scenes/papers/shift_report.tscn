@@ -1,5 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://doc_shift_report"]
+[gd_scene format=3 uid="uid://d0j4w5qd0fc6q"]
 
 [ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://scenes/gameplay/paper.tscn" id="1_base"]
 
-[node name="Paper" instance=ExtResource("1_base")]
+[node name="Paper" unique_id=1516629579 instance=ExtResource("1_base")]
+
+[node name="pointsLabel_bad" parent="Posit" parent_id_path=PackedInt32Array(1296476220) index="1" unique_id=380093703]
+visible = false
+
+[node name="pointsLabel" parent="Posit" parent_id_path=PackedInt32Array(1296476220) index="2" unique_id=1683914707]
+visible = false
+
+[node name="PostItHint" parent="Posit" parent_id_path=PackedInt32Array(1296476220) index="3" unique_id=1982736401]
+visible = true
+offset_left = -69.48323
+offset_top = -97.036896
+offset_right = 74.51677
+offset_bottom = 109.963104
+text = "2x accept"

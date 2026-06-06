@@ -7,8 +7,6 @@ const TOPIC_CRYPTIDS := "cryptids"
 const TOPIC_CONSPIRACY := "conspiracy"
 const TOPIC_POP_CULTURE := "pop_culture"
 
-const POST_IT_DEFAULT := "We need to clean this up"
-
 const TOPICS: Dictionary = {
 	TOPIC_ALIENS: {
 		"paper_name": "THE CAPITAL SCOOP",
@@ -25,8 +23,6 @@ const TOPICS: Dictionary = {
 			+ "ahead of the scheduled address. A senior aide, speaking on condition "
 			+ "of anonymity, said the President had 'changed his mind about transparency.'"
 		),
-		"post_it": POST_IT_DEFAULT,
-		"post_it_hint": "aliens (headline)",
 		"targets": ["aliens"],
 	},
 	TOPIC_CRYPTIDS: {
@@ -38,8 +34,6 @@ const TOPICS: Dictionary = {
 			+ "suppressed field reports on sasquatch, lake monsters, and other creatures "
 			+ "logged by federal survey teams. The promised release never materialized."
 		),
-		"post_it": POST_IT_DEFAULT,
-		"post_it_hint": "mark CRYPTIDS",
 		"targets": ["CRYPTIDS"],
 	},
 	TOPIC_CONSPIRACY: {
@@ -51,8 +45,6 @@ const TOPICS: Dictionary = {
 			+ "declassify internal correspondence on secret programs and shadow councils. "
 			+ "By dusk, editors were calling it the leak that leaked back."
 		),
-		"post_it": POST_IT_DEFAULT,
-		"post_it_hint": "mark DEEP",
 		"targets": ["DEEP"],
 	},
 	TOPIC_POP_CULTURE: {
@@ -64,8 +56,6 @@ const TOPICS: Dictionary = {
 			+ "would finally open the vault on celebrity cover-ups the public has "
 			+ "whispered about for years. The briefing room doors stayed locked."
 		),
-		"post_it": POST_IT_DEFAULT,
-		"post_it_hint": "mark KING",
 		"targets": ["KING"],
 	},
 }
