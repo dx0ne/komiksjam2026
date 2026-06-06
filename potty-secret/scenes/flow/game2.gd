@@ -1590,7 +1590,6 @@ func _begin_shift_closure() -> void:
 		_tween_paper_out(paper_to_exit)
 		await get_tree().create_timer(PAPER_EXIT_DURATION_S + 0.15).timeout
 
-	_clear_toilet_intel()
 	_force_point_light(true)
 
 	var report_session := _build_shift_report_session()
