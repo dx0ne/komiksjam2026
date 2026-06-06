@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bief28573rrj" path="res://art/Popielniczka.png" id="5_hve3p"]
 [ext_resource type="Texture2D" uid="uid://cnbgimlststlu" path="res://art/Sploczka.png" id="7_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://bwwd7daweox3k" path="res://art/Palec.png" id="10_hb5m1"]
-[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://art/Kawa.png" id="10_mfdv2"]
+[ext_resource type="Texture2D" uid="uid://dagpvtcydeuhe" path="res://legacy/art/Kawa.png" id="10_mfdv2"]
 [ext_resource type="Texture2D" uid="uid://bx7h8g5wgduhv" path="res://art/Cien_zegarek.png" id="11_e36ub"]
 [ext_resource type="Texture2D" uid="uid://cbcpw01pxgmrv" path="res://art/Teczka.png" id="11_iotsf"]
 [ext_resource type="PackedScene" uid="uid://cm4o4rmuagg1a" path="res://scenes/gameplay/clock.tscn" id="11_lc2xo"]

@@ -71,13 +71,13 @@ scenes/
   gameplay/       Base paper, toilet, clock, score popup (spawned by game2)
   papers/         Paper scene variants (onboarding + topic intros + shift report)
   desk_props/     Coffee mug, cigarette, rubber fly
-  …               Shared pieces (right_hand, coffee_sip_flash, redaction_test)
+  …               Shared pieces (right_hand, coffee_sip_flash)
 
 scripts/
   papers/         document_scenes.gd + *_content.gd (copy & registry)
   …               Shared systems (text_renderer, marker_layer, flicker_light, …)
 
-legacy/           Pre–game2 prototype (game.tscn, paper_legacy) — .gdignore, not imported
+legacy/           Archived prototype + unused assets — .gdignore, not imported by Godot
 
 art/              Textures
 assets/           UI bits, marker cursor, fly sprites
