@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://art/Kawa.png"
+source_file="res://legacy/art/Kawa.png"
 dest_files=["res://.godot/imported/Kawa.png-2df4f9d486862407e40df74602e94b7b.ctex"]
 
 [params]

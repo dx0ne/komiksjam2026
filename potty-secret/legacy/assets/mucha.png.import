@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://assets/mucha.png"
+source_file="res://legacy/assets/mucha.png"
 dest_files=["res://.godot/imported/mucha.png-125ee141ea2e984b117914f8b46c722d.ctex"]
 
 [params]

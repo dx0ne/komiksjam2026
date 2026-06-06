@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://assets/dither/bayer16tile2.png"
+source_file="res://legacy/assets/dither/bayer16tile2.png"
 dest_files=["res://.godot/imported/bayer16tile2.png-2b13def63b50c65b41e29635665905c4.ctex"]
 
 [params]

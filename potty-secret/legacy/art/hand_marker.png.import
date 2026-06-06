@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://art/hand_marker.png"
+source_file="res://legacy/art/hand_marker.png"
 dest_files=["res://.godot/imported/hand_marker.png-6e3d396add9a36c20597dcfb45c9007e.ctex"]
 
 [params]

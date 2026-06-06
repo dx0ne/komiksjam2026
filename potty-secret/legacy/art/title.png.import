@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://art/title.png"
+source_file="res://legacy/art/title.png"
 dest_files=["res://.godot/imported/title.png-588380b5314708db3db67e34bfcdd5f4.ctex"]
 
 [params]

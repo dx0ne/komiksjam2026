@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://art/papar_temp.png"
+source_file="res://legacy/art/papar_temp.png"
 dest_files=["res://.godot/imported/papar_temp.png-ad862e0a7a66bb751f3c36c947362105.ctex"]
 
 [params]
