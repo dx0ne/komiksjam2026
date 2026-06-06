@@ -42,6 +42,7 @@ const HAND_TWITCH_OUT_S := 0.07
 const HAND_TWITCH_RETURN_S := 0.32
 
 @onready var clock: ShiftClock = %clock_scn
+@onready var _palec_animation: AnimationPlayer = %Palec2
 
 var viewport_size: Vector2
 var rng := RandomNumberGenerator.new()
@@ -93,6 +94,8 @@ func _ready() -> void:
 	_setup_coffee_jitter_timer()
 
 	WordManager.shift_score = 0.0
+
+	_set_redaction_loop_animations(false)
 
 	if PlayerProgress.has_completed_onboarding():
 		_begin_shift_start()
@@ -273,6 +276,7 @@ func _start_normal_shift(spawn_paper: bool = true) -> void:
 	_release_point_light_override()
 	_show_gameplay_ui()
 	clock.start_shift()
+	_set_redaction_loop_animations(true)
 	if spawn_paper:
 		_spawn_fresh_paper(false)
 		_roll_toilet_intel(true)
@@ -1558,10 +1562,20 @@ func _shift_report_check_progress() -> void:
 	_end_shift()
 
 
+func _set_redaction_loop_animations(active: bool) -> void:
+	if active:
+		_palec_animation.speed_scale = clock.get_decor_speed_scale()
+		_palec_animation.play("palec")
+	else:
+		_palec_animation.stop()
+
+
 func _begin_shift_closure() -> void:
 	if _shift_ending:
 		return
 	_shift_ending = true
+	_set_redaction_loop_animations(false)
+	clock.stop_shift()
 	_stop_handle_attract()
 	_set_toilet_handle_visible(false)
 	_set_cofefe_visible(false)
