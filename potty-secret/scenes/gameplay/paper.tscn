@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bcjerb5lw5qt3"]
 
-[ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://paper.gd" id="1_paper"]
+[ext_resource type="Script" uid="uid://rnkcvampem2l" path="res://scenes/gameplay/paper.gd" id="1_paper"]
 [ext_resource type="Texture2D" uid="uid://cjfvdb7u0h4qq" path="res://art/Page_01.png" id="2_page"]
-[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://Shader/game2.gdshader" id="3_shader"]
+[ext_resource type="Shader" uid="uid://2uuv0ip6kh6i" path="res://shaders/game2.gdshader" id="3_shader"]
 [ext_resource type="Script" uid="uid://c8w77dm6kgulw" path="res://scripts/text_renderer.gd" id="4_text"]
 [ext_resource type="Script" uid="uid://b1jkces6w0l7k" path="res://scripts/marker_layer.gd" id="5_marker"]
 [ext_resource type="Script" uid="uid://bwaip5b585rds" path="res://scripts/debug_overlay.gd" id="6_debug"]

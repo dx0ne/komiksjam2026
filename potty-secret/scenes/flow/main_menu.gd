@@ -136,7 +136,7 @@ func _coverage_cells_for_play() -> String:
 
 
 func _start_game() -> void:
-	get_tree().change_scene_to_file("res://game2.tscn")
+	get_tree().change_scene_to_file("res://scenes/flow/game2.tscn")
 
 
 func _on_play_button_pressed() -> void:
@@ -149,4 +149,4 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_timer_timeout() -> void:
-	get_tree().change_scene_to_file("res://intro_scene.tscn")
+	get_tree().change_scene_to_file("res://scenes/flow/intro_scene.tscn")

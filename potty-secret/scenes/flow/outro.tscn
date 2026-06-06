@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://rnvd4jtbq76"]
 
-[ext_resource type="Script" uid="uid://cj3dx6vwqeimw" path="res://outro.gd" id="1_njae7"]
+[ext_resource type="Script" uid="uid://cj3dx6vwqeimw" path="res://scenes/flow/outro.gd" id="1_njae7"]
 [ext_resource type="VideoStream" uid="uid://bx4s4h2p5x5op" path="res://video/newspaper.ogv" id="2_njae7"]
 
 [node name="Control" type="Control" unique_id=1970355490]

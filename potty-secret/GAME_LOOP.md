@@ -1,6 +1,8 @@
 # Potty Secret — game loop (`game2`)
 
-Main scene: `game2.tscn` · Logic: `game2.gd` · Words: `WordManager` (autoload)
+Main scene: `scenes/flow/game2.tscn` · Logic: `scenes/flow/game2.gd` · Words: `WordManager` (autoload)
+
+Project layout: [`STRUCTURE.md`](STRUCTURE.md)
 
 ## Fantasy
 
@@ -125,17 +127,17 @@ The briefcase sprite is *not* clickable in gameplay; its `gui_input` connection 
 
 | Concern | File / node |
 |---------|-------------|
-| Shift orchestration | `game2.gd` |
+| Shift orchestration | `scenes/flow/game2.gd` |
 | Word pools, canonical / typo / synonym data, shift score | `WordManager.gd` |
 | Canonicalize / display-variants API | `WordManager.canonicalize`, `WordManager.display_variants` |
 | Phase classification + variant policy | `game2.gd` → `_current_phase`, `_paper_variant_mode_for_phase`, `_intel_variant_mode_for_phase` |
 | Decoy selection + rendering | `game2.gd` → `_pick_decoy_canonicals`, `_build_decoy_text`, `_edit_distance` |
 | Memo layout, N-gram match, planted / illegal / decoy flags | `scripts/text_renderer.gd` (`_relayout`, `set_planted_canonicals`, `set_decoy_canonicals`, `set_forbidden_words`) |
 | Marker input & strokes | `scripts/marker_layer.gd` |
-| Paper visuals (post-it, stamp, penalty badge, shift score) | `paper.gd` + `paper.tscn` |
+| Paper visuals (post-it, stamp, penalty badge, shift score) | `scenes/gameplay/paper.gd` + `scenes/gameplay/paper.tscn` |
 | Floating score popups | `score_popup.tscn` + `score_popup.gd` |
 | Toilet word display | `toilet_msg.tscn` |
-| Timer | `clock.gd` (`ShiftClock`) |
+| Timer | `scenes/gameplay/clock.gd` (`ShiftClock`) |
 | Pull handle = advance paper | `game2.gd` → `toilet_pull()` → `_advance_to_new_paper` (tween → `_save_session` → `_check_and_apply_stamp` → `_spawn_fresh_paper(true)` → `_roll_toilet_intel`) |
 | Shift closure report | `game2.gd` → `_on_time_out` → `_begin_shift_closure()` → mark **accept** → `_end_shift()` |
 | Closure copy / stats | `scripts/shift_report_content.gd` |

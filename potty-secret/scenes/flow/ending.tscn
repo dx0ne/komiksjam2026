@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ctmlefcq1tlcm"]
 
-[ext_resource type="Script" uid="uid://cok8qqyppsx1p" path="res://ending.gd" id="1_fsb5k"]
+[ext_resource type="Script" uid="uid://cok8qqyppsx1p" path="res://scenes/flow/ending.gd" id="1_fsb5k"]
 [ext_resource type="VideoStream" uid="uid://ks2nn6ad4be2" path="res://video/outro-redacted-proper_1.ogv" id="2_4jooh"]
 [ext_resource type="VideoStream" uid="uid://ytgfqgx2ptu8" path="res://video/outro-aliens_1.ogv" id="3_4jooh"]
 [ext_resource type="VideoStream" uid="uid://f5jbph5iy3lq" path="res://video/Speaker-intro_1.ogv" id="4_4jooh"]

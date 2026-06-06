@@ -1,6 +1,6 @@
 extends Node2D
 
-const ScorePopupScene := preload("res://score_popup.tscn")
+const ScorePopupScene := preload("res://scenes/gameplay/score_popup.tscn")
 const SIPS_POPUP_OFFSET := Vector2(38.0, -58.0)
 const SIPS_POPUP_FONT_SIZE := 32
 const SIPS_POPUP_COLOR := Color(0.15, 0.12, 0.1, 0.9)

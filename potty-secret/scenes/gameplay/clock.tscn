@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cm4o4rmuagg1a"]
 
-[ext_resource type="Script" uid="uid://dcocu5xug1yuu" path="res://clock.gd" id="1_venu5"]
+[ext_resource type="Script" uid="uid://dcocu5xug1yuu" path="res://scenes/gameplay/clock.gd" id="1_venu5"]
 [ext_resource type="Texture2D" uid="uid://bx7h8g5wgduhv" path="res://art/Cien_zegarek.png" id="2_nmps5"]
 [ext_resource type="Texture2D" uid="uid://bemxq8g6vhx0s" path="res://art/Tlo_zegarek.png" id="3_rwv3y"]
 [ext_resource type="Texture2D" uid="uid://dj33rr67bf60" path="res://art/Nogi_zegarek.png" id="4_20ang"]

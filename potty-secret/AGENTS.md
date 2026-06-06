@@ -1,8 +1,8 @@
 # Agent guide — Potty Secret
 
-Godot 4 project. Main gameplay scene: `game2.tscn` / `game2.gd`. Word data and shift score: `WordManager` autoload.
+Godot 4 project. Main gameplay scene: `scenes/flow/game2.tscn` / `scenes/flow/game2.gd`. Word data and shift score: `WordManager` autoload.
 
-Read this file first when touching gameplay, atmosphere, or cross-scene wiring.
+Read this file first when touching gameplay, atmosphere, or cross-scene wiring. For folder layout and what loads what, see [`STRUCTURE.md`](STRUCTURE.md).
 
 ---
 
@@ -10,6 +10,7 @@ Read this file first when touching gameplay, atmosphere, or cross-scene wiring.
 
 | Doc | Purpose | When to read |
 |-----|---------|--------------|
+| [`STRUCTURE.md`](STRUCTURE.md) | Folder layout, scene flow, paper copy vs layout vs registry | Finding files, adding papers, understanding spawn chain |
 | [`GAME_LOOP.md`](GAME_LOOP.md) | Core shift loop, scoring, difficulty phases, session state, code map | Gameplay, marking, papers, toilet intel, phases |
 | [`design/features.md`](design/features.md) | **Feature index** — triggers, owners, and side effects for coupled systems | Light flicker, shadows, cofefe, onboarding, anything that signals across nodes |
 | [`docs/superpowers/specs/`](docs/superpowers/specs/) | Original design specs (historical / authoritative for those features) | Scoring model, obfuscated intel, phase ramp rationale |
@@ -63,12 +64,12 @@ Skip the index for local, single-file behavior with no external coupling.
 
 | Area | Location |
 |------|----------|
-| Shift orchestration | `game2.gd` |
+| Shift orchestration | `scenes/flow/game2.gd` |
 | Words / topics / scoring data | `WordManager.gd` |
 | Memo layout & word boxes | `scripts/text_renderer.gd` |
-| Custom intro / topic paper scenes | `scripts/document_scenes.gd`, `scenes/documents/`, `scenes/newspapers/` |
+| Paper copy, registry, custom layouts | `scripts/papers/`, `scenes/papers/`, `scenes/gameplay/paper.tscn` |
 | Marker input & strokes | `scripts/marker_layer.gd` |
-| Shift timer | `clock.gd` |
+| Shift timer | `scenes/gameplay/clock.gd` |
 | Desk lamp flicker | `scripts/flicker_light.gd` |
 | Saved onboarding / topic intro | `scripts/player_progress.gd` |
 

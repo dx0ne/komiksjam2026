@@ -65,7 +65,7 @@ func _edit_distance(a: String, b: String) -> int:
 
 
 func _init() -> void:
-	var game2_src: String = FileAccess.get_file_as_string("res://game2.gd")
+	var game2_src: String = FileAccess.get_file_as_string("res://scenes/flow/game2.gd")
 	var tr_src: String = FileAccess.get_file_as_string("res://scripts/text_renderer.gd")
 
 	# -------------------------------------------------------------------------

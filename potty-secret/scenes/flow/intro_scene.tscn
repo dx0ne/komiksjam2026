@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cnmfr6bn1kgnr"]
 
-[ext_resource type="Script" uid="uid://dwc5a2d28ijf7" path="res://intro_scene.gd" id="1_x3ncd"]
+[ext_resource type="Script" uid="uid://dwc5a2d28ijf7" path="res://scenes/flow/intro_scene.gd" id="1_x3ncd"]
 [ext_resource type="VideoStream" uid="uid://dln07xcu86g4j" path="res://video/intro-do-gry-mp4.ogv" id="2_x3ncd"]
 
 [node name="Node2D" type="Control" unique_id=1576572473]

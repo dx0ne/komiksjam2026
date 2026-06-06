@@ -15,9 +15,9 @@ const PHASE_TEACHING_END_S := 60.0
 const PHASE_LIGHT_END_S    := 120.0
 const LEFT_HAND_OFFSCREEN_Y := 400.0
 
-const TOILET_SCN       := preload("res://toilet_msg.tscn")
-const PAPER_SCN        := preload("res://paper.tscn")
-const ScorePopupScene  := preload("res://score_popup.tscn")
+const TOILET_SCN       := preload("res://scenes/gameplay/toilet_msg.tscn")
+const PAPER_SCN        := preload("res://scenes/gameplay/paper.tscn")
+const ScorePopupScene  := preload("res://scenes/gameplay/score_popup.tscn")
 
 const ATTRACT_IDLE_DELAY := 4.0
 const ATTRACT_SWAY_RAD   := 0.035
@@ -1787,4 +1787,4 @@ func _on_time_out() -> void:
 
 func _end_shift() -> void:
 	WordManager.good_ending = WordManager.shift_score > 0
-	get_tree().change_scene_to_file("res://ending.tscn")
+	get_tree().change_scene_to_file("res://scenes/flow/ending.tscn")

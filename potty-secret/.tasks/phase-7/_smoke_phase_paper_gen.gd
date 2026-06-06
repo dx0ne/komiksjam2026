@@ -44,7 +44,7 @@ func _init() -> void:
 	# -------------------------------------------------------------------------
 	# Phase enum + constants existence test via game2.gd script resource
 	# -------------------------------------------------------------------------
-	var g2_script = load("res://game2.gd")
+	var g2_script = load("res://scenes/flow/game2.gd")
 	_assert_true("game2.gd has Phase enum constant TEACHING", g2_script.get_script_constant_map().has("Phase") or _check_phase_enum(g2_script))
 
 	# -------------------------------------------------------------------------
@@ -110,7 +110,7 @@ func _init() -> void:
 	# test validates the expected dictionary keys exist by inspecting the source
 	# text for the new key names. This is a structural contract check.
 	# -------------------------------------------------------------------------
-	var source_text: String = FileAccess.get_file_as_string("res://game2.gd")
+	var source_text: String = FileAccess.get_file_as_string("res://scenes/flow/game2.gd")
 	_assert_true("game2.gd contains 'planted_canonicals'",
 		source_text.find("planted_canonicals") != -1)
 	_assert_true("game2.gd contains '_current_phase'",

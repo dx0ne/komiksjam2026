@@ -33,7 +33,7 @@ func _assert_eq(label: String, got: Variant, expected: Variant) -> void:
 
 func _init() -> void:
 	var wm: Node = load("res://WordManager.gd").new()
-	var game2_src := FileAccess.get_file_as_string("res://game2.gd")
+	var game2_src := FileAccess.get_file_as_string("res://scenes/flow/game2.gd")
 	var tr_src := FileAccess.get_file_as_string("res://scripts/text_renderer.gd")
 
 	# -------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://b4tu7dnfmilia"]
 
-[ext_resource type="Script" path="res://paper_legacy.gd" id="1_rhp03"]
+[ext_resource type="Script" path="res://legacy/paper_legacy.gd" id="1_rhp03"]
 [ext_resource type="Texture2D" uid="uid://cjfvdb7u0h4qq" path="res://art/Page_01.png" id="2_h5hlm"]
-[ext_resource type="PackedScene" uid="uid://cwdb3ffd4lapr" path="res://redact_button.tscn" id="3_stmvh"]
+[ext_resource type="PackedScene" uid="uid://cwdb3ffd4lapr" path="res://legacy/redact_button.tscn" id="3_stmvh"]
 [ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="4_h5hlm"]
-[ext_resource type="PackedScene" uid="uid://b6cbv3dlom18" path="res://lines.tscn" id="5_h5hlm"]
+[ext_resource type="PackedScene" uid="uid://b6cbv3dlom18" path="res://legacy/lines.tscn" id="5_h5hlm"]
 [ext_resource type="LabelSettings" uid="uid://xiopkx42p8lf" path="res://new_label_settings.tres" id="6_stmvh"]
 [ext_resource type="Texture2D" uid="uid://bkotcg8ogccy" path="res://art/posit.png" id="7_ea577"]
 

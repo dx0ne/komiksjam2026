@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dcjpi4p15id2v"]
 
-[ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://paper.tscn" id="1_base"]
+[ext_resource type="PackedScene" uid="uid://bcjerb5lw5qt3" path="res://scenes/gameplay/paper.tscn" id="1_base"]
 
 [node name="Paper" unique_id=1416897765 instance=ExtResource("1_base")]
 show_letterhead = false

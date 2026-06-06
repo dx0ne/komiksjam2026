@@ -8,8 +8,8 @@ var mouse_start_pos:Vector2 = Vector2(0,0);
 var is_dragging:bool=false;
 var line_color:Color = Color(Color.CRIMSON);
 
-const TOILET_SCN = preload("res://toilet_msg.tscn");
-const PAPER_SCN = preload("res://paper_legacy.tscn");
+const TOILET_SCN = preload("res://scenes/gameplay/toilet_msg.tscn");
+const PAPER_SCN = preload("res://legacy/paper_legacy.tscn");
 
 var papers:Array[Paper];
 var current_paper_idx:int=-1;
@@ -53,7 +53,7 @@ func _on_time_out() -> void:
 		if p.get_score() == false:
 			win = false;
 	WordManager.good_ending=win;
-	get_tree().change_scene_to_file("res://ending.tscn")
+	get_tree().change_scene_to_file("res://scenes/flow/ending.tscn")
 	pass
 
 func _on_draw() -> void:

@@ -8,4 +8,4 @@ func _input(event):
 
 func _on_video_stream_player_finished():
 	# Replace with the path to your actual main menu scene
-	get_tree().change_scene_to_file("res://main_menu.tscn")
+	get_tree().change_scene_to_file("res://scenes/flow/main_menu.tscn")

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cwdb3ffd4lapr"]
 
 [ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="2_3byfv"]
-[ext_resource type="Script" uid="uid://bli1aq5ydkq73" path="res://redacted_button.gd" id="2_w30fr"]
+[ext_resource type="Script" uid="uid://bli1aq5ydkq73" path="res://legacy/redacted_button.gd" id="2_w30fr"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_w30fr"]
 font = ExtResource("2_3byfv")

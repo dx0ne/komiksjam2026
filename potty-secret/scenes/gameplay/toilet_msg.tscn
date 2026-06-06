@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://bo2ang8m6edru"]
 
-[ext_resource type="Script" uid="uid://cfljy3tlyfux0" path="res://toilet_msg.gd" id="1_sr2dh"]
+[ext_resource type="Script" uid="uid://cfljy3tlyfux0" path="res://scenes/gameplay/toilet_msg.gd" id="1_sr2dh"]
 [ext_resource type="Texture2D" uid="uid://cfolem6iqi44f" path="res://art/Karteczka_01.png" id="2_3q7nb"]
 [ext_resource type="Texture2D" uid="uid://1k2wos1rull7" path="res://art/Karteczka_02.png" id="3_4a3vv"]
 [ext_resource type="FontFile" uid="uid://deslgs2gfga7" path="res://art/Mom«t___.ttf" id="3_font"]
 [ext_resource type="Texture2D" uid="uid://pedgl4e3l5vn" path="res://art/Karteczka_03.png" id="4_yka1r"]
 [ext_resource type="Texture2D" uid="uid://dutj00m734fhw" path="res://art/Karteczka_04.png" id="5_jck6c"]
 [ext_resource type="Texture2D" uid="uid://da4230ektywua" path="res://art/Karteczka_05.png" id="6_4v8kd"]
-[ext_resource type="Script" uid="uid://d1ft1b0ls4f0r" path="res://toilet_intel_label.gd" id="7_intel_label"]
+[ext_resource type="Script" uid="uid://d1ft1b0ls4f0r" path="res://scenes/gameplay/toilet_intel_label.gd" id="7_intel_label"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_4a3vv"]
 font = ExtResource("3_font")
