@@ -31,6 +31,8 @@ const COFFEE_JITTER_MAX_S := 16.0 / 3.0
 const SHIFT_CLOSURE_DARK_BEAT_S := 0.55
 ## Just above flicker_light.gd TENSION_START_S — lamp steady, flicker on next tick down.
 const DEBUG_JUMP_TIME_LEFT_S := 10.01
+## Temporary: skip topic intro newspaper after onboarding / shift start.
+const SKIP_TOPIC_INTRO := true
 ## Higher force → shorter wait between twitches (see `_jitter_interval_for_force`).
 const TWITCH_FORCE_INTERVAL_STEP := 0.38
 const HAND_TWITCH_OFFSET := Vector2(22.0, -14.0)
@@ -210,7 +212,7 @@ func _begin_shift_start() -> void:
 
 
 func _begin_topic_shift() -> void:
-	if PlayerProgress.has_seen_topic_intro(WordManager.active_topic_id):
+	if SKIP_TOPIC_INTRO or PlayerProgress.has_seen_topic_intro(WordManager.active_topic_id):
 		_start_normal_shift(true)
 		return
 	_start_topic_intro_document()
