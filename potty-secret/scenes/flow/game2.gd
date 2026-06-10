@@ -28,7 +28,11 @@ const COFFEE_TIME_BONUS_S := 10.0
 const COFFEE_TIME_POPUP_OFFSET := Vector2(24.0, -72.0)
 const COFFEE_JITTER_MIN_S := 7.0 / 3.0
 const COFFEE_JITTER_MAX_S := 16.0 / 3.0
-const SHIFT_CLOSURE_DARK_BEAT_S := 0.55
+const SHIFT_CLOSURE_UI_EXIT_DURATION_S := 0.45
+const HANDLE_EXIT_OFFSET := Vector2(-520.0, 0.0)
+const COFEFE_EXIT_OFFSET := Vector2(-200.0, -240.0)
+const PAPIEROS_EXIT_OFFSET := Vector2(160.0, -220.0)
+const TOILET_INTEL_EXIT_OFFSET := Vector2(-420.0, -80.0)
 ## Just above flicker_light.gd TENSION_START_S — lamp steady, flicker on next tick down.
 const DEBUG_JUMP_TIME_LEFT_S := 10.01
 ## Temporary: skip topic intro newspaper after onboarding / shift start.
@@ -69,6 +73,10 @@ var _onboarding_step: OnboardingStep = OnboardingStep.DONE
 var _onboarding_substep: int = 0
 var _topic_intro_active: bool = false
 var _left_hand_rest_pos: Vector2 = Vector2.ZERO
+var _cofefe_rest_pos: Vector2 = Vector2.ZERO
+var _kawa_cien_rest_pos: Vector2 = Vector2.ZERO
+var _papieros_rest_pos: Vector2 = Vector2.ZERO
+var _shift_closure_ui_tween: Tween
 
 
 func _text_renderer() -> TextRenderer:
@@ -86,6 +94,9 @@ func _debug_overlay() -> DebugOverlay:
 func _ready() -> void:
 	rng.randomize()
 	viewport_size = get_viewport().get_visible_rect().size
+	_cofefe_rest_pos = %Cofefe.position
+	_kawa_cien_rest_pos = %KawaCien.position
+	_papieros_rest_pos = %Papieros.position
 
 	%gimme_toilet_btn.gui_input.connect(_on_gimme_toilet_btn_gui_input)
 	clock.time_out.connect(_on_time_out)
@@ -188,6 +199,7 @@ func _begin_onboarding() -> void:
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true)
+	AudioManager.play_shift_ambient()
 
 
 func _begin_shift_start() -> void:
@@ -209,6 +221,7 @@ func _begin_shift_start() -> void:
 	if active_paper:
 		active_paper.set_onboarding_ui(true)
 	_show_scripted_intel(OnboardingContent.SHIFT_START_TARGETS)
+	AudioManager.play_shift_ambient()
 
 
 func _begin_topic_shift() -> void:
@@ -278,12 +291,14 @@ func _start_normal_shift(spawn_paper: bool = true) -> void:
 	_show_gameplay_ui()
 	clock.start_shift()
 	_set_redaction_loop_animations(true)
+	AudioManager.play_shift_ambient()
 	if spawn_paper:
 		_spawn_fresh_paper(false)
 		_roll_toilet_intel(true)
 
 
 func _show_gameplay_ui() -> void:
+	_reset_shift_closure_ui_positions()
 	_set_toilet_handle_visible(true)
 	_set_cofefe_visible(true)
 	_set_papieros_visible(true)
@@ -368,6 +383,99 @@ func _fade_cien(unique_name: StringName, to_alpha: float, duration: float = KAWA
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
+func _kill_shift_closure_ui_tween() -> void:
+	if _shift_closure_ui_tween and _shift_closure_ui_tween.is_valid():
+		_shift_closure_ui_tween.kill()
+	_shift_closure_ui_tween = null
+
+
+func _reset_shift_closure_ui_positions() -> void:
+	_kill_shift_closure_ui_tween()
+	var handle := %toilet_handle
+	handle.position = Vector2.ZERO
+	handle.rotation = 0.0
+	handle.modulate = Color.WHITE
+	%Cofefe.position = _cofefe_rest_pos
+	%KawaCien.position = _kawa_cien_rest_pos
+	%Papieros.position = _papieros_rest_pos
+
+
+func _tween_shift_closure_ui_out(paper_to_exit: GamePaper = null) -> Tween:
+	_kill_shift_closure_ui_tween()
+	%gimme_toilet_btn.disabled = true
+
+	var tween := create_tween().set_parallel(true)
+	_shift_closure_ui_tween = tween
+
+	if paper_to_exit != null:
+		_tween_paper_out(
+			paper_to_exit,
+			SHIFT_CLOSURE_UI_EXIT_DURATION_S,
+			tween
+		)
+
+	var handle := %toilet_handle
+	tween.tween_property(
+		handle,
+		"position",
+		handle.position + HANDLE_EXIT_OFFSET,
+		SHIFT_CLOSURE_UI_EXIT_DURATION_S
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+	var cofefe: Node2D = %Cofefe
+	if cofefe.visible:
+		_kill_cien_tween("KawaCien")
+		var kawa_cien: Node2D = %KawaCien
+		tween.tween_property(
+			cofefe,
+			"position",
+			cofefe.position + COFEFE_EXIT_OFFSET,
+			SHIFT_CLOSURE_UI_EXIT_DURATION_S
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		tween.tween_property(
+			kawa_cien,
+			"position",
+			kawa_cien.position + COFEFE_EXIT_OFFSET,
+			SHIFT_CLOSURE_UI_EXIT_DURATION_S
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+	var papieros: Node2D = %Papieros
+	if papieros.visible:
+		_kill_cien_tween(&"PapierosCien")
+		tween.tween_property(
+			papieros,
+			"position",
+			papieros.position + PAPIEROS_EXIT_OFFSET,
+			SHIFT_CLOSURE_UI_EXIT_DURATION_S
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+	for child in %toilet_msgs_container.get_children():
+		if not child is ToiletMsg:
+			continue
+		var msg := child as ToiletMsg
+		tween.tween_property(
+			msg,
+			"position",
+			msg.position + TOILET_INTEL_EXIT_OFFSET,
+			SHIFT_CLOSURE_UI_EXIT_DURATION_S
+		).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
+
+	tween.chain().tween_callback(_hide_shift_closure_ui_after_exit)
+	return tween
+
+
+func _hide_shift_closure_ui_after_exit() -> void:
+	_shift_closure_ui_tween = null
+	if _outgoing_paper != null and is_instance_valid(_outgoing_paper):
+		_outgoing_paper.queue_free()
+		_outgoing_paper = null
+	_set_toilet_handle_visible(false)
+	_set_cofefe_visible(false)
+	_set_papieros_visible(false)
+	_clear_toilet_intel()
+	_reset_shift_closure_ui_positions()
+
+
 func _set_rubber_visible(show_rubber: bool) -> void:
 	var rubber: Node2D = get_node_or_null("%Rubber")
 	if rubber == null:
@@ -384,6 +492,12 @@ func _clear_toilet_intel() -> void:
 		child.queue_free()
 	WordManager.current_toilet_canonicals = []
 	WordManager.current_toilet_words = []
+
+
+func _expire_existing_toilet_intel() -> void:
+	for child in %toilet_msgs_container.get_children():
+		if child is ToiletMsg:
+			child.set_expired()
 
 
 func _build_tutorial_session(text: String, targets: Array[String], decoys: Array = []) -> Dictionary:
@@ -667,7 +781,11 @@ func _clear_outgoing_paper() -> void:
 	_outgoing_paper = null
 
 
-func _tween_paper_out(paper: GamePaper) -> void:
+func _tween_paper_out(
+	paper: GamePaper,
+	duration_s: float = PAPER_EXIT_DURATION_S,
+	parent_tween: Tween = null
+) -> void:
 	_clear_outgoing_paper()
 	_outgoing_paper = paper
 	paper.marker_layer.set_locked(true)
@@ -683,16 +801,24 @@ func _tween_paper_out(paper: GamePaper) -> void:
 		rng.randf_range(-PAPER_EXIT_ROT_RANGE_DEG, PAPER_EXIT_ROT_RANGE_DEG)
 	)
 
-	var tween := paper.create_tween().set_parallel(true)
-	tween.tween_property(paper, "position", exit_pos, PAPER_EXIT_DURATION_S) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.tween_property(paper, "rotation", exit_rot, PAPER_EXIT_DURATION_S) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.chain().tween_callback(func() -> void:
+	var free_paper := func() -> void:
 		if _outgoing_paper == paper and is_instance_valid(paper):
 			paper.queue_free()
 			_outgoing_paper = null
-	)
+
+	if parent_tween != null:
+		parent_tween.tween_property(paper, "position", exit_pos, duration_s) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		parent_tween.tween_property(paper, "rotation", exit_rot, duration_s) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		return
+
+	var tween := paper.create_tween().set_parallel(true)
+	tween.tween_property(paper, "position", exit_pos, duration_s) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_property(paper, "rotation", exit_rot, duration_s) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(free_paper)
 
 
 func _prepare_paper_spawn(animate_in: bool, paper_scene: PackedScene = PAPER_SCN) -> void:
@@ -712,6 +838,7 @@ func _prepare_paper_spawn(animate_in: bool, paper_scene: PackedScene = PAPER_SCN
 
 	var offset_pos := Vector2(randf_range(-30.0, 0.0), randf_range(-30.0, 0.0))
 	if animate_in:
+		AudioManager.play_paper_sfx("memo_spawn")
 		# Teczka-anchored spawn animation
 		var teczka_a := get_node_or_null("%Teczka") as Sprite2D
 		var teczka_b := get_node_or_null("%Teczka2") as Sprite2D
@@ -731,7 +858,7 @@ func _prepare_paper_spawn(animate_in: bool, paper_scene: PackedScene = PAPER_SCN
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		# Lock marker input during animation to prevent interaction before paper lands
 		active_paper.marker_layer.set_locked(true)
-		tween.tween_callback(func(): active_paper.marker_layer.set_locked(false))
+		tween.tween_callback(func() -> void: active_paper.marker_layer.set_locked(false))
 	else:
 		active_paper.position = offset_pos
 		active_paper.rotation = 0.0
@@ -1023,6 +1150,7 @@ func _on_gimme_toilet_btn_gui_input(event: InputEvent) -> void:
 func toilet_pull() -> void:
 	if _shift_ending:
 		return
+	AudioManager.play_sfx("toilet_handle_pull", 1.0, -20.0)
 	if _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep == 0:
 		_onboarding_toilet_pull()
 		return
@@ -1063,6 +1191,7 @@ func _register_player_activity() -> void:
 
 
 func _start_handle_attract() -> void:
+	AudioManager.play_sfx("handle_attract_creak", 1.0, -2.0)
 	var handle := %toilet_handle
 	_attract_tween = create_tween().set_loops()
 	_attract_tween.tween_property(handle, "rotation", ATTRACT_SWAY_RAD, 0.9) \
@@ -1092,6 +1221,10 @@ func _stop_handle_attract() -> void:
 
 
 func _spawn_toilet_intel_messages(display_words: Array[String]) -> void:
+	_expire_existing_toilet_intel()
+	if not display_words.is_empty():
+		AudioManager.play_toilet_intel_sfx("intel_strip_spawn")
+
 	var intel_count := display_words.size()
 	var y_pad_perct := 0.2
 	var y_padding := viewport_size.y * y_pad_perct
@@ -1268,8 +1401,9 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 	var stroke_index := _marker_layer().strokes.size() - 1
 	var score_result := _score_stroke_incremental(stroke_index)
 	_color_stroke_by_deltas(stroke_index, score_result)
+	var stroke_deltas: Array = score_result.get("deltas", [])
 	# Spawn a floating score popup for each word transition this stroke caused.
-	for d in score_result.get("deltas", []):
+	for d in stroke_deltas:
 		if d.get("delta", 0.0) != 0.0:
 			_spawn_score_popup(d["delta"], d["rect"])
 	_refresh_postit_and_penalty()
@@ -1283,6 +1417,7 @@ func _color_stroke_by_deltas(stroke_index: int, score_result: Dictionary) -> voi
 	if marker_layer == null or marker_layer.strokes.is_empty():
 		return
 	if score_result.get("sum", 0.0) < 0.0:
+		AudioManager.play_sfx("wrong_mark_accent")
 		if stroke_index < marker_layer.stroke_colors.size():
 			marker_layer.stroke_colors[stroke_index] = Color(0.75, 0.1, 0.1, 0.9)
 	marker_layer.queue_redraw()
@@ -1326,6 +1461,7 @@ func _spawn_clock_time_popup() -> void:
 	clock_node.add_child(popup)
 	popup.position = COFFEE_TIME_POPUP_OFFSET
 	popup.show_delta("+%ds" % int(COFFEE_TIME_BONUS_S), Color(0.2, 0.75, 0.3, 1.0))
+	AudioManager.play_sfx("clock_time_ping")
 
 
 func _refresh_postit_and_penalty() -> void:
@@ -1538,6 +1674,8 @@ func _on_point_light_flicker_off() -> void:
 	_refresh_kawa_cien(0.0)
 	_refresh_popielniczka_cien(0.0)
 	_refresh_papieros_cien(0.0)
+	if not _shift_ending:
+		AudioManager.play_sfx("lamp_flicker_click", 1.0, -4.0)
 
 
 func _on_point_light_flicker_on() -> void:
@@ -1545,6 +1683,8 @@ func _on_point_light_flicker_on() -> void:
 	_refresh_kawa_cien(0.0)
 	_refresh_popielniczka_cien(0.0)
 	_refresh_papieros_cien(0.0)
+	if not _shift_ending:
+		AudioManager.play_sfx("lamp_flicker_click", 1.0, -6.0)
 
 
 func _release_point_light_override() -> void:
@@ -1589,21 +1729,20 @@ func _begin_shift_closure() -> void:
 	_set_redaction_loop_animations(false)
 	clock.stop_shift()
 	_stop_handle_attract()
-	_set_toilet_handle_visible(false)
-	_set_cofefe_visible(false)
-	_set_papieros_visible(false)
 	_force_point_light(false)
+	AudioManager.play_sfx("lamp_final_off")
+	AudioManager.play_sfx("shift_report_arrive")
 
-	await get_tree().create_timer(SHIFT_CLOSURE_DARK_BEAT_S).timeout
-
-	if active_paper:
-		var paper_to_exit := active_paper
+	var paper_to_exit: GamePaper = active_paper
+	if paper_to_exit:
 		active_paper = null
 		_disconnect_paper_signals(paper_to_exit)
-		_tween_paper_out(paper_to_exit)
-		await get_tree().create_timer(PAPER_EXIT_DURATION_S + 0.15).timeout
+
+	var ui_exit_tween := _tween_shift_closure_ui_out(paper_to_exit)
+	await ui_exit_tween.finished
 
 	_force_point_light(true)
+	AudioManager.play_sfx("lamp_relight")
 
 	var report_session := _build_shift_report_session()
 	_spawn_scripted_paper(report_session, true, DocumentScenes.onboarding("shift_report"))
@@ -1665,6 +1804,7 @@ func _twitch_right_hand() -> void:
 	if right_hand.has_method("suspend_follow"):
 		right_hand.suspend_follow()
 	var twitch_scale := _twitch_scale_for_force()
+	AudioManager.play_sfx("hand_twitch", randf_range(0.92, 1.08), -3.0)
 	var rest_global := right_hand.global_position
 	var rest_rot := right_hand.rotation
 	var vertical_base := -PI * 0.5 if rng.randf() > 0.5 else PI * 0.5

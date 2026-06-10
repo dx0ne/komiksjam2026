@@ -59,6 +59,8 @@ var _cursor_inside := false
 var draw_position_offset := Vector2.ZERO
 var _owns_hidden_cursor := false
 var _previous_mouse_mode := Input.MOUSE_MODE_VISIBLE
+var _friction_noise: MarkerFrictionNoise
+var _friction_last_pos := Vector2.ZERO
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -69,6 +71,26 @@ func _ready() -> void:
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 	tree_exiting.connect(_restore_os_cursor)
+	_friction_noise = MarkerFrictionNoise.new()
+	add_child(_friction_noise)
+
+
+func _process(delta: float) -> void:
+	if _friction_noise == null:
+		return
+	if not drawing:
+		_friction_noise.stop_friction()
+		return
+	var pos := _stroke_point(get_local_mouse_position())
+	var speed := pos.distance_to(_friction_last_pos) / maxf(delta, 0.0001)
+	_friction_last_pos = pos
+	_friction_noise.set_line_mode(mode == DrawMode.LINE)
+	_friction_noise.set_move_speed_px_s(speed)
+
+
+func _stop_friction_noise() -> void:
+	if _friction_noise != null:
+		_friction_noise.stop_friction()
 
 func clear_strokes() -> void:
 	strokes.clear()
@@ -78,6 +100,7 @@ func clear_strokes() -> void:
 	word_marks.clear()
 	drawing = false
 	draw_position_offset = Vector2.ZERO
+	_stop_friction_noise()
 	_stop_blink()
 	locked = false
 	queue_redraw()
@@ -124,6 +147,7 @@ func apply_mug_smear(center: Vector2, radius: float, drop_vector: Vector2, drop_
 			stroke_smeared[index] = {"segments": segment_overrides}
 
 	if changed:
+		AudioManager.play_sfx("mug_smear")
 		queue_redraw()
 
 func apply_word_marks(marks: Array[Dictionary]) -> void:
@@ -139,6 +163,7 @@ func set_locked(value: bool) -> void:
 	if locked:
 		drawing = false
 		current_stroke.clear()
+		_stop_friction_noise()
 		_cursor_inside = false
 		_restore_os_cursor()
 		cursor_changed.emit()
@@ -147,6 +172,8 @@ func set_locked(value: bool) -> void:
 func set_mode(new_mode: DrawMode) -> void:
 	if drawing:
 		return
+	if mode != new_mode and _friction_noise != null:
+		_friction_noise.set_line_mode(new_mode == DrawMode.LINE)
 	mode = new_mode
 	queue_redraw()
 
@@ -203,6 +230,7 @@ func _append_stroke_point(point: Vector2) -> void:
 
 func _start_stroke(point: Vector2) -> void:
 	drawing = true
+	_friction_last_pos = point
 	stroke_started.emit()
 	if mode == DrawMode.LINE:
 		current_stroke = PackedVector2Array([point, point])
@@ -237,6 +265,7 @@ func _finish_stroke(point: Vector2) -> void:
 		if current_stroke.size() > 1:
 			completed = PackedVector2Array(current_stroke)
 	current_stroke.clear()
+	_stop_friction_noise()
 	if not completed.is_empty():
 		strokes.append(completed)
 		stroke_colors.append(marker_color)

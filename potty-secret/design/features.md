@@ -25,7 +25,7 @@ Maintenance rules for this file: [`AGENTS.md`](../AGENTS.md) § Feature index.
 | [Missed-word text blink](#missed-word-text-blink) | `scripts/text_renderer.gd` | End-of-paper review | Highlight alpha on missed planted words |
 | [Player progress](#player-progress) | `scripts/player_progress.gd` (autoload) | Onboarding / topic intro complete | `user://progress.cfg` |
 | [Shift closure report](#shift-closure-report) | `game2.gd`, `shift_report_content.gd` | Clock `time_out` | Lamp override, paper exit tween, report paper, ending scene |
-| [Game audio](#game-audio) | TBD autoload or `game2.gd` bus root | Marker draw, props, scoring, lamp, scene flow | `AudioStreamPlayer` nodes on `default_bus_layout.tres` buses |
+| [Game audio](#game-audio) | `scripts/audio_manager.gd` (autoload), owners below | Marker draw, props, scoring, lamp, scene flow | `AudioStreamPlayer` on `Master` / `Music` / `Ambient` / `SFX` buses |
 
 ---
 
@@ -125,8 +125,7 @@ Drives end-of-shift tension: desk lamp flickers, then goes dark.
 | Mode | When | Behavior |
 |------|------|----------|
 | `STEADY` | > 10 s left | Full energy, no flicker |
-| `TENSION` | 3 s < time ≤ 10 s | Random burst intervals; each burst = 3–5 rapid off/on blinks |
-| `DARK` | ≤ 3 s left | Steady off until shift ends |
+| `TENSION` | 0 < time ≤ 10 s | 1 Hz countdown: toggles on/off each whole second (even seconds on, odd off); off at 0 |
 
 ### Signals
 
@@ -135,7 +134,7 @@ Drives end-of-shift tension: desk lamp flickers, then goes dark.
 | `flicker_off` | Lamp turns off (burst step or steady dark) |
 | `flicker_on` | Lamp turns back on |
 
-**Tuning exports:** `tension_interval_min/max`, `flicker_blinks_min/max`, on/off dwell times.
+**Sync:** `_sync_countdown_lamp()` reads `floor(time_left)` each frame; emits `flicker_on` / `flicker_off` on second boundaries only.
 
 **Consumers:** `game2.gd` `_connect_point_light()` → updates `_point_light_lit` and refreshes desk shadows.
 
@@ -253,9 +252,8 @@ After the shift clock hits zero, gameplay stays on the desk for a short closure 
 | Step | Behavior |
 |------|----------|
 | Clock `time_out` | Save session, stamp check, `_begin_shift_closure()` |
-| Dark hold | `flicker_light.force_lamp(false)` — prevents auto relight when timer stops |
-| Paper exit | Active memo tweens off (`_tween_paper_out`); handle / mug / cigarette hidden |
-| Report in | Lamp `force_lamp(true)`; scripted paper from briefcase with stats + **accept** target |
+| Desk clear | Lamp off + `lamp_final_off` + `shift_report_arrive` SFX; handle / mug / cigarette / toilet intel and active memo tween off together (**0.45 s**, `SHIFT_CLOSURE_UI_EXIT_DURATION_S`) |
+| Report in | Lamp `force_lamp(true)` + `lamp_relight`; shift report slides in from briefcase (`memo_spawn` SFX) with stats + **accept** target |
 | Proceed | Player redacts **accept** (same coverage rules as onboarding) → `_end_shift()` → outro videos |
 
 ### Report copy
@@ -275,9 +273,18 @@ Built by `ShiftReportContent.report_text(score, memos_processed, stamps)` — sh
 
 ## Game audio
 
-**Status:** Design only — no `AudioStreamPlayer` nodes or sound assets in repo yet. Master bus in `default_bus_layout.tres` is muted (−80 dB) until mix is wired.
+**Status:** Wired — assets under `audio/`, `AudioManager` autoload, buses in `default_bus_layout.tres`.
 
-**Owners (planned):** `scripts/marker_layer.gd` (marker loop), `scenes/desk_props/rubber.gd` (fly one-shots), `scenes/flow/game2.gd` (shift SFX orchestration), scene-local players for menu / props. Optional `AudioManager` autoload for shared one-shots and music crossfade.
+**Owner:** `scripts/audio_manager.gd` (autoload) — one-shot pool and ambient/music loops.
+
+| Bus | Use |
+|-----|-----|
+| `Master` | Final mix (0 dB) |
+| `Music` | Menu ambient |
+| `Ambient` | Shift ambient (onboarding + normal shift) |
+| `SFX` | One-shots and procedural marker friction |
+
+**Scene owners:** `scripts/marker_friction_noise.gd` + `scripts/marker_layer.gd` (marker friction + mug smear), `scenes/desk_props/rubber.gd` (fly click erase), `scenes/flow/game2.gd` (shift orchestration), `scenes/flow/main_menu.gd` (menu ambient + redaction confirms), scene-local prop scripts (`cofefe.gd`, `papieros.gd`), `scenes/gameplay/paper.gd` (stamp). Lamp flicker clicks wired in `game2.gd` off `flicker_light.gd` signals.
 
 ### Global rules
 
@@ -287,131 +294,99 @@ Built by `ShiftReportContent.report_text(score, memos_processed, stamps)` — sh
 | **No audio over video scenes** | `intro_scene.tscn`, `ending.tscn`, `outro.tscn` — no separate music/SFX layer unless explicitly mixed under video. |
 | **Buses** | Plan at least `Master`, `Music`, `Ambient`, `SFX`. Unmute and tune when first assets land. Settings UI (`options__settings.gd`) has no volume controls yet. |
 
-### Marker scribble (sampled loop)
+### Marker friction (procedural noise)
 
-**Owner:** `scripts/marker_layer.gd`
+**Owner:** `scripts/marker_friction_noise.gd` (child of `MarkerLayer`)
 
-Do **not** fire a one-shot per stroke sample or per input event. Use one **looped** scribble stream per active paper (or global marker player) and gate it with periodic movement checks.
+No looped Foley asset. While `drawing == true`, cursor speed maps to **low-pass white noise** amplitude (quieter when slow, silent when still). `DrawMode.LINE` uses a slightly lower bus level than `DrawMode.BRUSH`.
 
-| Constant (planned) | Suggested start | Meaning |
-|--------------------|-----------------|---------|
-| `MARKER_SAMPLE_INTERVAL_S` | `0.2` | How often to test whether the cursor moved while `drawing` |
-| `MARKER_MIN_MOVE_PX` | `2.0` | Movement below this counts as idle (stops loop) |
+| Constant | Value | Meaning |
+|----------|-------|---------|
+| `MIN_SPEED_PX_S` | `30` | Below this → silence |
+| `MAX_SPEED_PX_S` | `900` | Full noise level |
+| `BASE_VOLUME_DB` | `-14` | Overall subtlety |
+| `LINE_MODE_DB_OFFSET` | `-5` | Line mode quieter than brush |
 
 **Algorithm:**
 
-1. While `drawing == false` → stop scribble loop if playing.
-2. While `drawing == true` → every `MARKER_SAMPLE_INTERVAL_S`, compare current cursor position to last sample position.
-3. If moved ≥ `MARKER_MIN_MOVE_PX` → call `play()` on the loop player **only if not already playing** (do not restart between checks).
-4. If not moved → `stop()` the loop.
-5. On `stroke_finished` → run one final sample, then stop if idle.
+1. While `drawing == false` → target level 0 (smooth fade via lerp).
+2. Each frame while drawing → `speed = distance / delta` from stroke point; map to `[0, 1]` and square for soft onset.
+3. `AudioStreamGenerator` fills frames with filtered noise scaled by current level.
+4. On stroke finish → stop friction only (no release one-shot).
 
-**Draw modes:** `DrawMode.BRUSH` and `DrawMode.LINE` may share one loop or use two streams (line = slightly drier). Toggle via **M** in `game2.gd`; switch stream on `set_mode()` if two assets exist.
-
-**Also marker-owned (one-shots, not loop):**
+**Also marker-owned (one-shots):**
 
 | Trigger | Sound |
 |---------|-------|
-| Stroke finish, negative delta sum | Wrong-mark accent (short, not punishing) |
-| `apply_mug_smear()` | Wet splat / bleed |
+| `apply_mug_smear()` | `mug_smear` |
 
-**Consumers:** Main menu uses the same `MarkerLayer` for PLAY / SAVE redaction (`main_menu.gd`) — share marker loop logic.
+**Consumers:** Main menu uses the same `MarkerLayer` for PLAY / SAVE redaction (`main_menu.gd`) — shares friction noise.
 
-### Rubber fly (state-change one-shots only)
+### Rubber fly (click only)
 
 **Owner:** `scenes/desk_props/rubber.gd`
 
-**No continuous buzz loop.** Play one-shots only when `State` changes. Centralize in a `_set_state(new)` helper so hop tweens do not stack sounds.
+Silent during entrance, walk, flee, and return. One SFX on player click that triggers `erase_requested`:
 
-| Transition | Sound |
-|------------|-------|
-| → `LANDING` (`play_entrance`) | Buzz in + land |
-| `LANDING` → `IDLE` | Settle tick |
-| `IDLE` → `WALKING` | Short skitter |
-| `WALKING` → `IDLE` | Stop skitter |
-| → `FLYING_AWAY` (marker flee or click) | Buzz burst away |
-| `FLYING_AWAY` → `RETURNING` | Direction whoosh |
-| `RETURNING` → `IDLE` | Land tick |
-| Click + `erase_requested` | Sharp buzz (+ optional erase wipe) |
+| Trigger | Sound |
+|---------|-------|
+| Click + `erase_requested` | `fly_erase_click` |
 
-Pitch / volume variation on one base clip is fine. Visible only during onboarding steps (`WELCOME`, `START_BRIEFING`); hidden in normal shift.
+Visible only during onboarding steps (`WELCOME`, `START_BRIEFING`); hidden in normal shift.
 
 ### Sound asset checklist
 
-Assets not in repo; paths TBD under e.g. `audio/sfx/`, `audio/music/`.
+Assets live under `audio/music/` and `audio/sfx/` (MP3). IDs map to `AudioManager` keys.
 
 #### Music & ambient
 
 | ID | Asset | Trigger | Owner |
 |----|-------|---------|-------|
-| A1 | Shift ambient loop | `OnboardingStep.DONE`, normal shift | `game2.gd` |
-| A2 | Menu ambient | `main_menu.tscn` | `main_menu.gd` |
-| A3 | Tension layer | Lamp `TENSION` mode (`flicker_light.gd`, 3–10 s left) | `game2.gd` or lamp consumer |
-| A4 | Dark-hold stinger | `_begin_shift_closure()` lamp forced off | `game2.gd` |
-| A5 | Onboarding ambient | Tutorial before `DONE` | `game2.gd` |
+| A1 | `shift_ambient_loop` | Onboarding + normal shift | `game2.gd` |
+| A2 | `menu_ambient_loop` | `main_menu.tscn` | `main_menu.gd` |
 
 #### Core gameplay
 
 | ID | Asset | Trigger | Owner |
 |----|-------|---------|-------|
-| G1 | Marker scribble loop | Sampled movement while drawing | `marker_layer.gd` |
-| G2 | Marker line loop (optional) | Line draw mode | `marker_layer.gd` |
-| G3 | Stroke release | `stroke_finished` | `marker_layer.gd` |
-| G4 | Wrong-mark accent | Red stroke in `_color_stroke_by_deltas` | `game2.gd` |
-| G5 | Mug smear | `apply_mug_smear()` | `marker_layer.gd` |
-| G6 | Score +1 / +2 / −0.5 | `_spawn_score_popup()` | `game2.gd` |
-| G7 | Stamp slam | `paper.set_stamp_visible(true)` | `paper.gd` |
+| G1 | Marker friction (procedural) | Cursor speed while drawing | `marker_friction_noise.gd` |
+| G2 | Wrong-mark accent | Red stroke in `_color_stroke_by_deltas` | `game2.gd` |
+| G3 | Mug smear | `apply_mug_smear()` | `marker_layer.gd` |
+| G4 | Stamp slam | `paper.set_stamp_visible(true)` | `paper.gd` |
 
 #### Paper & toilet
 
 | ID | Asset | Trigger | Owner |
 |----|-------|---------|-------|
-| P1 | Memo spawn | `_prepare_paper_spawn(animate_in: true)` | `game2.gd` |
-| P2 | Memo land | Spawn tween complete | `game2.gd` |
-| P3 | Memo discard | `_tween_paper_out()` | `game2.gd` |
-| P4 | Shift report arrive | Closure report spawn | `game2.gd` |
-| T1 | Toilet handle pull | `toilet_pull()` | `game2.gd` |
-| T2 | Intel strip spawn | `_spawn_toilet_intel_messages()` | `game2.gd` |
-| T3 | Intel strip land | Strip position tween end | `game2.gd` |
-| T4 | Handle attract creak (optional) | `_start_handle_attract()` | `game2.gd` |
+| P1 | `memo_spawn` | `_prepare_paper_spawn(animate_in: true)` | `game2.gd` |
+| P2 | `shift_report_arrive` | Shift closure — props slide off | `game2.gd` |
+| T1 | `toilet_handle_pull` | `toilet_pull()` | `game2.gd` |
+| T2 | `intel_strip_spawn` | `_spawn_toilet_intel_messages()` | `game2.gd` |
+| T3 | `handle_attract_creak` | `_start_handle_attract()` | `game2.gd` |
 
 #### Desk props
 
 | ID | Asset | Trigger | Owner |
 |----|-------|---------|-------|
-| D1 | Coffee sip | `consume_sip()` | `cofefe.gd` |
-| D2 | Coffee +10s ping (optional) | `_spawn_clock_time_popup()` | `game2.gd` |
-| D3 | Mug drag / set-down (optional) | `drag_started` / home tween | `cofefe.gd` |
-| D4 | Cigarette puff | `puff_requested` | `papieros.gd` |
-| D5 | Cigarette on ashtray | `_place_on_ashtray()` | `papieros.gd` |
-| D6 | Cigarette stub (optional) | `burned_out` (signal exists; not connected in `game2.gd`) | `papieros.gd` |
-| D7 | Hand twitch (optional) | `_twitch_right_hand()` | `game2.gd` |
-| D8–D14 | Fly state one-shots | `rubber.gd` state transitions | `rubber.gd` |
+| D1 | `coffee_sip` | `consume_sip()` | `cofefe.gd` |
+| D2 | `clock_time_ping` | `_spawn_clock_time_popup()` | `game2.gd` |
+| D3 | `mug_set_down` | Mug home tween end | `cofefe.gd` |
+| D4 | `cigarette_puff` | `puff_requested` | `papieros.gd` |
+| D5 | `cigarette_on_ashtray` | `_place_on_ashtray()` | `papieros.gd` |
+| D6 | `hand_twitch` | `_twitch_right_hand()` | `game2.gd` |
+| D7 | `fly_erase_click` | Click erase on rubber | `rubber.gd` |
 
 #### Lamp & menu
 
 | ID | Asset | Trigger | Owner |
 |----|-------|---------|-------|
-| L1 | Lamp flicker click | `flicker_off` / `flicker_on` | `flicker_light.gd` consumer |
-| L2 | Lamp final off | `DARK` mode steady off | `flicker_light.gd` consumer |
-| L3 | Lamp relight | `force_lamp(true)` at closure | `game2.gd` |
-| M1 | Play confirmed | PLAY redacted on menu | `main_menu.gd` |
-| M2 | Save wipe | SAVE redacted | `main_menu.gd` |
+| L1 | `lamp_flicker_click` | `flicker_off` / `flicker_on` (last 10 s) | `game2.gd` |
+| L2 | `lamp_final_off` | `_begin_shift_closure()` | `game2.gd` |
+| L3 | `lamp_relight` | `force_lamp(true)` at closure | `game2.gd` |
+| M1 | `menu_play_confirmed` | PLAY redacted on menu | `main_menu.gd` |
+| M2 | `menu_save_wipe` | SAVE redacted | `main_menu.gd` |
 
-#### Deferred (code exists, not wired in main loop)
-
-| ID | Asset | Trigger | Notes |
-|----|-------|---------|-------|
-| X1 | Review tick / cross blink | `apply_stroke_colors()` | `marker_layer.gd`; end-of-paper review not called from `game2.gd` |
-| X2 | Missed-word blink | `apply_review_states()` | `text_renderer.gd`; same |
-
-### Implementation priority
-
-| Tier | IDs | Goal |
-|------|-----|------|
-| **MVP** | G1, G6, G7, P1–P3, T1–T2, D1, D4, D8–D14, A1, L1–L2 | Playable shift feels complete |
-| **Atmosphere** | A3–A5, D7, T4, L3 | Tension and onboarding polish |
-| **Polish** | G3–G5, D2–D3, D6, M1–M2, P4, X1–X2 | Juice and edge cases |
+**Cut from scope:** separate tension/onboarding music tracks, dark-hold stinger, score pop SFX, memo land/discard, intel strip land, cigarette stub, fly state transition one-shots, stroke release, end-of-paper review blinks (review UI not wired in `game2.gd`).
 
 ### Video audio (no separate assets)
 

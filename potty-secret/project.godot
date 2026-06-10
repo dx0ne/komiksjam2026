@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 WordManager="*uid://b6ac6t8vvq2tt"
 PlayerProgress="*res://scripts/player_progress.gd"
+AudioManager="*res://scripts/audio_manager.gd"
 
 [display]
 

@@ -1,0 +1,59 @@
+Potty Secret - sound generation inventory
+============================================
+Progress: 25/44 generated (57%)
+
+[MVP] 10/23 done
+  TODO  D10          fly_walk_start
+  TODO  D11          fly_walk_stop
+  TODO  D12          fly_flee_burst
+  TODO  D13          fly_return_whoosh
+  TODO  D14          fly_return_land
+  TODO  D8           fly_landing_enter
+  TODO  D9           fly_landing_settle
+  TODO  G6_minus_half score_minus_half
+  TODO  G6_plus1     score_plus_one
+  TODO  G6_plus2     score_plus_two
+  TODO  P2           memo_land
+  TODO  P3           memo_discard
+  TODO  T3           intel_strip_land
+
+[ATMOSPHERE] 4/6 done
+  TODO  A4           dark_hold_stinger
+  TODO  A5           onboarding_ambient_loop
+
+[POLISH] 7/11 done
+  TODO  D6           cigarette_stub_out
+  TODO  G3           stroke_release
+  TODO  X1           review_tick_blink
+  TODO  X2           missed_word_blink
+
+GENERATED
+--------------------------------------------
+  OK    A1           shift_ambient_loop
+  OK    A2           menu_ambient_loop
+  PROC  A3           tension_layer_loop
+  OK    D1           coffee_sip
+  OK    D15          fly_erase_click
+  OK    D2           clock_time_ping
+  OK    D3           mug_set_down
+  OK    D4           cigarette_puff
+  OK    D5           cigarette_on_ashtray
+  OK    D7           hand_twitch
+  PROC  G1           marker_scribble_loop
+  PROC  G2           marker_line_loop
+  OK    G4           wrong_mark_accent
+  OK    G5           mug_smear
+  PROC  G7           stamp_slam
+  OK    L1           lamp_flicker_click
+  OK    L2           lamp_final_off
+  OK    L3           lamp_relight
+  OK    M1           menu_play_confirmed
+  OK    M2           menu_save_wipe
+  OK    P1           memo_spawn
+  OK    P4           shift_report_arrive
+  OK    T1           toilet_handle_pull
+  OK    T2           intel_strip_spawn
+  OK    T4           handle_attract_creak
+
+Generate missing:
+  python tools/generate_sfx.py --ids A4,A5,D10,D11,D12,D13,D14,D6,D8,D9,G3,G6_minus_half,G6_plus1,G6_plus2,P2,P3,T3,X1,X2

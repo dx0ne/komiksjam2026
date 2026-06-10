@@ -58,6 +58,7 @@ func consume_sip() -> bool:
 	_sips_used += 1
 	_apply_inside_step(_sips_used, SIP_TWEEN_DURATION)
 	_spawn_sips_popup()
+	AudioManager.play_sfx("coffee_sip")
 	return true
 
 
@@ -154,12 +155,13 @@ func _input(event: InputEvent) -> void:
 			if moved < DRAG_THRESHOLD:
 				if can_sip():
 					sip_requested.emit()
+				_tween_home(false)
 			else:
 				var drop_speed: float = _last_drag_velocity.length()
 				var ring := get_smear_ring_global()
 				mug_placed.emit(ring["center"], ring["radius"], _last_drag_velocity, drop_speed)
+				_tween_home(true)
 			drag_ended.emit()
-			_tween_home()
 			get_viewport().set_input_as_handled()
 
 	if event is InputEventMouseMotion and _dragging:
@@ -168,12 +170,14 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _tween_home() -> void:
+func _tween_home(play_set_down: bool) -> void:
 	if _return_tween and _return_tween.is_valid():
 		_return_tween.kill()
 	_return_tween = create_tween()
 	_return_tween.tween_property(self, "position", _home_position, HOME_TWEEN_DURATION) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if play_set_down:
+		_return_tween.finished.connect(func() -> void: AudioManager.play_sfx("mug_set_down"), CONNECT_ONE_SHOT)
 
 
 func _raise_for_drag() -> void:

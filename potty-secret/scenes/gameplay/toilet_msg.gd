@@ -1,6 +1,11 @@
 class_name ToiletMsg
 extends Node2D
 
+const FRESH_MODULATE := Color.WHITE
+## Opaque warm grey wash — desaturates strip + text without transparency.
+const EXPIRED_MODULATE := Color(0.62, 0.58, 0.54, 1.0)
+const EXPIRE_DURATION_S := 0.35
+
 var _pending_label := ""
 var _active_sprite: Sprite2D
 
@@ -20,6 +25,15 @@ func prep_tween() -> void:
 	var random_rotation := randf_range(-0.1 * TAU, 0.1 * TAU)
 	tween.tween_property(%rot_node, "rotation", random_rotation, 0.6) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+func set_expired(animate: bool = true) -> void:
+	if animate:
+		var tween := create_tween()
+		tween.tween_property(self, "modulate", EXPIRED_MODULATE, EXPIRE_DURATION_S) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	else:
+		modulate = EXPIRED_MODULATE
 
 
 func _on_ready() -> void:

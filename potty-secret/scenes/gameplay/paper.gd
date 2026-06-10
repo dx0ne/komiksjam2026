@@ -103,6 +103,7 @@ func set_stamp_visible(show_stamp: bool) -> void:
 		return
 	_stamp.modulate = Color.WHITE
 	_stamp.scale = Vector2(0.66, 0.66)
+	AudioManager.play_sfx("stamp_slam", 1.0, -4.0)
 	_stamp_tween = create_tween()
 	_stamp_tween.set_parallel(true)
 	_stamp_tween.tween_property(_stamp, "scale", Vector2(0.55, 0.55), 0.15) \

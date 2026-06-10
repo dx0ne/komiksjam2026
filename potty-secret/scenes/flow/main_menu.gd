@@ -28,6 +28,7 @@ func _ready() -> void:
 	save_label.visible = PlayerProgress.has_completed_onboarding()
 	_fit_marker_layer()
 	call_deferred("_update_label_rects")
+	AudioManager.play_menu_ambient()
 
 
 func _fit_marker_layer() -> void:
@@ -73,6 +74,7 @@ func _on_marker_stroke_finished(_stroke: PackedVector2Array) -> void:
 		PlayerProgress.reset_onboarding()
 		save_label.visible = false
 		marker_layer.clear_strokes()
+		AudioManager.play_sfx("menu_save_wipe")
 		if debug_redaction:
 			print("[main_menu] GAME SAVED redacted — progress wiped")
 		return
@@ -82,6 +84,7 @@ func _on_marker_stroke_finished(_stroke: PackedVector2Array) -> void:
 
 	_game_started = true
 	marker_layer.set_locked(true)
+	AudioManager.play_sfx("menu_play_confirmed")
 	if debug_redaction:
 		print("[main_menu] PLAY redacted — starting game")
 	_start_game()
@@ -136,6 +139,7 @@ func _coverage_cells_for_play() -> String:
 
 
 func _start_game() -> void:
+	AudioManager.stop_menu_ambient()
 	get_tree().change_scene_to_file("res://scenes/flow/game2.tscn")
 
 

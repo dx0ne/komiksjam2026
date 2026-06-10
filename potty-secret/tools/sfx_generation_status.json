@@ -1,0 +1,363 @@
+{
+  "updated_at": "2026-06-10T16:17:30.795177+00:00",
+  "summary": {
+    "total": 44,
+    "generated": 25,
+    "missing": 19,
+    "percent_complete": 57,
+    "by_priority": {
+      "mvp": {
+        "total": 23,
+        "generated": 10,
+        "missing": 13
+      },
+      "atmosphere": {
+        "total": 6,
+        "generated": 4,
+        "missing": 2
+      },
+      "polish": {
+        "total": 11,
+        "generated": 7,
+        "missing": 4
+      }
+    }
+  },
+  "generated": [
+    {
+      "id": "A1",
+      "name": "shift_ambient_loop",
+      "priority": "mvp",
+      "category": "music_ambient",
+      "output_path": "audio/music/shift_ambient_loop.mp3",
+      "bytes": 481115
+    },
+    {
+      "id": "A2",
+      "name": "menu_ambient_loop",
+      "priority": "atmosphere",
+      "category": "music_ambient",
+      "output_path": "audio/music/menu_ambient_loop.mp3",
+      "bytes": 481115
+    },
+    {
+      "id": "A3",
+      "name": "tension_layer_loop",
+      "priority": "atmosphere",
+      "category": "music_ambient",
+      "output_path": "audio/music/tension_layer_loop.mp3",
+      "procedural": true
+    },
+    {
+      "id": "D1",
+      "name": "coffee_sip",
+      "priority": "mvp",
+      "category": "desk_props",
+      "output_path": "audio/sfx/coffee_sip.mp3",
+      "bytes": 13836
+    },
+    {
+      "id": "D15",
+      "name": "fly_erase_click",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_erase_click.mp3",
+      "bytes": 20106
+    },
+    {
+      "id": "D2",
+      "name": "clock_time_ping",
+      "priority": "polish",
+      "category": "desk_props",
+      "output_path": "audio/sfx/clock_time_ping.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "D3",
+      "name": "mug_set_down",
+      "priority": "polish",
+      "category": "desk_props",
+      "output_path": "audio/sfx/mug_set_down.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "D4",
+      "name": "cigarette_puff",
+      "priority": "mvp",
+      "category": "desk_props",
+      "output_path": "audio/sfx/cigarette_puff.mp3",
+      "bytes": 15090
+    },
+    {
+      "id": "D5",
+      "name": "cigarette_on_ashtray",
+      "priority": "mvp",
+      "category": "desk_props",
+      "output_path": "audio/sfx/cigarette_on_ashtray.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "D7",
+      "name": "hand_twitch",
+      "priority": "atmosphere",
+      "category": "desk_props",
+      "output_path": "audio/sfx/hand_twitch.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "G1",
+      "name": "marker_scribble_loop",
+      "priority": "mvp",
+      "category": "gameplay",
+      "output_path": null,
+      "procedural": true
+    },
+    {
+      "id": "G2",
+      "name": "marker_line_loop",
+      "priority": "polish",
+      "category": "gameplay",
+      "output_path": null,
+      "procedural": true
+    },
+    {
+      "id": "G4",
+      "name": "wrong_mark_accent",
+      "priority": "polish",
+      "category": "gameplay",
+      "output_path": "audio/sfx/wrong_mark_accent.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "G5",
+      "name": "mug_smear",
+      "priority": "polish",
+      "category": "gameplay",
+      "output_path": "audio/sfx/mug_smear.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "G7",
+      "name": "stamp_slam",
+      "priority": "mvp",
+      "category": "gameplay",
+      "output_path": "audio/sfx/stamp_slam.mp3",
+      "procedural": true
+    },
+    {
+      "id": "L1",
+      "name": "lamp_flicker_click",
+      "priority": "mvp",
+      "category": "lamp",
+      "output_path": "audio/sfx/lamp_flicker_click.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "L2",
+      "name": "lamp_final_off",
+      "priority": "mvp",
+      "category": "lamp",
+      "output_path": "audio/sfx/lamp_final_off.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "L3",
+      "name": "lamp_relight",
+      "priority": "atmosphere",
+      "category": "lamp",
+      "output_path": "audio/sfx/lamp_relight.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "M1",
+      "name": "menu_play_confirmed",
+      "priority": "polish",
+      "category": "menu",
+      "output_path": "audio/sfx/menu_play_confirmed.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "M2",
+      "name": "menu_save_wipe",
+      "priority": "polish",
+      "category": "menu",
+      "output_path": "audio/sfx/menu_save_wipe.mp3",
+      "bytes": 10493
+    },
+    {
+      "id": "P1",
+      "name": "memo_spawn",
+      "priority": "mvp",
+      "category": "paper",
+      "output_path": "audio/sfx/memo_spawn.mp3",
+      "bytes": 8821
+    },
+    {
+      "id": "P4",
+      "name": "shift_report_arrive",
+      "priority": "polish",
+      "category": "paper",
+      "output_path": "audio/sfx/shift_report_arrive.mp3",
+      "bytes": 17180
+    },
+    {
+      "id": "T1",
+      "name": "toilet_handle_pull",
+      "priority": "mvp",
+      "category": "toilet",
+      "output_path": "audio/sfx/toilet_handle_pull.mp3",
+      "bytes": 24703
+    },
+    {
+      "id": "T2",
+      "name": "intel_strip_spawn",
+      "priority": "mvp",
+      "category": "toilet",
+      "output_path": "audio/sfx/intel_strip_spawn.mp3",
+      "bytes": 12164
+    },
+    {
+      "id": "T4",
+      "name": "handle_attract_creak",
+      "priority": "atmosphere",
+      "category": "toilet",
+      "output_path": "audio/sfx/handle_attract_creak.mp3",
+      "bytes": 17180
+    }
+  ],
+  "missing": [
+    {
+      "id": "A4",
+      "name": "dark_hold_stinger",
+      "priority": "atmosphere",
+      "category": "music_ambient",
+      "output_path": "audio/sfx/dark_hold_stinger.mp3"
+    },
+    {
+      "id": "A5",
+      "name": "onboarding_ambient_loop",
+      "priority": "atmosphere",
+      "category": "music_ambient",
+      "output_path": "audio/music/onboarding_ambient_loop.mp3"
+    },
+    {
+      "id": "D10",
+      "name": "fly_walk_start",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_walk_start.mp3"
+    },
+    {
+      "id": "D11",
+      "name": "fly_walk_stop",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_walk_stop.mp3"
+    },
+    {
+      "id": "D12",
+      "name": "fly_flee_burst",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_flee_burst.mp3"
+    },
+    {
+      "id": "D13",
+      "name": "fly_return_whoosh",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_return_whoosh.mp3"
+    },
+    {
+      "id": "D14",
+      "name": "fly_return_land",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_return_land.mp3"
+    },
+    {
+      "id": "D6",
+      "name": "cigarette_stub_out",
+      "priority": "polish",
+      "category": "desk_props",
+      "output_path": "audio/sfx/cigarette_stub_out.mp3"
+    },
+    {
+      "id": "D8",
+      "name": "fly_landing_enter",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_landing_enter.mp3"
+    },
+    {
+      "id": "D9",
+      "name": "fly_landing_settle",
+      "priority": "mvp",
+      "category": "rubber_fly",
+      "output_path": "audio/sfx/fly_landing_settle.mp3"
+    },
+    {
+      "id": "G3",
+      "name": "stroke_release",
+      "priority": "polish",
+      "category": "gameplay",
+      "output_path": "audio/sfx/stroke_release.mp3"
+    },
+    {
+      "id": "G6_minus_half",
+      "name": "score_minus_half",
+      "priority": "mvp",
+      "category": "gameplay",
+      "output_path": "audio/sfx/score_minus_half.mp3"
+    },
+    {
+      "id": "G6_plus1",
+      "name": "score_plus_one",
+      "priority": "mvp",
+      "category": "gameplay",
+      "output_path": "audio/sfx/score_plus_one.mp3"
+    },
+    {
+      "id": "G6_plus2",
+      "name": "score_plus_two",
+      "priority": "mvp",
+      "category": "gameplay",
+      "output_path": "audio/sfx/score_plus_two.mp3"
+    },
+    {
+      "id": "P2",
+      "name": "memo_land",
+      "priority": "mvp",
+      "category": "paper",
+      "output_path": "audio/sfx/memo_land.mp3"
+    },
+    {
+      "id": "P3",
+      "name": "memo_discard",
+      "priority": "mvp",
+      "category": "paper",
+      "output_path": "audio/sfx/memo_discard.mp3"
+    },
+    {
+      "id": "T3",
+      "name": "intel_strip_land",
+      "priority": "mvp",
+      "category": "toilet",
+      "output_path": "audio/sfx/intel_strip_land.mp3"
+    },
+    {
+      "id": "X1",
+      "name": "review_tick_blink",
+      "priority": "polish",
+      "category": "deferred",
+      "output_path": "audio/sfx/review_tick_blink.mp3"
+    },
+    {
+      "id": "X2",
+      "name": "missed_word_blink",
+      "priority": "polish",
+      "category": "deferred",
+      "output_path": "audio/sfx/missed_word_blink.mp3"
+    }
+  ]
+}

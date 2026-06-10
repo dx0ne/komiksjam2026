@@ -96,6 +96,7 @@ func _input(event: InputEvent) -> void:
 
 func _apply_puff_click() -> void:
 	_puff_count += 1
+	AudioManager.play_sfx("cigarette_puff")
 	var target_rot := _ashtray_rotation_for_puff(_puff_count)
 	var target_pos := _ashtray_position(target_rot)
 	if _state == State.UNLIT:
@@ -128,7 +129,10 @@ func _place_on_ashtray(target_pos: Vector2, target_rot: float) -> void:
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_place_tween.parallel().tween_property(self, "rotation", target_rot, PLACE_ON_ASHTRAY_DURATION) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_place_tween.tween_callback(_begin_burn_on_ashtray)
+	_place_tween.tween_callback(func() -> void:
+		AudioManager.play_sfx("cigarette_on_ashtray")
+		_begin_burn_on_ashtray()
+	)
 
 
 func _tween_puff_pose(target_pos: Vector2, target_rot: float) -> void:

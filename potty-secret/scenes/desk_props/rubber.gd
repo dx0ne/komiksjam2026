@@ -30,6 +30,12 @@ var _drawing_flee := false
 var _click_flee := false
 
 
+func _set_state(new_state: State) -> void:
+	if _state == new_state:
+		return
+	_state = new_state
+
+
 func _ready() -> void:
 	_home_position = position
 	_set_animation("idle")
@@ -50,7 +56,7 @@ func play_entrance() -> void:
 	_drawing_flee = false
 	_click_flee = false
 	_can_interact = false
-	_state = State.LANDING
+	_set_state(State.LANDING)
 	_set_animation("fly")
 	position = _home_position + Vector2(randf_range(-8.0, 8.0), -LAND_DROP_Y)
 	rotation = randf_range(-0.4, 0.4)
@@ -71,7 +77,7 @@ func reset_fly() -> void:
 	_drawing_flee = false
 	_click_flee = false
 	_can_interact = false
-	_state = State.IDLE
+	_set_state(State.IDLE)
 	position = _home_position
 	rotation = 0.0
 	modulate.a = 1.0
@@ -123,14 +129,15 @@ func _on_clicked() -> void:
 	_drawing_flee = false
 	_can_interact = false
 	_kill_motion()
-	_state = State.FLYING_AWAY
+	_set_state(State.FLYING_AWAY)
 	_set_animation("fly")
 	erase_requested.emit()
+	AudioManager.play_sfx("fly_erase_click")
 	_chaotic_fly_and_return()
 
 
 func _begin_idle() -> void:
-	_state = State.IDLE
+	_set_state(State.IDLE)
 	_can_interact = true
 	_set_animation("idle")
 	_schedule_walk()
@@ -143,7 +150,7 @@ func _schedule_walk() -> void:
 func _do_walk_step() -> void:
 	if _state != State.IDLE or not _can_interact:
 		return
-	_state = State.WALKING
+	_set_state(State.WALKING)
 	_set_animation("walk")
 	var final_target := _clamp_to_walk_radius(_home_position + _random_walk_offset())
 	var hop_count := randi_range(WALK_HOPS_MIN, WALK_HOPS_MAX)
@@ -157,7 +164,7 @@ func _do_walk_step() -> void:
 	for hop in hops:
 		_append_hop(_motion_tween, hop)
 	_motion_tween.tween_callback(func() -> void:
-		_state = State.IDLE
+		_set_state(State.IDLE)
 		_set_animation("idle")
 		_schedule_walk()
 	)
@@ -166,7 +173,7 @@ func _do_walk_step() -> void:
 func _flee_from_drawing() -> void:
 	_drawing_flee = true
 	_kill_motion()
-	_state = State.FLYING_AWAY
+	_set_state(State.FLYING_AWAY)
 	_set_animation("fly")
 	_can_interact = false
 	var jitter := Vector2(randf_range(-24.0, 24.0), randf_range(-16.0, 8.0))
@@ -180,7 +187,7 @@ func _return_from_drawing() -> void:
 		return
 	_drawing_flee = false
 	_kill_motion()
-	_state = State.RETURNING
+	_set_state(State.RETURNING)
 	_set_animation("fly")
 	var target := _clamp_to_walk_radius(_home_position + _random_walk_offset() * 0.35)
 	_motion_tween = create_tween()
