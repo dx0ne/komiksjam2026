@@ -11,6 +11,9 @@ const WELCOME_TEXT := (
 
 const TOILET_TARGETS: Array[String] = ["UFOs", "Area 51"]
 
+## One word per toilet strip before the player pulls — spells out "pull the chain".
+const TOILET_INTEL_PULL_HINT: Array[String] = ["pull", "the", "chain"]
+
 const TOILET_TEXT := (
 	"MEMO 7B/∞ — RE: interdepartmental flux capacitor audit pursuant to "
 	+ "Form 12-Q (rev. never). All personnel shall cross-reference UFOs "
