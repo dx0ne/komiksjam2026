@@ -194,7 +194,7 @@ func _begin_onboarding() -> void:
 			OnboardingContent.WELCOME_TEXT,
 			OnboardingContent.WELCOME_TARGETS
 		),
-		false,
+		true,
 		DocumentScenes.onboarding("welcome")
 	)
 	if active_paper:
@@ -215,7 +215,7 @@ func _begin_shift_start() -> void:
 			OnboardingContent.shift_start_text(),
 			OnboardingContent.SHIFT_START_TARGETS
 		),
-		false,
+		true,
 		DocumentScenes.onboarding("shift_start")
 	)
 	if active_paper:
@@ -247,7 +247,7 @@ func _start_topic_intro_document() -> void:
 		targets
 	)
 	intro_session["show_letterhead"] = false
-	_spawn_scripted_paper(intro_session, false, DocumentScenes.topic(topic_id))
+	_spawn_scripted_paper(intro_session, true, DocumentScenes.topic(topic_id))
 	if active_paper:
 		active_paper.set_onboarding_ui(true)
 
@@ -293,7 +293,7 @@ func _start_normal_shift(spawn_paper: bool = true) -> void:
 	_set_redaction_loop_animations(true)
 	AudioManager.play_shift_ambient()
 	if spawn_paper:
-		_spawn_fresh_paper(false)
+		_spawn_fresh_paper(true)
 		_roll_toilet_intel(true)
 
 
@@ -559,7 +559,7 @@ func _advance_to_toilet_lesson() -> void:
 	)
 	_spawn_scripted_paper(
 		toilet_session,
-		false,
+		true,
 		DocumentScenes.onboarding("toilet")
 	)
 	if active_paper:
@@ -589,7 +589,7 @@ func _advance_to_start_briefing() -> void:
 			OnboardingContent.briefing_text(),
 			OnboardingContent.BRIEFING_TARGETS
 		),
-		false,
+		true,
 		DocumentScenes.onboarding("briefing")
 	)
 	if active_paper:
