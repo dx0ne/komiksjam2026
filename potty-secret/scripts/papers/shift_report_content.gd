@@ -11,9 +11,11 @@ static func report_text(score: float, memos_processed: int, stamps: int) -> Stri
 		score_str = "%.1f" % score
 	var disposition := _disposition(score)
 	return (
-		"SHIFT CLOSURE REPORT — FORM 47-B (REV. NEVER). "
-		+ "Aggregate shift score: %s. Memos processed: %d. "
-		+ "Perfect sheets stamped: %d. Compliance disposition: %s. "
+		"SHIFT CLOSURE REPORT — FORM 47-B (REV. NEVER).\n\n"
+		+ "Aggregate shift score: %s.\n"
+		+ "Memos processed: %d.\n"
+		+ "Perfect sheets stamped: %d.\n"
+		+ "Compliance disposition: %s.\n\n"
 		+ "Should you accept this summary for ministry filing, redact accept."
 	) % [score_str, memos_processed, stamps, disposition]
 

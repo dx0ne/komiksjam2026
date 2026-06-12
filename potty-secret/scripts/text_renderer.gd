@@ -109,7 +109,55 @@ func _relayout() -> void:
 	var cursor := Vector2(PAPER_INSET, PAPER_INSET + _font_size)
 	var line_height := _font.get_height(_font_size) + LINE_SPACING
 
-	var tokens := _tokenize_document(document_text)
+	var normalized := document_text.replace("\r\n", "\n").replace("\r", "\n")
+	var lines := normalized.split("\n")
+	var first_line := true
+	for line in lines:
+		if not first_line:
+			cursor.x = PAPER_INSET
+			cursor.y += line_height
+		first_line = false
+		cursor = _layout_line(line, cursor, available_width, line_height)
+
+	queue_redraw()
+
+func _draw() -> void:
+	if _font == null:
+		return
+
+	_draw_letterhead()
+	var highlight_alpha := lerpf(BLINK_FADE * MISSED_ALPHA_MAX, MISSED_ALPHA_MAX, _blink_phase)
+	for box in word_boxes:
+		if box.get("review", "") == "missed":
+			var rect: Rect2 = box["rect"]
+			draw_rect(rect.grow(3.0), Color(MISSED_COLOR.r, MISSED_COLOR.g, MISSED_COLOR.b, highlight_alpha))
+		var baseline := Vector2(box["rect"].position.x, box["rect"].position.y + _font_size)
+		var ink := _text_color
+		if _is_transparent_target(box):
+			ink.a = 0.0
+		draw_string(_font, baseline, box["display"], HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size, ink)
+
+func _is_transparent_target(box: Dictionary) -> bool:
+	if _transparent_words.is_empty():
+		return false
+	return box.get("word", "") in _transparent_words
+
+func _draw_letterhead() -> void:
+	if not show_letterhead:
+		return
+	var header_rect := Rect2(Vector2(PAPER_INSET, 18.0), Vector2(size.x - PAPER_INSET * 2.0, 4.0))
+	draw_rect(header_rect, Color(0.18, 0.15, 0.11, 0.35))
+	draw_string(_font, Vector2(PAPER_INSET, 36.0), "MINISTRY REVIEW COPY", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
+	draw_string(_font, Vector2(size.x - PAPER_INSET - 160.0, 36.0), "CLASSIFIED", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
+
+func normalize_word(value: String) -> String:
+	return _normalize_word(value)
+
+
+func _layout_line(line: String, cursor: Vector2, available_width: float, line_height: float) -> Vector2:
+	var tokens := _tokenize_line(line)
+	if tokens.is_empty():
+		return cursor
 
 	# Longest-match N-gram pass so multi-word canonicals (e.g. "the Grays",
 	# "Project Blue Book") become a single markable box. N_MAX = 3 covers
@@ -154,48 +202,15 @@ func _relayout() -> void:
 		})
 		cursor.x += word_width + WORD_SPACING
 		i += matched_n
-
-	queue_redraw()
-
-func _draw() -> void:
-	if _font == null:
-		return
-
-	_draw_letterhead()
-	var highlight_alpha := lerpf(BLINK_FADE * MISSED_ALPHA_MAX, MISSED_ALPHA_MAX, _blink_phase)
-	for box in word_boxes:
-		if box.get("review", "") == "missed":
-			var rect: Rect2 = box["rect"]
-			draw_rect(rect.grow(3.0), Color(MISSED_COLOR.r, MISSED_COLOR.g, MISSED_COLOR.b, highlight_alpha))
-		var baseline := Vector2(box["rect"].position.x, box["rect"].position.y + _font_size)
-		var ink := _text_color
-		if _is_transparent_target(box):
-			ink.a = 0.0
-		draw_string(_font, baseline, box["display"], HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size, ink)
-
-func _is_transparent_target(box: Dictionary) -> bool:
-	if _transparent_words.is_empty():
-		return false
-	return box.get("word", "") in _transparent_words
-
-func _draw_letterhead() -> void:
-	if not show_letterhead:
-		return
-	var header_rect := Rect2(Vector2(PAPER_INSET, 18.0), Vector2(size.x - PAPER_INSET * 2.0, 4.0))
-	draw_rect(header_rect, Color(0.18, 0.15, 0.11, 0.35))
-	draw_string(_font, Vector2(PAPER_INSET, 36.0), "MINISTRY REVIEW COPY", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
-	draw_string(_font, Vector2(size.x - PAPER_INSET - 160.0, 36.0), "CLASSIFIED", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, _stamp_color)
-
-func normalize_word(value: String) -> String:
-	return _normalize_word(value)
+	return cursor
 
 
-func _tokenize_document(text: String) -> Array[String]:
+func _tokenize_line(text: String) -> Array[String]:
 	var tokens: Array[String] = []
 	var current := ""
 	for i in range(text.length()):
 		var code := text.unicode_at(i)
-		var is_space := code == 32 or code == 10 or code == 13 or code == 9
+		var is_space := code == 32 or code == 9
 		if is_space:
 			if not current.is_empty():
 				tokens.append(current)
