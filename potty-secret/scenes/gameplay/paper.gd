@@ -21,8 +21,6 @@ func _ready() -> void:
 	set_stamp_visible(false)
 	if has_node("%PostItHint"):
 		%PostItHint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	text_renderer.resized.connect(_align_marker_layer_to_text)
-	_align_marker_layer_to_text()
 	call_deferred("_apply_scene_postit_hint")
 
 
@@ -45,15 +43,6 @@ func prepare_for_exit() -> void:
 		marker_layer.z_index = 0
 	if is_instance_valid(marker_group):
 		marker_group.z_index = 0
-
-
-func _align_marker_layer_to_text() -> void:
-	if not is_instance_valid(text_renderer) or not is_instance_valid(marker_layer):
-		return
-	marker_group.position = text_renderer.position
-	marker_layer.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	marker_layer.position = Vector2.ZERO
-	marker_layer.size = text_renderer.size
 
 
 func set_postit(marked: int, total: int) -> void:

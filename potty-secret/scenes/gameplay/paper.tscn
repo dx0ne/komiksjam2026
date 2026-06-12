@@ -9,12 +9,13 @@
 [ext_resource type="Texture2D" uid="uid://bkotcg8ogccy" path="res://art/posit.png" id="7_posit"]
 [ext_resource type="FontFile" uid="uid://gp4weoir7uo2" path="res://art/Quentin.otf" id="8_font"]
 [ext_resource type="Texture2D" uid="uid://csocjjsn6lbxv" path="res://art/stempel.png" id="9_stamp"]
-[ext_resource type="LabelSettings" uid="uid://c8kpostithint01" path="res://assets/postit_hint_label_settings.tres" id="10_postit_hint"]
+[ext_resource type="LabelSettings" uid="uid://17d77t1bh0to" path="res://assets/postit_hint_label_settings.tres" id="10_postit_hint"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
 shader = ExtResource("3_shader")
 shader_parameter/texture_mode = 1
 shader_parameter/alpha_mode = 0
+shader_parameter/group_alpha_mask = true
 shader_parameter/quantize_size = 3
 shader_parameter/snap_to_world = true
 shader_parameter/limit_subpixels = true
@@ -25,12 +26,12 @@ shader_parameter/contrast = 1.1930000566675
 shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
-shader_parameter/group_alpha_mask = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_marker"]
 shader = ExtResource("3_shader")
 shader_parameter/texture_mode = 1
 shader_parameter/alpha_mode = 0
+shader_parameter/group_alpha_mask = true
 shader_parameter/quantize_size = 3
 shader_parameter/snap_to_world = true
 shader_parameter/limit_subpixels = true
@@ -41,12 +42,12 @@ shader_parameter/contrast = 1.1930000566675
 shader_parameter/brightness = 0.01900004840249991
 shader_parameter/average = 0.0
 shader_parameter/palette_mode = 0
-shader_parameter/group_alpha_mask = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pxe6b"]
 shader = ExtResource("3_shader")
 shader_parameter/texture_mode = 0
 shader_parameter/alpha_mode = 0
+shader_parameter/group_alpha_mask = false
 shader_parameter/quantize_size = 2
 shader_parameter/snap_to_world = true
 shader_parameter/limit_subpixels = true
@@ -129,7 +130,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 1003.0
+offset_left = 1.0
+offset_right = 999.0
 offset_bottom = 1299.0
 grow_horizontal = 2
 grow_vertical = 2
