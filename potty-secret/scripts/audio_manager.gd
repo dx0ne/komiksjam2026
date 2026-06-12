@@ -80,7 +80,6 @@ func play_menu_ambient() -> void:
 
 
 func play_shift_ambient() -> void:
-	stop_menu_ambient(true)
 	_start_ambient_track("shift_ambient_loop", BUS_AMBIENT)
 
 

@@ -1952,4 +1952,6 @@ func _on_time_out() -> void:
 
 func _end_shift() -> void:
 	WordManager.good_ending = WordManager.shift_score > 0
+	AudioManager.stop_menu_ambient()
+	AudioManager.stop_shift_ambient()
 	get_tree().change_scene_to_file("res://scenes/flow/ending.tscn")

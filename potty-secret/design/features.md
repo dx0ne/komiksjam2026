@@ -280,8 +280,8 @@ Built by `ShiftReportContent.report_text(score, memos_processed, stamps)` — sh
 | Bus | Use |
 |-----|-----|
 | `Master` | Final mix (0 dB) |
-| `Music` | Menu ambient |
-| `Ambient` | Shift ambient (onboarding + normal shift) |
+| `Music` | Menu ambient (continues through shift; fades when ending scene loads) |
+| `Ambient` | Shift AC hum (onboarding + normal shift; stops when leaving shift) |
 | `SFX` | One-shots and procedural marker friction |
 
 **Scene owners:** `scripts/marker_friction_noise.gd` + `scripts/marker_layer.gd` (marker friction + mug smear), `scenes/desk_props/rubber.gd` (fly click erase), `scenes/flow/game2.gd` (shift orchestration), `scenes/flow/main_menu.gd` (menu ambient + redaction confirms), scene-local prop scripts (`cofefe.gd`, `papieros.gd`), `scenes/gameplay/paper.gd` (stamp). Lamp flicker clicks wired in `game2.gd` off `flicker_light.gd` signals.
@@ -342,8 +342,8 @@ Assets live under `audio/music/` and `audio/sfx/` (MP3). IDs map to `AudioManage
 
 | ID | Asset | Trigger | Owner |
 |----|-------|---------|-------|
-| A1 | `shift_ambient_loop` | Onboarding + normal shift | `game2.gd` |
-| A2 | `menu_ambient_loop` | `main_menu.tscn` | `main_menu.gd` |
+| A1 | `shift_ambient_loop` | Onboarding + normal shift; fades at `_end_shift()` | `game2.gd` |
+| A2 | `menu_ambient_loop` | Main menu; keeps playing into shift; fades at `_end_shift()` | `main_menu.gd`, `game2.gd` |
 
 #### Core gameplay
 

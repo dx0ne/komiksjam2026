@@ -13,7 +13,6 @@ func _input(event):
 		_on_video_stream_player_finished();
 
 func _on_video_stream_player_finished():
-	# Replace with the path to your actual main menu scene
 	get_tree().change_scene_to_file("res://scenes/flow/outro.tscn")
 
 

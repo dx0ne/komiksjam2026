@@ -393,4 +393,3 @@ range_layer_max = 5
 texture = ExtResource("19_boqrt")
 texture_scale = 3.37
 script = ExtResource("19_flicker")
-tension_interval_min = 1.0
