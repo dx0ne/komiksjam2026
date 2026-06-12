@@ -15,14 +15,22 @@ const TOILET_TARGETS: Array[String] = ["UFOs", "Area 51"]
 ## One word per toilet strip before the player pulls — spells out "pull the chain".
 const TOILET_INTEL_PULL_HINT: Array[String] = ["pull", "the", "chain"]
 
-const TOILET_TEXT := (
+const TOILET_PULL_TEXT := (
 	"MEMO 7B/∞ — RE: TOILET INTEL COMPLIANCE\n"
 	+ "Form 12-Q (rev. B055).\n\n"
 	+ "All personnel shall treat posted toilet intel as authoritative "
 	+ "for forbidden terms on the active memo. "
-	+ "Updated strips are issued upon pull of the handle; "
-	+ "consult each release before marking.\n\n"
-	+ "Pending review: UFOs, Area 51 — redact per posted intel."
+	+ "A fresh memo and updated intel strips are issued upon pull of the handle.\n\n"
+	+ "Pull the chain to issue the active marking memo."
+)
+
+const TOILET_MARK_TEXT := (
+	"MEMO 7B/∞ — RE: ACTIVE MARKING ORDERS\n"
+	+ "Form 12-Q (rev. B055).\n\n"
+	+ "Cross-reference the posted toilet intel against the memo below. "
+	+ "Redact all designated forbidden terms before the silence review.\n\n"
+	+ "Annex 4 field summaries cite unverified UFOs in logged airspace. "
+	+ "The Nevada perimeter file retains Area 51 under standing blackout."
 )
 
 const BRIEFING_TARGETS: Array[String] = ["ready", "steady", "go"]
@@ -44,8 +52,12 @@ const SHIFT_START_TEXT := (
 	+ "Redact begin to commence your shift."
 )
 
-static func toilet_text() -> String:
-	return TOILET_TEXT
+static func toilet_pull_text() -> String:
+	return TOILET_PULL_TEXT
+
+
+static func toilet_mark_text() -> String:
+	return TOILET_MARK_TEXT
 
 
 static func briefing_text() -> String:

@@ -555,8 +555,8 @@ func _advance_to_toilet_lesson() -> void:
 	_idle_time = ATTRACT_IDLE_DELAY
 	_clear_toilet_intel()
 	var toilet_session := _build_tutorial_session(
-		OnboardingContent.toilet_text(),
-		OnboardingContent.TOILET_TARGETS
+		OnboardingContent.toilet_pull_text(),
+		[]
 	)
 	_spawn_scripted_paper(
 		toilet_session,
@@ -727,9 +727,18 @@ func _onboarding_after_toilet_pull() -> void:
 		return
 	_onboarding_substep = 1
 	_stop_handle_attract()
-	_show_scripted_intel(OnboardingContent.TOILET_TARGETS)
+	_clear_toilet_intel()
+	_spawn_scripted_paper(
+		_build_tutorial_session(
+			OnboardingContent.toilet_mark_text(),
+			OnboardingContent.TOILET_TARGETS
+		),
+		true,
+		DocumentScenes.onboarding("toilet")
+	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true, " · ".join(OnboardingContent.TOILET_TARGETS))
+	_show_scripted_intel(OnboardingContent.TOILET_TARGETS)
 
 
 func _on_rubber_erase() -> void:

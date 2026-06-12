@@ -74,7 +74,7 @@ SHIFT_START → topic intro / normal shift
 | Step | Handle | Cofefe | Rubber | Advance when |
 |------|--------|--------|--------|--------------|
 | `WELCOME` | hidden | hidden | visible | All `WELCOME_TARGETS` marked on scripted paper |
-| `TOILET_LESSON` | visible (attract idle) | hidden | hidden | Substep 0: post-it `pull`, toilet intel `pull` / `the` / `chain`. Substep 1: after pull → UFO / Area 51 intel + redact |
+| `TOILET_LESSON` | visible (attract idle) | hidden | hidden | Substep 0: pull memo + toilet intel `pull` / `the` / `chain` — pull handle for new memo. Substep 1: new memo + UFO / Area 51 intel + redact |
 | `START_BRIEFING` | visible | hidden | visible | All `BRIEFING_TARGETS` marked → `PlayerProgress.mark_onboarding_complete()` |
 | `SHIFT_START` | visible | visible | hidden | Shift-start targets marked |
 | `DONE` | normal gameplay | normal | hidden | — |
