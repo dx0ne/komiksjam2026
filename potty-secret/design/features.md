@@ -281,10 +281,25 @@ Built by `ShiftReportContent.report_text(score, memos_processed, stamps)` — sh
 |-----|-----|
 | `Master` | Final mix (0 dB) |
 | `Music` | Menu ambient (continues through shift; fades when ending scene loads) |
-| `Ambient` | Shift AC hum (onboarding + normal shift; stops when leaving shift) |
+| `Ambient` | Shift AC hum loop + office humming one-shots (normal shift only) |
 | `SFX` | One-shots and procedural marker friction |
 
-**Scene owners:** `scripts/marker_friction_noise.gd` + `scripts/marker_layer.gd` (marker friction + mug smear), `scenes/desk_props/rubber.gd` (fly click erase), `scenes/flow/game2.gd` (shift orchestration), `scenes/flow/main_menu.gd` (menu ambient + redaction confirms), scene-local prop scripts (`cofefe.gd`, `papieros.gd`), `scenes/gameplay/paper.gd` (stamp). Lamp flicker clicks wired in `game2.gd` off `flicker_light.gd` signals.
+**Scene owners:** `scripts/marker_friction_noise.gd` + `scripts/marker_layer.gd` (marker friction + mug smear), `scenes/desk_props/rubber.gd` (fly click erase), `scenes/flow/game2.gd` (shift orchestration + humming lifecycle), `scenes/flow/main_menu.gd` (menu ambient + redaction confirms), scene-local prop scripts (`cofefe.gd`, `papieros.gd`), `scenes/gameplay/paper.gd` (stamp). Lamp flicker clicks wired in `game2.gd` off `flicker_light.gd` signals.
+
+### Shift office humming
+
+**Owner:** `scripts/audio_manager.gd` — dedicated `AudioStreamPlayer` on `Ambient`.
+
+| Constant | Value | Meaning |
+|----------|-------|---------|
+| `HUMMING_FIRST_DELAY_S` | `10` | Wait after `_start_normal_shift()` before first roll |
+| `HUMMING_FIRST_CHANCE` | `0.5` | Probability the first attempt plays |
+| `HUMMING_INTERVAL_MIN_S` / `MAX_S` | `10` / `15` | Gap after a clip ends (or after a failed first roll) |
+| `HUMMING_VOLUME_DB` | `-8` | Sits under the shift ambient bed |
+
+**Triggers:** `game2.gd` → `start_shift_humming()` in `_start_normal_shift()`; `stop_shift_humming()` in `_begin_shift_closure()` and `_end_shift()`.
+
+**Behavior:** After the first delay, 50% chance to play a random `humming_1`…`humming_9` clip; subsequent clips always play after each finishes and a 10–15 s pause. Avoids immediate repeat of the same clip.
 
 ### Global rules
 
@@ -344,6 +359,7 @@ Assets live under `audio/music/` and `audio/sfx/` (MP3). IDs map to `AudioManage
 |----|-------|---------|-------|
 | A1 | `shift_ambient_loop` | Onboarding + normal shift; fades at `_end_shift()` | `game2.gd` |
 | A2 | `menu_ambient_loop` | Main menu; keeps playing into shift; fades at `_end_shift()` | `main_menu.gd`, `game2.gd` |
+| A3 | `humming_1`…`humming_9` | Normal shift — 10 s delay, then random office hum | `audio_manager.gd`, `game2.gd` |
 
 #### Core gameplay
 

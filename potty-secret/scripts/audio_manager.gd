@@ -33,27 +33,55 @@ const MUSIC_PATHS := {
 	"shift_ambient_loop": "res://audio/music/shift_ambient_loop.mp3",
 }
 
+const HUMMING_PATHS := [
+	"res://audio/sfx/ambience/humming_1.mp3",
+	"res://audio/sfx/ambience/humming_2.mp3",
+	"res://audio/sfx/ambience/humming_3.mp3",
+	"res://audio/sfx/ambience/humming_4.mp3",
+	"res://audio/sfx/ambience/humming_5.mp3",
+	"res://audio/sfx/ambience/humming_6.mp3",
+	"res://audio/sfx/ambience/humming_7.mp3",
+	"res://audio/sfx/ambience/humming_8.mp3",
+	"res://audio/sfx/ambience/humming_9.mp3",
+]
+
+const HUMMING_FIRST_DELAY_S := 10.0
+const HUMMING_INTERVAL_MIN_S := 10.0
+const HUMMING_INTERVAL_MAX_S := 15.0
+const HUMMING_FIRST_CHANCE := 0.5
+
 const ONE_SHOT_POOL_SIZE := 10
 const AMBIENT_FADE_S := 0.8
 ## 70% linear amplitude vs default SFX level (20*log10(0.7)).
 const PAPER_TOILET_INTEL_VOLUME_DB := -2.1
 ## 50% linear amplitude (20*log10(0.5)).
 const MENU_AMBIENT_VOLUME_DB := -6.0
+## Office hum one-shots sit under the shift ambient bed.
+const HUMMING_VOLUME_DB := -8.0
 
 var _streams: Dictionary = {}
+var _humming_streams: Array[AudioStream] = []
 var _one_shot_pool: Array[AudioStreamPlayer] = []
 var _one_shot_index := 0
 var _music_player: AudioStreamPlayer
 var _ambient_player: AudioStreamPlayer
 var _music_fade_tween: Tween
 var _ambient_fade_tween: Tween
+var _humming_player: AudioStreamPlayer
+var _humming_timer: Timer
+var _humming_active := false
+var _humming_first_attempt := true
+var _humming_last_index := -1
+var _humming_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	_humming_rng.randomize()
 	_preload_streams()
 	_build_one_shot_pool()
 	_music_player = _make_loop_player(BUS_MUSIC)
 	_ambient_player = _make_loop_player(BUS_AMBIENT)
+	_setup_shift_humming()
 
 
 func play_sfx(
@@ -91,6 +119,24 @@ func stop_shift_ambient(immediate: bool = false) -> void:
 	_stop_loop_player(_ambient_player, immediate)
 
 
+func start_shift_humming() -> void:
+	stop_shift_humming()
+	_humming_active = true
+	_humming_first_attempt = true
+	_humming_last_index = -1
+	_humming_timer.start(HUMMING_FIRST_DELAY_S)
+
+
+func stop_shift_humming() -> void:
+	_humming_active = false
+	_humming_first_attempt = true
+	_humming_last_index = -1
+	if _humming_timer:
+		_humming_timer.stop()
+	if _humming_player and _humming_player.playing:
+		_humming_player.stop()
+
+
 func play_paper_sfx(key: String) -> void:
 	play_sfx(key, 1.0, PAPER_TOILET_INTEL_VOLUME_DB)
 
@@ -104,6 +150,10 @@ func _preload_streams() -> void:
 		_streams[key] = _load_stream(SFX_PATHS[key], key.ends_with("_loop"))
 	for key in MUSIC_PATHS:
 		_streams[key] = _load_stream(MUSIC_PATHS[key], true)
+	for path in HUMMING_PATHS:
+		var stream := _load_stream(path, false)
+		if stream:
+			_humming_streams.append(stream)
 
 
 func _load_stream(path: String, loop: bool) -> AudioStream:
@@ -199,3 +249,60 @@ func _fade_out_player(player: AudioStreamPlayer, duration: float = AMBIENT_FADE_
 		player.stop()
 		player.volume_db = start_db
 	)
+
+
+func _setup_shift_humming() -> void:
+	_humming_player = AudioStreamPlayer.new()
+	_humming_player.bus = BUS_AMBIENT
+	_humming_player.finished.connect(_on_humming_finished)
+	add_child(_humming_player)
+
+	_humming_timer = Timer.new()
+	_humming_timer.one_shot = true
+	_humming_timer.timeout.connect(_on_humming_timer_timeout)
+	add_child(_humming_timer)
+
+
+func _on_humming_timer_timeout() -> void:
+	if not _humming_active:
+		return
+	if _humming_first_attempt:
+		_humming_first_attempt = false
+		if _humming_rng.randf() >= HUMMING_FIRST_CHANCE:
+			_schedule_next_humming()
+			return
+	_play_random_humming()
+
+
+func _on_humming_finished() -> void:
+	if not _humming_active:
+		return
+	_schedule_next_humming()
+
+
+func _schedule_next_humming() -> void:
+	if not _humming_active:
+		return
+	var delay := _humming_rng.randf_range(HUMMING_INTERVAL_MIN_S, HUMMING_INTERVAL_MAX_S)
+	_humming_timer.start(delay)
+
+
+func _play_random_humming() -> void:
+	if not _humming_active or _humming_streams.is_empty():
+		_schedule_next_humming()
+		return
+	var index := _pick_humming_index()
+	_humming_last_index = index
+	_humming_player.stream = _humming_streams[index]
+	_humming_player.volume_db = HUMMING_VOLUME_DB
+	_humming_player.pitch_scale = 1.0
+	_humming_player.play()
+
+
+func _pick_humming_index() -> int:
+	if _humming_streams.size() <= 1:
+		return 0
+	var index := _humming_rng.randi_range(0, _humming_streams.size() - 1)
+	while index == _humming_last_index:
+		index = _humming_rng.randi_range(0, _humming_streams.size() - 1)
+	return index

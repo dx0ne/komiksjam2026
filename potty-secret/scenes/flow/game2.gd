@@ -292,6 +292,7 @@ func _start_normal_shift(spawn_paper: bool = true) -> void:
 	clock.start_shift()
 	_set_redaction_loop_animations(true)
 	AudioManager.play_shift_ambient()
+	AudioManager.start_shift_humming()
 	if spawn_paper:
 		_spawn_fresh_paper(true)
 		_roll_toilet_intel(true)
@@ -1728,6 +1729,7 @@ func _begin_shift_closure() -> void:
 	_shift_ending = true
 	_set_redaction_loop_animations(false)
 	clock.stop_shift()
+	AudioManager.stop_shift_humming()
 	_stop_handle_attract()
 	_force_point_light(false)
 	AudioManager.play_sfx("lamp_final_off")
@@ -1952,6 +1954,7 @@ func _on_time_out() -> void:
 
 func _end_shift() -> void:
 	WordManager.good_ending = WordManager.shift_score > 0
+	AudioManager.stop_shift_humming()
 	AudioManager.stop_menu_ambient()
 	AudioManager.stop_shift_ambient()
 	get_tree().change_scene_to_file("res://scenes/flow/ending.tscn")
