@@ -180,7 +180,7 @@ stretch_mode = 0
 
 [node name="papers_container" type="Node2D" parent="CanvasLayer_background" unique_id=2081387175]
 unique_name_in_owner = true
-position = Vector2(550, 0)
+position = Vector2(600, 0)
 
 [node name="CanvasGroup2" type="CanvasGroup" parent="CanvasLayer_background" unique_id=83341478]
 material = SubResource("ShaderMaterial_8tca4")
