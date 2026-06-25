@@ -74,12 +74,28 @@ SHIFT_START → topic intro / normal shift
 | Step | Handle | Cofefe | Rubber | Advance when |
 |------|--------|--------|--------|--------------|
 | `WELCOME` | hidden | hidden | visible | All `WELCOME_TARGETS` marked on scripted paper |
-| `TOILET_LESSON` | visible (attract idle) | hidden | hidden | Substep 0: pull memo + toilet intel `pull` / `the` / `chain` — pull handle for new memo. Substep 1: new memo + UFO / Area 51 intel + redact |
+| `TOILET_LESSON` | visible (attract idle) | hidden | hidden | Substep 0: pull memo — prior intel strip carries over (not wiped, no instruction cards) — pull handle for new memo. Substep 1: pull keeps prior intel (desaturated, not cleaned) + adds new memo + UFO / Area 51 intel + redact |
 | `START_BRIEFING` | visible | hidden | visible | All `BRIEFING_TARGETS` marked → `PlayerProgress.mark_onboarding_complete()` |
 | `SHIFT_START` | visible | visible | hidden | Shift-start targets marked |
 | `DONE` | normal gameplay | normal | hidden | — |
 
 Scripted copy and target word lists live in `OnboardingContent` (`scripts/papers/onboarding_content.gd`). Each step spawns a scene from `DocumentScenes.onboarding()` (under `scenes/papers/`). Progress checked on stroke finish via `_onboarding_check_progress()`. Target words stay **visible** on onboarding and topic-intro papers (optional `hide_target_words` on session if a scene needs invisible targets).
+
+### WELCOME drag teach (layered hints)
+
+`WELCOME` teaches the drag-to-redact verb with escalating, self-clearing hints, all owned by `game2.gd` and drawn by `TextRenderer`:
+
+| Layer | Owner | Trigger | Affects |
+|-------|-------|---------|---------|
+| Instruction text | `onboarding_content.gd` `WELCOME_TEXT` | Step spawn | Readable "drag your marker / redact both marks of accept" copy |
+| ACCEPT intel strip | `game2._begin_onboarding()` → `_show_scripted_intel(OnboardingContent.WELCOME_INTEL)` | Step spawn | One toilet-intel strip reading `ACCEPT` (auto-uppercased), teaching intel = forbidden word |
+| Post-it counter | `game2._refresh_welcome_hint()` → `GamePaper.set_onboarding_counter()` | Spawn + each `_on_stroke_finished` while `WELCOME` | `%pointsLabel` shows `0/2`…`2/2` (covered targets); `%PostItHint` baked text is empty |
+| Pulse next target | `game2._refresh_welcome_hint()` → `TextRenderer.set_hint_word()` | Spawn + each `_on_stroke_finished` while `WELCOME` | Amber blinking highlight on the next uncovered `accept` box |
+| Ghost swipe demo | `game2._process_welcome_demo()` → `TextRenderer.play_demo_swipe()` | Idle `WELCOME_DEMO_IDLE_S` (3 s) with no input | Looping translucent marker swipe across the pulsed word |
+
+- Next-target detection: `game2._welcome_hint_index()` reuses tutorial coverage (`_word_coverage_tier_from_strokes` + `_tutorial_word_matches`); `_welcome_marked_count()` counts covered targets for the post-it counter.
+- `_process()` no longer blanket-returns on `WELCOME`; it runs `_process_welcome_demo(delta)` so the idle timer advances (driven by `_idle_time`, reset by `_register_player_activity`).
+- Teardown: `_on_marker_drawing_started()` stops the demo on first real stroke; `_advance_to_toilet_lesson()` clears it on exit. `TextRenderer.set_document()` calls `clear_hint()` so pulse/demo never leak onto later papers.
 
 **Debug:** Page Down resets onboarding and reloads the scene (`PlayerProgress.reset_onboarding()`).
 

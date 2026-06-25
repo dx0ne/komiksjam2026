@@ -20,6 +20,8 @@ const PAPER_SCN        := preload("res://scenes/gameplay/paper.tscn")
 const ScorePopupScene  := preload("res://scenes/gameplay/score_popup.tscn")
 
 const ATTRACT_IDLE_DELAY := 4.0
+## Idle time on the WELCOME step before the ghost-swipe drag demo kicks in.
+const WELCOME_DEMO_IDLE_S := 3.0
 const ATTRACT_SWAY_RAD   := 0.035
 const KAWA_CIEN_FADE_DURATION := 0.15
 
@@ -71,6 +73,7 @@ var _shift_ending := false
 var _outgoing_paper: GamePaper = null
 var _onboarding_step: OnboardingStep = OnboardingStep.DONE
 var _onboarding_substep: int = 0
+var _welcome_demo_playing := false
 var _topic_intro_active: bool = false
 var _left_hand_rest_pos: Vector2 = Vector2.ZERO
 var _cofefe_rest_pos: Vector2 = Vector2.ZERO
@@ -119,8 +122,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _hand_jitter_active:
 		_sync_marker_jitter_to_hand()
-	if _onboarding_step == OnboardingStep.WELCOME \
-			or _onboarding_step == OnboardingStep.START_BRIEFING \
+	if _onboarding_step == OnboardingStep.WELCOME:
+		_process_welcome_demo(delta)
+		return
+	if _onboarding_step == OnboardingStep.START_BRIEFING \
 			or _onboarding_step == OnboardingStep.SHIFT_START:
 		return
 	if _shift_ending:
@@ -199,7 +204,113 @@ func _begin_onboarding() -> void:
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true)
+	_show_scripted_intel(OnboardingContent.WELCOME_INTEL)
+	_welcome_demo_playing = false
+	_idle_time = 0.0
+	_refresh_welcome_hint()
 	AudioManager.play_shift_ambient()
+
+
+func _process_welcome_demo(delta: float) -> void:
+	if _welcome_demo_playing:
+		return
+	_idle_time += delta
+	if _idle_time >= WELCOME_DEMO_IDLE_S:
+		_start_welcome_demo()
+
+
+func _start_welcome_demo() -> void:
+	var text_renderer := _text_renderer()
+	if text_renderer == null:
+		return
+	var idx := _welcome_hint_index()
+	if idx < 0:
+		return
+	_welcome_demo_playing = true
+	text_renderer.play_demo_swipe(idx)
+
+
+func _stop_welcome_demo() -> void:
+	_welcome_demo_playing = false
+	_idle_time = 0.0
+	var text_renderer := _text_renderer()
+	if text_renderer:
+		text_renderer.stop_demo_swipe()
+
+
+func _refresh_welcome_hint() -> void:
+	var text_renderer := _text_renderer()
+	if text_renderer == null:
+		return
+	if _onboarding_step != OnboardingStep.WELCOME:
+		text_renderer.clear_hint()
+		return
+	var idx := _welcome_hint_index()
+	text_renderer.set_hint_word(idx)
+	if active_paper:
+		active_paper.set_onboarding_counter(
+			_welcome_marked_count(),
+			_tutorial_targets_from_session().size()
+		)
+	if _welcome_demo_playing:
+		if idx >= 0:
+			text_renderer.play_demo_swipe(idx)
+		else:
+			_stop_welcome_demo()
+
+
+## Count of WELCOME target word boxes already covered by a stroke (capped at target total).
+func _welcome_marked_count() -> int:
+	var text_renderer := _text_renderer()
+	if text_renderer == null:
+		return 0
+	var targets := _tutorial_targets_from_session()
+	if targets.is_empty():
+		return 0
+	var keys := {}
+	for t in targets:
+		keys[_tutorial_target_key(t)] = true
+	var all_samples := _tutorial_stroke_samples_in_text_space()
+	var marked := 0
+	for box in text_renderer.word_boxes:
+		var is_target := false
+		for key in keys:
+			if _tutorial_word_matches(box, key):
+				is_target = true
+				break
+		if not is_target:
+			continue
+		var tier := _word_coverage_tier_from_strokes(box, all_samples)
+		if tier == "half" or tier == "full":
+			marked += 1
+	return mini(marked, targets.size())
+
+
+## First on-paper target word box not yet covered by a stroke (-1 if none / all done).
+func _welcome_hint_index() -> int:
+	var text_renderer := _text_renderer()
+	if text_renderer == null:
+		return -1
+	var targets := _tutorial_targets_from_session()
+	if targets.is_empty():
+		return -1
+	var keys := {}
+	for t in targets:
+		keys[_tutorial_target_key(t)] = true
+	var all_samples := _tutorial_stroke_samples_in_text_space()
+	for i in range(text_renderer.word_boxes.size()):
+		var box: Dictionary = text_renderer.word_boxes[i]
+		var is_target := false
+		for key in keys:
+			if _tutorial_word_matches(box, key):
+				is_target = true
+				break
+		if not is_target:
+			continue
+		var tier := _word_coverage_tier_from_strokes(box, all_samples)
+		if tier != "half" and tier != "full":
+			return i
+	return -1
 
 
 func _begin_shift_start() -> void:
@@ -549,11 +660,13 @@ func _onboarding_check_progress() -> void:
 
 
 func _advance_to_toilet_lesson() -> void:
+	_stop_welcome_demo()
 	_onboarding_step = OnboardingStep.TOILET_LESSON
 	_onboarding_substep = 0
 	_set_toilet_handle_visible(true)
 	_idle_time = ATTRACT_IDLE_DELAY
-	_clear_toilet_intel()
+	# Keep the existing intel strips (the "redact what's on the intel" lesson from
+	# WELCOME) — do not wipe them and do not post "pull the chain" instruction cards.
 	var toilet_session := _build_tutorial_session(
 		OnboardingContent.toilet_pull_text(),
 		[]
@@ -565,14 +678,7 @@ func _advance_to_toilet_lesson() -> void:
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true)
-	_spawn_onboarding_pull_hint_intel()
 	_start_handle_attract()
-
-
-func _spawn_onboarding_pull_hint_intel() -> void:
-	WordManager.current_toilet_canonicals = []
-	WordManager.current_toilet_words = []
-	_spawn_toilet_intel_messages(OnboardingContent.TOILET_INTEL_PULL_HINT)
 
 
 func _advance_to_start_briefing() -> void:
@@ -699,8 +805,12 @@ func _tutorial_word_matches(box: Dictionary, target_key: String) -> bool:
 	return display_norm == target_key
 
 
-func _show_scripted_intel(display_words: Array[String]) -> void:
-	_clear_toilet_intel()
+func _show_scripted_intel(display_words: Array[String], clear_existing: bool = true) -> void:
+	# When clear_existing is false the prior intel strips are kept (they get
+	# desaturated by _spawn_toilet_intel_messages' expire pass, same as a normal
+	# shift pull) instead of being hard-removed.
+	if clear_existing:
+		_clear_toilet_intel()
 	var canonicals: Array[String] = session.get("planted_canonicals", [])
 	WordManager.current_toilet_canonicals = canonicals.duplicate()
 	WordManager.current_toilet_words = display_words.duplicate()
@@ -727,7 +837,6 @@ func _onboarding_after_toilet_pull() -> void:
 		return
 	_onboarding_substep = 1
 	_stop_handle_attract()
-	_clear_toilet_intel()
 	_spawn_scripted_paper(
 		_build_tutorial_session(
 			OnboardingContent.toilet_mark_text(),
@@ -738,7 +847,9 @@ func _onboarding_after_toilet_pull() -> void:
 	)
 	if active_paper:
 		active_paper.set_onboarding_ui(true, " · ".join(OnboardingContent.TOILET_TARGETS))
-	_show_scripted_intel(OnboardingContent.TOILET_TARGETS)
+	# Pulling the chain must not clean the existing intel notes — keep them
+	# (they desaturate like normal-shift pulls) and add the new fresh intel.
+	_show_scripted_intel(OnboardingContent.TOILET_TARGETS, false)
 
 
 func _on_rubber_erase() -> void:
@@ -754,6 +865,8 @@ func _on_marker_drawing_started() -> void:
 	var rubber: Node2D = get_node_or_null("%Rubber")
 	if rubber and rubber.has_method("notify_marker_drawing"):
 		rubber.notify_marker_drawing(true)
+	if _onboarding_step == OnboardingStep.WELCOME:
+		_stop_welcome_demo()
 
 
 func _notify_fly_marker_idle() -> void:
@@ -1406,6 +1519,8 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 		return
 	if _onboarding_step != OnboardingStep.DONE:
 		_onboarding_check_progress()
+		if _onboarding_step == OnboardingStep.WELCOME:
+			_refresh_welcome_hint()
 		return
 	# Run incremental scorer first — locks per-word deltas and mutates shift_score.
 	var stroke_index := _marker_layer().strokes.size() - 1

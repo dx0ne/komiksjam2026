@@ -2,18 +2,19 @@ class_name OnboardingContent
 
 const WELCOME_TARGETS: Array[String] = ["accept", "accept"]
 
+## Single toilet-intel strip shown during WELCOME so the player learns intel = forbidden word.
+const WELCOME_INTEL: Array[String] = ["accept"]
+
 const WELCOME_TEXT := (
 	"WELCOME TO THE SECRET MARKERS\n"
-	+ "DIVISION of ████████\n"
+	+ "DIVISION of ████████\n\n"
 	+ "We hide what must not be seen. "
 	+ "Your marker is your oath. Your desk is your battlefield.\n\n"
-	+ "Should you choose to accept this assignment, redact accept."
+	+ "Training, item one: drag your marker across a word to black it out.\n"
+	+ "Should you choose to accept this assignment, redact both marks of accept below."
 )
 
 const TOILET_TARGETS: Array[String] = ["UFOs", "Area 51"]
-
-## One word per toilet strip before the player pulls — spells out "pull the chain".
-const TOILET_INTEL_PULL_HINT: Array[String] = ["pull", "the", "chain"]
 
 const TOILET_PULL_TEXT := (
 	"MEMO 7B/∞ — RE: TOILET INTEL COMPLIANCE\n"

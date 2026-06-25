@@ -9,6 +9,14 @@ const BLINK_HALF_PERIOD := 0.33
 const BLINK_PULSES := 3
 const MISSED_COLOR := Color(0.85, 0.15, 0.15)
 const MISSED_ALPHA_MAX := 0.7
+## Onboarding "mark here" pulse — warm amber, kept distinct from the red missed-word highlight.
+const HINT_COLOR := Color(0.95, 0.65, 0.15)
+const HINT_ALPHA_MAX := 0.55
+## Onboarding ghost swipe demo — translucent marker stroke that animates across the target word.
+const DEMO_SWIPE_COLOR := Color(0.0, 0.0, 0.0, 0.28)
+const DEMO_SWIPE_WIDTH := 18.0
+const DEMO_SWIPE_DRAW_S := 1.1
+const DEMO_SWIPE_GAP_S := 0.5
 const TYPEWRITER_FONT_PATH := "res://fonts/Mom_typewriter.ttf"
 
 var document_text := ""
@@ -27,6 +35,14 @@ var _stamp_color := Color(0.50, 0.03, 0.02, 0.35)
 var _blink_phase := 1.0
 var _blink_tween: Tween
 
+var _hint_index := -1
+var _hint_phase := 1.0
+var _hint_tween: Tween
+
+var _demo_index := -1
+var _demo_t := 0.0
+var _demo_tween: Tween
+
 func _ready() -> void:
 	_font = _load_typewriter_font()
 	resized.connect(_relayout)
@@ -34,6 +50,7 @@ func _ready() -> void:
 func set_document(text: String, forbidden_words: Array[String]) -> void:
 	document_text = text
 	illegal_words = forbidden_words
+	clear_hint()
 	_relayout()
 
 
@@ -97,6 +114,77 @@ func reset_review() -> void:
 		word_boxes[index]["review"] = ""
 	_stop_blink()
 
+
+## Onboarding: pulse a "mark here" highlight on the word box at `index` (-1 to clear).
+func set_hint_word(index: int) -> void:
+	if index == _hint_index:
+		return
+	_hint_index = index
+	if _hint_index >= 0:
+		_start_hint_blink()
+	else:
+		_stop_hint_blink()
+
+
+## Onboarding: clear both the pulse and the ghost swipe demo.
+func clear_hint() -> void:
+	set_hint_word(-1)
+	stop_demo_swipe()
+
+
+## Onboarding: loop a translucent marker swipe across the word box at `index`.
+func play_demo_swipe(index: int) -> void:
+	if index < 0 or index >= word_boxes.size():
+		return
+	_demo_index = index
+	_stop_demo_tween()
+	_demo_t = 0.0
+	_demo_tween = create_tween().set_loops()
+	_demo_tween.tween_method(_set_demo_t, 0.0, 1.0, DEMO_SWIPE_DRAW_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_demo_tween.tween_interval(DEMO_SWIPE_GAP_S)
+	_demo_tween.tween_callback(_set_demo_t.bind(0.0))
+	queue_redraw()
+
+
+func stop_demo_swipe() -> void:
+	_demo_index = -1
+	_stop_demo_tween()
+	queue_redraw()
+
+
+func _stop_demo_tween() -> void:
+	if _demo_tween and _demo_tween.is_valid():
+		_demo_tween.kill()
+	_demo_tween = null
+
+
+func _set_demo_t(value: float) -> void:
+	_demo_t = value
+	queue_redraw()
+
+
+func _start_hint_blink() -> void:
+	_stop_hint_blink()
+	_hint_phase = 1.0
+	_hint_tween = create_tween().set_loops()
+	_hint_tween.tween_method(_set_hint_phase, 1.0, BLINK_FADE, BLINK_HALF_PERIOD)
+	_hint_tween.tween_method(_set_hint_phase, BLINK_FADE, 1.0, BLINK_HALF_PERIOD)
+	queue_redraw()
+
+
+func _stop_hint_blink() -> void:
+	if _hint_tween and _hint_tween.is_valid():
+		_hint_tween.kill()
+	_hint_tween = null
+	_hint_phase = 1.0
+	queue_redraw()
+
+
+func _set_hint_phase(value: float) -> void:
+	_hint_phase = value
+	queue_redraw()
+
 func _relayout() -> void:
 	if _font == null:
 		_font = get_theme_default_font()
@@ -127,15 +215,34 @@ func _draw() -> void:
 
 	_draw_letterhead()
 	var highlight_alpha := lerpf(BLINK_FADE * MISSED_ALPHA_MAX, MISSED_ALPHA_MAX, _blink_phase)
-	for box in word_boxes:
+	var hint_alpha := lerpf(BLINK_FADE * HINT_ALPHA_MAX, HINT_ALPHA_MAX, _hint_phase)
+	for index in range(word_boxes.size()):
+		var box := word_boxes[index]
+		var rect: Rect2 = box["rect"]
 		if box.get("review", "") == "missed":
-			var rect: Rect2 = box["rect"]
 			draw_rect(rect.grow(3.0), Color(MISSED_COLOR.r, MISSED_COLOR.g, MISSED_COLOR.b, highlight_alpha))
-		var baseline := Vector2(box["rect"].position.x, box["rect"].position.y + _font_size)
+		elif index == _hint_index:
+			draw_rect(rect.grow(3.0), Color(HINT_COLOR.r, HINT_COLOR.g, HINT_COLOR.b, hint_alpha))
+		var baseline := Vector2(rect.position.x, rect.position.y + _font_size)
 		var ink := _text_color
 		if _is_transparent_target(box):
 			ink.a = 0.0
 		draw_string(_font, baseline, box["display"], HORIZONTAL_ALIGNMENT_LEFT, -1, _font_size, ink)
+
+	_draw_demo_swipe()
+
+func _draw_demo_swipe() -> void:
+	if _demo_index < 0 or _demo_index >= word_boxes.size():
+		return
+	var rect: Rect2 = word_boxes[_demo_index]["rect"]
+	var y := rect.position.y + rect.size.y * 0.5
+	var x0 := rect.position.x - 4.0
+	var x1 := rect.position.x + rect.size.x + 4.0
+	var head := lerpf(x0, x1, clampf(_demo_t, 0.0, 1.0))
+	if head <= x0:
+		return
+	draw_line(Vector2(x0, y), Vector2(head, y), DEMO_SWIPE_COLOR, DEMO_SWIPE_WIDTH, true)
+	draw_circle(Vector2(head, y), DEMO_SWIPE_WIDTH * 0.5, DEMO_SWIPE_COLOR)
 
 func _is_transparent_target(box: Dictionary) -> bool:
 	if _transparent_words.is_empty():

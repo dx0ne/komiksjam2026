@@ -149,6 +149,24 @@ func set_onboarding_ui(active: bool, sticky_hint: String = "") -> void:
 		%pointsLabel.offset_bottom = 6.785248
 
 
+## Onboarding: show a live "marked/total" counter on the post-it instead of a sticky hint.
+func set_onboarding_counter(marked: int, total: int) -> void:
+	if not is_node_ready():
+		await ready
+	var post_it_hint := get_node_or_null("%PostItHint") as Label
+	if post_it_hint != null:
+		post_it_hint.visible = false
+	%pointsLabel_good.visible = false
+	%pointsLabel_bad.visible = false
+	%pointsLabel.visible = true
+	%pointsLabel.text = "%d/%d" % [marked, total]
+	%pointsLabel.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	%pointsLabel.offset_left = -68.2852
+	%pointsLabel.offset_top = -110.21475
+	%pointsLabel.offset_right = 37.714798
+	%pointsLabel.offset_bottom = 6.785248
+
+
 func marker_point_to_text_local(point: Vector2) -> Vector2:
 	var marker_xform := marker_layer.get_global_transform_with_canvas()
 	var text_xform := text_renderer.get_global_transform_with_canvas()
