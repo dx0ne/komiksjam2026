@@ -4,6 +4,8 @@ extends Node2D
 ## When false, TextRenderer skips the ministry letterhead (e.g. topic newspapers).
 @export var show_letterhead := true
 
+const MARKER_INSET := 7.0
+
 @onready var text_renderer: TextRenderer = %TextRenderer
 @onready var marker_group: CanvasGroup = $MarkerGroup
 @onready var marker_layer: MarkerLayer = %MarkerLayer
@@ -14,6 +16,7 @@ var _stamp_tween: Tween = null
 
 
 func _ready() -> void:
+	_fit_marker_layer()
 	text_renderer.show_letterhead = show_letterhead
 	set_postit(0, 0)
 	set_shift_score(0)
@@ -22,6 +25,15 @@ func _ready() -> void:
 	if has_node("%PostItHint"):
 		%PostItHint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	call_deferred("_apply_scene_postit_hint")
+
+
+func _fit_marker_layer() -> void:
+	var bg := %BackgroundPaper
+	var paper_size: Vector2 = Vector2(bg.texture.get_size()) * bg.scale
+	marker_layer.offset_left = MARKER_INSET
+	marker_layer.offset_top = MARKER_INSET
+	marker_layer.offset_right = paper_size.x - MARKER_INSET
+	marker_layer.offset_bottom = paper_size.y - MARKER_INSET
 
 
 func _apply_scene_postit_hint() -> void:
