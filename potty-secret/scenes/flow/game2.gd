@@ -259,6 +259,18 @@ func _refresh_welcome_hint() -> void:
 			_stop_welcome_demo()
 
 
+## Toilet-mark substep (UFOs / Area 51): post-it shows a live marked/total counter.
+func _refresh_toilet_mark_counter() -> void:
+	if active_paper == null:
+		return
+	if _onboarding_step != OnboardingStep.TOILET_LESSON or _onboarding_substep != 1:
+		return
+	active_paper.set_onboarding_counter(
+		_welcome_marked_count(),
+		_tutorial_targets_from_session().size()
+	)
+
+
 ## Count of WELCOME target word boxes already covered by a stroke (capped at target total).
 func _welcome_marked_count() -> int:
 	var text_renderer := _text_renderer()
@@ -667,6 +679,8 @@ func _advance_to_toilet_lesson() -> void:
 	_idle_time = ATTRACT_IDLE_DELAY
 	# Keep the existing intel strips (the "redact what's on the intel" lesson from
 	# WELCOME) — do not wipe them and do not post "pull the chain" instruction cards.
+	# Dim/burn the now-stale "accept" intel so it reads as superseded.
+	_expire_existing_toilet_intel()
 	var toilet_session := _build_tutorial_session(
 		OnboardingContent.toilet_pull_text(),
 		[]
@@ -846,10 +860,18 @@ func _onboarding_after_toilet_pull() -> void:
 		DocumentScenes.onboarding("toilet")
 	)
 	if active_paper:
-		active_paper.set_onboarding_ui(true, " · ".join(OnboardingContent.TOILET_TARGETS))
+		# This substep uses the live marked/total counter, so clear the baked
+		# "pull" post-it hint that the shared toilet scene ships with — otherwise
+		# the paper's deferred _apply_scene_postit_hint re-shows "pull" over the
+		# counter until the first stroke.
+		var post_it_hint := active_paper.get_node_or_null("%PostItHint")
+		if post_it_hint != null:
+			post_it_hint.text = ""
+		active_paper.set_onboarding_ui(true)
 	# Pulling the chain must not clean the existing intel notes — keep them
 	# (they desaturate like normal-shift pulls) and add the new fresh intel.
 	_show_scripted_intel(OnboardingContent.TOILET_TARGETS, false)
+	_refresh_toilet_mark_counter()
 
 
 func _on_rubber_erase() -> void:
@@ -1521,6 +1543,8 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 		_onboarding_check_progress()
 		if _onboarding_step == OnboardingStep.WELCOME:
 			_refresh_welcome_hint()
+		elif _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep == 1:
+			_refresh_toilet_mark_counter()
 		return
 	# Run incremental scorer first — locks per-word deltas and mutates shift_score.
 	var stroke_index := _marker_layer().strokes.size() - 1
