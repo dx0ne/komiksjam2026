@@ -74,8 +74,8 @@ SHIFT_START → topic intro / normal shift
 | Step | Handle | Cofefe | Rubber | Advance when |
 |------|--------|--------|--------|--------------|
 | `WELCOME` | hidden | hidden | visible | All `WELCOME_TARGETS` marked on scripted paper |
-| `TOILET_LESSON` | visible (attract idle) | hidden | hidden | Substep 0: pull memo — prior intel strip carries over (not wiped, no instruction cards) but is dimmed/burned via `_expire_existing_toilet_intel` to read as stale — pull handle for new memo. Substep 1: pull keeps prior intel (desaturated, not cleaned) + adds new memo + UFO / Area 51 intel + redact; post-it shows live `0/2` marked counter (`_refresh_toilet_mark_counter` → `set_onboarding_counter`) |
-| `START_BRIEFING` | visible | hidden | visible | All `BRIEFING_TARGETS` marked → `PlayerProgress.mark_onboarding_complete()` |
+| `TOILET_LESSON` | visible (attract idle) | hidden | hidden | Substep 0: pull memo — prior intel strip carries over (not wiped, no instruction cards) but is dimmed/burned via `_expire_existing_toilet_intel` to read as stale — pull handle for new memo. Substep 1: pull keeps prior intel (desaturated, not cleaned) + adds new memo + UFO / Area 51 intel + redact; post-it shows live `0/2` marked counter (`_refresh_onboarding_mark_counter` → `set_onboarding_counter`) |
+| `START_BRIEFING` | visible | hidden | visible | All `BRIEFING_TARGETS` marked → `PlayerProgress.mark_onboarding_complete()`; post-it shows live `0/3` marked counter (`_refresh_onboarding_mark_counter` → `set_onboarding_counter`) |
 | `SHIFT_START` | visible | visible | hidden | Shift-start targets marked |
 | `DONE` | normal gameplay | normal | hidden | — |
 

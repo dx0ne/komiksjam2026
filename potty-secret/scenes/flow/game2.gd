@@ -259,11 +259,13 @@ func _refresh_welcome_hint() -> void:
 			_stop_welcome_demo()
 
 
-## Toilet-mark substep (UFOs / Area 51): post-it shows a live marked/total counter.
-func _refresh_toilet_mark_counter() -> void:
+## Onboarding steps with a live marked/total counter on the post-it (e.g. 0/2, 0/3).
+func _refresh_onboarding_mark_counter(step: OnboardingStep, substep: int = -1) -> void:
 	if active_paper == null:
 		return
-	if _onboarding_step != OnboardingStep.TOILET_LESSON or _onboarding_substep != 1:
+	if _onboarding_step != step:
+		return
+	if substep >= 0 and _onboarding_substep != substep:
 		return
 	active_paper.set_onboarding_counter(
 		_welcome_marked_count(),
@@ -714,8 +716,12 @@ func _advance_to_start_briefing() -> void:
 		DocumentScenes.onboarding("briefing")
 	)
 	if active_paper:
+		var post_it_hint := active_paper.get_node_or_null("%PostItHint")
+		if post_it_hint != null:
+			post_it_hint.text = ""
 		active_paper.set_onboarding_ui(true)
 	_show_scripted_intel(OnboardingContent.BRIEFING_TARGETS)
+	_refresh_onboarding_mark_counter(OnboardingStep.START_BRIEFING)
 
 
 func _tutorial_stroke_samples_in_text_space() -> Array[PackedVector2Array]:
@@ -871,7 +877,7 @@ func _onboarding_after_toilet_pull() -> void:
 	# Pulling the chain must not clean the existing intel notes — keep them
 	# (they desaturate like normal-shift pulls) and add the new fresh intel.
 	_show_scripted_intel(OnboardingContent.TOILET_TARGETS, false)
-	_refresh_toilet_mark_counter()
+	_refresh_onboarding_mark_counter(OnboardingStep.TOILET_LESSON, 1)
 
 
 func _on_rubber_erase() -> void:
@@ -1544,7 +1550,9 @@ func _on_stroke_finished(_stroke: PackedVector2Array) -> void:
 		if _onboarding_step == OnboardingStep.WELCOME:
 			_refresh_welcome_hint()
 		elif _onboarding_step == OnboardingStep.TOILET_LESSON and _onboarding_substep == 1:
-			_refresh_toilet_mark_counter()
+			_refresh_onboarding_mark_counter(OnboardingStep.TOILET_LESSON, 1)
+		elif _onboarding_step == OnboardingStep.START_BRIEFING:
+			_refresh_onboarding_mark_counter(OnboardingStep.START_BRIEFING)
 		return
 	# Run incremental scorer first — locks per-word deltas and mutates shift_score.
 	var stroke_index := _marker_layer().strokes.size() - 1
