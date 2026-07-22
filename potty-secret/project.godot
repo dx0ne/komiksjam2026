@@ -10,7 +10,8 @@ config_version=5
 
 [application]
 
-config/name="potty-secret"
+config/name="Secret Markers"
+config/version="1.0.1"
 run/main_scene="uid://cnmfr6bn1kgnr"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"

@@ -9,6 +9,7 @@
 shader = ExtResource("2_7ft0p")
 shader_parameter/center = Vector2(0.5, 0.5)
 shader_parameter/spin_speed = 0.28
+shader_parameter/spin_time_scale = 0.3
 shader_parameter/swirl_strength = 0.12
 shader_parameter/morph_strength = 0.018
 shader_parameter/morph_speed = 1.15

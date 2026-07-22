@@ -2,6 +2,7 @@ shader_type canvas_item;
 
 uniform vec2 center = vec2(0.5, 0.5);
 uniform float spin_speed = 0.28;
+uniform float spin_time_scale = 1.0;
 uniform float swirl_strength = 0.12;
 uniform float morph_strength = 0.018;
 uniform float morph_speed = 1.15;
@@ -13,17 +14,18 @@ vec2 coffee_uv(vec2 uv) {
 	vec2 p = uv - center;
 	float dist = length(p);
 	float angle = atan(p.y, p.x);
-	float t = TIME * morph_speed + rotation_offset;
+	float spin_t = TIME * spin_time_scale + rotation_offset;
+	float wobble_t = TIME * morph_speed + rotation_offset;
 
 	// Slow cup spin + stronger twist toward the rim
 	float rim = smoothstep(0.0, 0.55, dist);
-	float swirl = swirl_strength * rim * (sin(t * 0.65 + dist * 9.0) * 0.35 + 1.0);
-	angle += t * spin_speed + swirl * dist;
+	float swirl = swirl_strength * rim * (sin(spin_t * 0.65 + dist * 9.0) * 0.35 + 1.0);
+	angle += spin_t * spin_speed + swirl * dist;
 
-	// Soft surface wobble
+	// Soft surface wobble (morph_speed only — independent of spin_time_scale)
 	vec2 wobble = vec2(
-		sin(p.y * 14.0 + t * 1.25),
-		cos(p.x * 13.0 + t * 1.05)
+		sin(p.y * 14.0 + wobble_t * 1.25),
+		cos(p.x * 13.0 + wobble_t * 1.05)
 	) * morph_strength * (1.0 - dist * 0.85);
 
 	p = vec2(cos(angle), sin(angle)) * dist;
